@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32"
+        tools:ignore="ScopedStorage" />
+
+    <application
+        android:name=".MyApplication"
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@drawable/logo"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.ClothingStoreApp"
+        tools:targetApi="31">
+        <activity
+            android:name=".Activity.MyVoucherScreen"
+            android:exported="false" />
+        <activity
+            android:name=".Activity.MainLayout_User"
+            android:exported="false" />
+        <activity
+            android:name=".Activity.TrackOrderScreen"
+            android:exported="false" />
+        <activity
+            android:name=".Activity.PurchasedHistoryScreen"
+            android:exported="false" />
+        <activity
+            android:name=".Activity.SettingsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Activity.ProductsIsLikedScreen"
+            android:exported="false" />
+        <activity
+            android:name=".Activity.MyCartScreen"
+            android:exported="false" />
+        <activity
+            android:name=".Activity.Checkout_Screen"
+            android:exported="false" />
+        <activity
+            android:name=".Activity.SearchScreen"
+            android:exported="false" />
+        <activity
+            android:name=".Activity.SignUpCompleted"
+            android:exported="false" />
+        <activity
+            android:name=".Activity.ProductDetailsScreen"
+            android:exported="false"
+            android:label="@string/title_activity_product_details_screen"
+            android:theme="@style/Theme.ClothingStoreApp" />
+        <activity
+            android:name=".Activity.SignUpScreen"
+            android:exported="false" />
+        <activity
+            android:name=".Activity.LoginScreen"
+            android:exported="false" />
+        <activity
+            android:name=".Activity.Welcome_Screen"
+            android:exported="false" />
+        <activity
+            android:name=".MainActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Activity.SplashScreen"
+            android:exported="true"
+            android:theme="@style/Theme.ClothingStoreApp">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <service
+            android:name=".FCM.MyFirebaseMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+    </application>
+
+</manifest>

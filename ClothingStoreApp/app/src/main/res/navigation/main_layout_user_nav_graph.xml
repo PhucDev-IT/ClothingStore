@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_layout_user_nav_graph"
+    app:startDestination="@id/myVoucherFragment">
+
+    <fragment
+        android:id="@+id/myVoucherFragment"
+        android:name="com.example.clothingstoreapp.Adapter.MyVoucherFragment"
+        android:label="fragment_my__voucher"
+        tools:layout="@layout/fragment_my__voucher" />
+</navigation>

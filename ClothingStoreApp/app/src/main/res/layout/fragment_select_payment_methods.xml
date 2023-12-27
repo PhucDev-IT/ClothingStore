@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/white"
+    tools:context=".FragmentLayout.SelectPaymentMethodsFragment">
+
+    <androidx.appcompat.widget.Toolbar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <ImageButton
+            android:id="@+id/btnBack"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/circle_layout_white"
+            android:padding="7dp"
+            android:src="@drawable/icon_back_24"
+            android:contentDescription="TODO" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Phương thức thanh toán"
+            android:textSize="19sp"
+            android:fontFamily="@font/inter_bold"
+            android:layout_gravity="center" />
+    </androidx.appcompat.widget.Toolbar>
+
+    <LinearLayout
+       android:layout_weight="6"
+        android:layout_marginVertical="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="15dp"
+        android:orientation="vertical">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Credit &amp; Debit Card"
+            android:textSize="17sp"
+            android:fontFamily="@font/inter_bold"/>
+
+        <LinearLayout
+            android:layout_marginTop="5dp"
+            android:background="@drawable/bg_radius_outline_white"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:gravity="center"
+            android:orientation="horizontal">
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/credit_card"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Add  Card"
+                android:textSize="15sp"
+                android:fontFamily="@font/inter_medium"
+                android:textColor="@color/primarykeyColor"
+                android:layout_marginStart="10dp"/>
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/baseline_navigate_next_24"
+                android:layout_gravity="right"
+                android:backgroundTint="@color/primarykeyColor"/>
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Ví điện tử"
+            android:textSize="17sp"
+            android:layout_marginTop="15dp"
+            android:fontFamily="@font/inter_bold"/>
+
+        <LinearLayout
+            android:layout_marginTop="5dp"
+            android:background="@drawable/bg_radius_outline_white"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:gravity="center"
+            android:orientation="horizontal">
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/momo_logo"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Thanh toán bằng MoMo"
+                android:textSize="15sp"
+                android:fontFamily="@font/inter_medium"
+                android:textColor="@color/primarykeyColor"
+                android:layout_marginStart="10dp"/>
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/baseline_navigate_next_24"
+                android:layout_gravity="right"
+                android:backgroundTint="@color/primarykeyColor"/>
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Lựa chọn khác"
+            android:textSize="17sp"
+            android:layout_marginTop="15dp"
+            android:fontFamily="@font/inter_bold"/>
+        <LinearLayout
+            android:background="@drawable/bg_radius_outline_white"
+            android:layout_marginTop="5dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:gravity="center"
+            android:orientation="horizontal">
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/paypal"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Paypal"
+                android:textSize="15sp"
+                android:fontFamily="@font/inter_medium"
+                android:textColor="@color/primarykeyColor"
+                android:layout_marginStart="10dp"/>
+            <RadioButton
+                android:layout_width="30dp"
+                android:layout_height="25dp"/>
+        </LinearLayout>
+        <LinearLayout
+            android:layout_marginTop="5dp"
+            android:background="@drawable/bg_radius_outline_white"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:gravity="center"
+            android:orientation="horizontal">
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/icons8_apple_48"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Apple Pay"
+                android:textSize="15sp"
+                android:fontFamily="@font/inter_medium"
+                android:textColor="@color/primarykeyColor"
+                android:layout_marginStart="10dp"/>
+            <RadioButton
+                android:layout_width="30dp"
+                android:layout_height="25dp"/>
+        </LinearLayout>
+        <LinearLayout
+            android:background="@drawable/bg_radius_outline_white"
+            android:layout_marginTop="5dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:gravity="center"
+            android:orientation="horizontal">
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/icons8_google_48"/>
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Google Pay"
+                android:textSize="15sp"
+                android:fontFamily="@font/inter_medium"
+                android:textColor="@color/primarykeyColor"
+                android:layout_marginStart="10dp"/>
+            <RadioButton
+                android:layout_width="30dp"
+                android:layout_height="25dp"/>
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:background="@drawable/bg_radius_outline_white"
+            android:layout_marginTop="5dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:gravity="center"
+            android:orientation="horizontal">
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/salary"/>
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Thanh toán khi nhận hàng"
+                android:textSize="15sp"
+                android:fontFamily="@font/inter_medium"
+                android:textColor="@color/primarykeyColor"
+                android:layout_marginStart="10dp"/>
+            <RadioButton
+                android:checked="true"
+                android:layout_width="30dp"
+                android:layout_height="25dp"/>
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_weight="0.5"
+        android:gravity="center"
+        android:elevation="6dp"
+        android:background="@drawable/bg_corner_top_lr"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnApply"
+            android:background="@drawable/bg_btn_radius_primary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/white"
+            android:fontFamily="@font/inter_semi_bold"
+            android:layout_marginHorizontal="20dp"
+            android:text="Xác nhận"/>
+    </LinearLayout>
+</LinearLayout>
