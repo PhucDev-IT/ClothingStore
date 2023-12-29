@@ -56,7 +56,7 @@ class RvItemCartAdapter(private var list:List<ItemCart>, private val onClick:Cli
 
     override fun onBindViewHolder(holder: viewHolder, position: Int) {
         holder.itemView.apply {
-            Glide.with(context).load(list[position].product?.img_preview?.get(0)).into(holder.imgProduct)
+            Glide.with(context).load(list[position].product?.imgPreview).into(holder.imgProduct)
             holder.nameProduct.text = list[position].product?.name ?: "ERROR!"
             holder.tvPrice.text = FormatCurrency.numberFormat.format(list[position].product?.price)
 

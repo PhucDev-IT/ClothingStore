@@ -2,6 +2,7 @@ package com.example.clothingstoreapp.Service
 
 import android.content.ContentValues.TAG
 import android.util.Log
+import com.example.clothingstoreapp.Model.CustomProduct
 import com.example.clothingstoreapp.Model.ItemCart
 import com.example.clothingstoreapp.Model.Product
 import com.google.android.gms.tasks.Task
@@ -11,12 +12,12 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.firestore.toObject
 
-class CartService(private val db:FirebaseFirestore) {
+class CartService(private val db: FirebaseFirestore) {
 
-    private val maxSize:Long = 10
+    private val maxSize: Long = 10
 
 
-    fun addToCart(idUser: String,cart:ItemCart,resultData:(b:Boolean)->Unit){
+    fun addToCart(idUser: String, cart: ItemCart, resultData: (b: Boolean) -> Unit) {
         val cartData = hashMapOf(
             "idProduct" to cart.idProduct,
             "quantity" to cart.quantity,
@@ -28,17 +29,18 @@ class CartService(private val db:FirebaseFirestore) {
 
         db.collection("carts")
             .document(idUser)
-            .collection("cartItems").whereEqualTo("idProduct",cart.idProduct)
+            .collection("cartItems").whereEqualTo("idProduct", cart.idProduct)
             .get()
-            .addOnSuccessListener { documents->
-                if(!documents.isEmpty) {
+            .addOnSuccessListener { documents ->
+                if (!documents.isEmpty) {
                     for (document in documents) {
                         val value = document.toObject(ItemCart::class.java)
                         if (value.color == cart.color && value.classify == cart.classify) {
                             val quantity = value.quantity?.plus(cart.quantity!!)
                             db.collection("carts")
                                 .document(idUser)
-                                .collection("cartItems").document(document.id).update("quantity", quantity)
+                                .collection("cartItems").document(document.id)
+                                .update("quantity", quantity)
                                 .addOnSuccessListener {
                                     resultData(true)
                                 }
@@ -49,7 +51,7 @@ class CartService(private val db:FirebaseFirestore) {
                             break
                         }
                     }
-                }else{
+                } else {
                     db.collection("carts")
                         .document(idUser)
                         .collection("cartItems").add(cartData)
@@ -61,10 +63,10 @@ class CartService(private val db:FirebaseFirestore) {
                             Log.e("Error", "Error adding document", e)
                         }
                 }
-            } .addOnFailureListener { e ->
-                    resultData(false)
-                    Log.e("Error", "Error found document", e)
-                }
+            }.addOnFailureListener { e ->
+                resultData(false)
+                Log.e("Error", "Error found document", e)
+            }
 
     }
 
@@ -84,7 +86,14 @@ class CartService(private val db:FirebaseFirestore) {
                     cartTask.addOnSuccessListener { documentRef ->
                         if (documentRef.exists()) {
                             val cart = document.toObject(ItemCart::class.java)
-                            cart.product = documentRef.toObject(Product::class.java)
+                            val product = documentRef.toObject(Product::class.java)
+                            product?.id = documentRef.id
+
+                            cart.product = CustomProduct(
+                                product?.id!!, product?.name!!, product.img_preview!![0],
+                                product.price!!
+                            )
+
                             list.add(cart)
                         }
                     }

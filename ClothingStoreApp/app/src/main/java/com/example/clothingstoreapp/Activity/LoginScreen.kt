@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.clothingstoreapp.Adapter.CustomDialog
 import com.example.clothingstoreapp.MainActivity
+import com.example.clothingstoreapp.Service.CustomerService
 import com.example.clothingstoreapp.databinding.ActivityLoginBinding
 import com.google.android.gms.auth.api.Auth
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -21,14 +22,16 @@ import com.google.android.gms.tasks.Task
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
+import com.google.firebase.messaging.FirebaseMessaging
 
 
 class LoginScreen : AppCompatActivity() {
     private lateinit var binding:ActivityLoginBinding
     private lateinit var auth: FirebaseAuth
     private lateinit var customDialog: CustomDialog
-
+    private lateinit var db:FirebaseFirestore
     private lateinit var gso: GoogleSignInOptions
     private lateinit var mGoogleSignInClient: GoogleSignInClient
     private lateinit var mGoogleApiClient:GoogleApiClient
@@ -40,6 +43,7 @@ class LoginScreen : AppCompatActivity() {
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        db = Firebase.firestore
         auth = FirebaseAuth.getInstance()
         customDialog = CustomDialog(this)
 
@@ -97,7 +101,7 @@ class LoginScreen : AppCompatActivity() {
                         //Kiểm tra người dùng đã verify email chưa
                         val user = auth.currentUser
                         if ((user != null) && user.isEmailVerified) {
-                                updateUI()
+                                updateUI(user.uid)
                         }else{
                             Toast.makeText(this, "Vui lòng xác minh Email của bạn !", Toast.LENGTH_LONG)
                                 .show()
@@ -175,7 +179,9 @@ class LoginScreen : AppCompatActivity() {
     }
 
 
-    private fun updateUI(){
+    private fun updateUI(uid:String){
+
+        getTokenFCM(uid)
         val intent = Intent(this, MainActivity::class.java)
         startActivity(intent)
         finishAffinity()
@@ -193,7 +199,8 @@ class LoginScreen : AppCompatActivity() {
                 if (task.isSuccessful) {
                     val document = task.result
                     if (document != null && document.exists()) {
-                        updateUI()
+                        customDialog.closeDialog()
+                        updateUI(uid)
                     } else {
                         // Người dùng chưa tồn tại trong Firestore
                         val user = hashMapOf(
@@ -203,7 +210,8 @@ class LoginScreen : AppCompatActivity() {
                         )
                         userRef.set(user)
                             .addOnCompleteListener {
-                                updateUI()
+                                customDialog.closeDialog()
+                                updateUI(uid)
                             }.addOnFailureListener {
                                 Toast.makeText(this, "Lỗi: ${it.message}", Toast.LENGTH_SHORT).show()
                                 customDialog.closeDialog()
@@ -216,4 +224,17 @@ class LoginScreen : AppCompatActivity() {
                 }
             }
     }
+
+    //Lấy FCM Token của ứng dụng
+    private fun getTokenFCM(uid:String) {
+        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                val token = task.result
+                Log.w(TAG,"My Token: $token")
+               CustomerService(db).updateTokenFcm(uid,token)
+            }
+        }
+
+    }
+
 }

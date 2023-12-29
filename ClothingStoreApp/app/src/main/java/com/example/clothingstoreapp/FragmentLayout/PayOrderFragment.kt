@@ -13,11 +13,13 @@ import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.clothingstoreapp.Adapter.CustomDialog
 import com.example.clothingstoreapp.Adapter.RvCheckoutAdapter
+
 import com.example.clothingstoreapp.Model.FormatCurrency
 import com.example.clothingstoreapp.Model.OrderModel
 import com.example.clothingstoreapp.Model.ProgressOrder
 import com.example.clothingstoreapp.Model.TypeVoucher
 import com.example.clothingstoreapp.Model.UserManager
+import com.example.clothingstoreapp.Model.UserOrder
 import com.example.clothingstoreapp.R
 import com.example.clothingstoreapp.Service.OrderService
 import com.example.clothingstoreapp.ViewModel.PayOrderViewModel
@@ -174,21 +176,26 @@ class PayOrderFragment : Fragment() {
             customDialog.dialogBasic("Đang xử lý...")
             val orderSevice = OrderService()
 
+            val user = UserOrder(UserManager.getInstance().getUserID()!!,UserManager.getInstance().getUserCurrent()?.tokenFCM)
+
             val order = OrderModel()
+
 
             order.deliveryAddress = sharedViewModel.getDeliveryAddress()
             order.carts = sharedViewModel.getListCart()
             order.orderDate = Date()
             order.voucher = sharedViewModel.voucher.value
             order.paymentMethod = sharedViewModel.paymentMethod.value
-            order.userID = UserManager.getInstance().getUserID()
-            order.orderStatus = mapOf(ProgressOrder.WaitConfirmOrder.name to Date())
+            order.user = user
+            order.orderStatus = mutableMapOf(ProgressOrder.WaitConfirmOrder.name to Date())
             order.totalMoney = tongTienHang + phiVanChuyen - freeShip - voucherDiscount
+            order.currentStatus = ProgressOrder.WaitConfirmOrder.name
+            order.feeShip = freeShip
 
             orderSevice.addOrder(order) { b ->
                 if (b) {
                     navController.navigate(R.id.action_payOrderFragment_to_paymentSuccess)
-                    requireActivity().finishAffinity()
+
                 } else {
                     Toast.makeText(context, "Có lỗi xảy ra", Toast.LENGTH_SHORT).show()
                 }

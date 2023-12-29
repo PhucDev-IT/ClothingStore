@@ -38,6 +38,14 @@ class Customer:Serializable {
             _defaultAddress = value
         }
 
+    private var _tokenFCM: String? = null
+    var tokenFCM: String?
+        get() = _tokenFCM
+        set(value) {
+            _tokenFCM = value
+        }
+
+
     override fun toString(): String {
         return "Customer(_id=$_id, _fullName=$_fullName, _email=$_email, _listAddress=$_listAddress, _defaultAddress=$_defaultAddress)"
     }

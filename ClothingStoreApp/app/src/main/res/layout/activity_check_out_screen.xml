@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".Activity.Checkout_Screen">
+
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/fragmentContainerViewOrder"
         android:name="androidx.navigation.fragment.NavHostFragment"

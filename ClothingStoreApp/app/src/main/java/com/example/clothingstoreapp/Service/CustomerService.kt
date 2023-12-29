@@ -3,6 +3,7 @@ package com.example.clothingstoreapp.Service
 import android.util.Log
 import com.example.clothingstoreapp.Model.Customer
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
 
 class CustomerService(private val db:FirebaseFirestore) {
 
@@ -22,5 +23,18 @@ class CustomerService(private val db:FirebaseFirestore) {
         }
 
     }
+
+    fun updateTokenFcm(uid:String,token:String){
+        val data = hashMapOf<String,String>("tokenFCM" to token)
+        db.collection("users").document(uid).set(data, SetOptions.merge())
+            .addOnSuccessListener {
+
+            }.addOnFailureListener{
+                Log.e("Lỗi: ",it.toString())
+
+            }
+    }
+
+
 
 }

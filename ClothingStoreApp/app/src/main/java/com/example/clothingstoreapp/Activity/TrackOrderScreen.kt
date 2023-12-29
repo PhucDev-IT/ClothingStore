@@ -15,6 +15,7 @@ import com.example.clothingstoreapp.Model.TypeVoucher
 import com.example.clothingstoreapp.R
 import com.example.clothingstoreapp.databinding.ActivityTrackOrderScreenBinding
 import com.google.firestore.v1.StructuredQuery.Order
+import java.util.Locale
 
 class TrackOrderScreen : AppCompatActivity() {
     private lateinit var binding:ActivityTrackOrderScreenBinding
@@ -64,7 +65,7 @@ class TrackOrderScreen : AppCompatActivity() {
         binding.tvNumberPhone.text = order.deliveryAddress?.numberPhone
         binding.tvDetailsAddress.text = order.deliveryAddress?.addressDetails
         binding.tvInForAddress.text = "${order.deliveryAddress?.phuongXa}, ${order.deliveryAddress?.quanHuyen}, ${order.deliveryAddress?.tinhThanhPho}"
-        binding.tvIdOrder.text = order.id?.take(8)?.toUpperCase()
+        binding.tvIdOrder.text = order.id?.take(8)?.toUpperCase(Locale.ROOT)
 
         order.orderStatus?.forEach { (key, value) ->
             val color = ContextCompat.getColor(this, R.color.primarykeyColor)

@@ -40,7 +40,7 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         getUserCurrent()
-        getTokenFCM()
+
         askNotificationPermission()
 
         binding.bottomNavigation.setOnNavigationItemSelectedListener { menuItem ->
@@ -94,10 +94,11 @@ class MainActivity : AppCompatActivity() {
     private fun getUserCurrent(){
         val uid = com.google.firebase.ktx.Firebase.auth.currentUser?.uid
         if (uid != null) {
-            CustomerService(Firebase.firestore).getInformationUser(uid){user->
+            val db = Firebase.firestore
+            val customerService = CustomerService(db)
+            customerService.getInformationUser(uid){user->
                 if (user != null) {
                     UserManager.getInstance().setUser(user)
-                    Log.w(TAG,"User: ${user.toString()}")
                 }
             }
         }
@@ -126,22 +127,6 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    private fun  getTokenFCM(){
-        FirebaseMessaging.getInstance().token.addOnCompleteListener(OnCompleteListener { task ->
-            if (!task.isSuccessful) {
-                Log.w(TAG, "Fetching FCM registration token failed", task.exception)
-                return@OnCompleteListener
-            }
-
-            // Get new FCM registration token
-            val token = task.result
-
-            // Log and toast
-            val msg = "My Token: $token"
-            Log.d(TAG, msg)
-            Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
-        })
-    }
 
 
     //Lấy vị trí hiện tại

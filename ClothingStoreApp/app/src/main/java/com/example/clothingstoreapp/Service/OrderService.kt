@@ -26,12 +26,14 @@ class OrderService {
     //Lấy hóa đơn đang vận chuyển
     fun getOrderTransporting(onLoadData:(List<OrderModel>)->Unit){
         val uid =  UserManager.getInstance().getUserID()
-        db.collection("orders").whereEqualTo("userID",uid)
+        db.collection("orders").whereEqualTo("user.userId",uid!!)
             .orderBy("orderDate",Query.Direction.ASCENDING)
             .limit(maxSize).get()
             .addOnSuccessListener {  documents->
                 val list = mutableListOf<OrderModel>()
+
                 for(document in documents){
+
                     val order:OrderModel = document.toObject(OrderModel::class.java)
                     order.id = document.id
                     list.add(order)

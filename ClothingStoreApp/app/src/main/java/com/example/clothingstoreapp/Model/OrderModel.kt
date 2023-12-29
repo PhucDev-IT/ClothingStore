@@ -4,7 +4,20 @@ import com.google.type.DateTime
 import java.io.Serializable
 import java.util.Date
 
+
+
+ class UserOrder():Serializable{
+     var userId: String?=null
+     var tokenFCM:String?=null
+
+     constructor(id:String,token:String?) : this() {
+         userId = id
+         tokenFCM = token
+     }
+ }
+
 class OrderModel:Serializable {
+
 
     private var _id: String? = null
     var id: String?
@@ -13,11 +26,12 @@ class OrderModel:Serializable {
             _id = value
         }
 
-    private var _userID: String? = null
-    var userID: String?
-        get() = _userID
+
+    private var _user: UserOrder? = null
+    var user: UserOrder?
+        get() = _user
         set(value) {
-            _userID = value
+            _user = value
         }
 
     private var _deliveryAddress: AddressModel? = null
@@ -41,8 +55,8 @@ class OrderModel:Serializable {
             _orderDate = value
         }
 
-    private var _orderStatus: Map<String,Date>? = null
-    var orderStatus: Map<String,Date>?
+    private var _orderStatus: MutableMap<String,Date>? = null
+    var orderStatus: MutableMap<String,Date>?
         get() = _orderStatus
         set(value) {
             _orderStatus = value
@@ -74,6 +88,13 @@ class OrderModel:Serializable {
         get() = _feeShip
         set(value) {
             _feeShip = value
+        }
+
+    private var _currentStatus: String? = null
+    var currentStatus: String?
+        get() = _currentStatus
+        set(value) {
+            _currentStatus = value
         }
 
 }

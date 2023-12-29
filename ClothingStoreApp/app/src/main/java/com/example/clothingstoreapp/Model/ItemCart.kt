@@ -18,8 +18,8 @@ class ItemCart : Serializable{
             _idProduct = value
         }
 
-    private var _quantity: Int? = null
-    var quantity: Int?
+    private var _quantity: Int = 1
+    var quantity: Int
         get() = _quantity
         set(value) {
             _quantity = value
@@ -39,8 +39,8 @@ class ItemCart : Serializable{
             _color = value
         }
 
-    private var _product:Product?=null
-    var product:Product?
+    private var _product:CustomProduct?=null
+    var product:CustomProduct?
         get() = _product
         set(value) {
             _product = value
@@ -51,7 +51,7 @@ class ItemCart : Serializable{
         _quantity = quantity
     }
 
-    constructor(p:Product,number:Int){
+    constructor(p:CustomProduct,number:Int){
         _product = p
         _quantity = number
     }

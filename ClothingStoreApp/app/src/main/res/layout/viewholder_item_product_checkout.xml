@@ -47,6 +47,7 @@
                     android:text="@string/str_classify"
                     android:textSize="14sp"
                     android:ellipsize="end"
+                    android:lines="1"
                     android:fontFamily="@font/inter_medium"
                     android:textColor="@color/placeholdercolor"/>
                 <TextView
