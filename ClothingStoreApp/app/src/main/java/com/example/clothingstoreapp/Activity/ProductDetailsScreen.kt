@@ -44,7 +44,8 @@ class ProductDetailsScreen : AppCompatActivity() {
     private lateinit var cartService:CartService
     private lateinit var customDialog: CustomDialog
     private lateinit var cart:ItemCart
-
+    private var isOpenPreview = true
+    private lateinit var adapter: RvImagePreviewAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -70,19 +71,20 @@ class ProductDetailsScreen : AppCompatActivity() {
         binding.tvNumberBuyProduct.text = selectQuantity.toString()
         binding.tvRateEvaluate.text = product.rateEvaluate.toString()
 
-        val rvPreview = product.img_preview?.let { RvImagePreviewAdapter(it,object : ClickObjectInterface<String>{
+         product.img_preview?.let {
+            adapter = RvImagePreviewAdapter(it,object : ClickObjectInterface<String>{
             override fun onClickListener(t: String) {
                 Glide.with(applicationContext).load(t).into(binding.imgProduct)
             }
         }) }
 
         val linearLayoutManager = LinearLayoutManager(this,LinearLayoutManager.HORIZONTAL,false)
-        binding.rvPreviewImage.adapter = rvPreview
+        binding.rvPreviewImage.adapter = adapter
         binding.rvPreviewImage.layoutManager = linearLayoutManager
 
         initClassify()
         initColors()
-        binding.btnAddProduct.text = (resources.getString(
+        binding.btnAddToCart.text = (resources.getString(
             R.string.default_btn_add_to_cart,
             FormatCurrency.numberFormat.format(product.price)
         ))
@@ -153,6 +155,18 @@ class ProductDetailsScreen : AppCompatActivity() {
     }
 
     private fun handleEventClick(){
+
+        binding.btnControlPreview.setOnClickListener {
+            if(isOpenPreview){
+                adapter.setData(listOf(product.img_preview?.get(0) ?: ""))
+                isOpenPreview = false
+            }else{
+                product.img_preview?.let { it1 -> adapter.setData(it1) }
+                isOpenPreview = true
+                binding.btnControlPreview.setImageResource(R.drawable.baseline_keyboard_double_arrow_right_24)
+            }
+        }
+
         binding.btnAddToCart.setOnClickListener {
             addToCart()
         }
@@ -225,7 +239,7 @@ class ProductDetailsScreen : AppCompatActivity() {
 
          binding.tvNumberBuyProduct.text = selectQuantity.toString()
 
-        binding.btnAddProduct.text = (resources.getString(
+        binding.btnAddToCart.text = (resources.getString(
             R.string.default_btn_add_to_cart,
             FormatCurrency.numberFormat.format(product.price?.times(selectQuantity) ?: 0)
         ))
@@ -250,6 +264,7 @@ class ProductDetailsScreen : AppCompatActivity() {
                 cartService.addToCart(idUerCurrent,cart){b->
                     if(b){
                         Toast.makeText(this,"Thêm thành công",Toast.LENGTH_SHORT).show()
+                        customDialog.closeDialog()
                     }else{
                         Toast.makeText(this,"Có lỗi xảy ra !",Toast.LENGTH_SHORT).show()
                     }

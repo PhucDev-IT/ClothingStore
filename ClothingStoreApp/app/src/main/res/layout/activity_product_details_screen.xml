@@ -71,10 +71,9 @@
                    </LinearLayout>
                </LinearLayout>
 
-               <LinearLayout
+               <RelativeLayout
                    android:layout_width="match_parent"
                    android:layout_height="70dp"
-                   android:gravity="right"
                    android:layout_alignParentBottom="true"
                    android:layout_marginHorizontal="20dp"
                     android:layout_marginBottom="7dp"
@@ -87,17 +86,22 @@
                        android:id="@+id/rvPreviewImage"
                        android:layout_width="wrap_content"
                        android:layout_height="wrap_content"
+                       android:layout_marginEnd="1dp"
+                       android:layout_toStartOf="@+id/btnControlPreview"
                        android:background="@drawable/rounded_corner_8dp"
                        android:orientation="horizontal"
-                       android:paddingStart="5dp"
                        android:paddingVertical="3dp"
+                       android:paddingStart="5dp"
                        tools:listitem="@layout/img_preview_product" />
+
                    <ImageButton
+                       android:layout_alignParentEnd="true"
+                       android:id="@+id/btnControlPreview"
                        android:layout_width="wrap_content"
                        android:layout_height="match_parent"
                        android:background="@color/primarykeyColor"
                        android:src="@drawable/baseline_keyboard_double_arrow_right_24"/>
-               </LinearLayout>
+               </RelativeLayout>
 
            </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -291,7 +295,7 @@
 
 
         <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/btnAddProduct"
+            android:id="@+id/btnAddToCart"
             android:layout_width="200dp"
             android:layout_height="42dp"
             android:layout_gravity="center"
@@ -304,16 +308,6 @@
             android:text="@string/default_btn_add_to_cart" />
     </LinearLayout>
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/btnAddToCart"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginBottom="100dp"
-        android:layout_marginEnd="30dp"
-        android:src="@drawable/baseline_shopping_bag_24"
-        android:contentDescription="TODO"
-        tools:ignore="RelativeOverlap" />
+
 </RelativeLayout>
 

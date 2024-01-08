@@ -54,7 +54,7 @@ class LoginScreen : AppCompatActivity() {
             .build()
 
          mGoogleApiClient = GoogleApiClient.Builder(this)
-            .enableAutoManage(this) { connectionResult ->
+            .enableAutoManage(this) {
                 // Xử lý lỗi khi không thể kết nối
             }
             .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
@@ -79,6 +79,14 @@ class LoginScreen : AppCompatActivity() {
         binding.lnGoogle.setOnClickListener {
             mGoogleApiClient.clearDefaultAccountAndReconnect()
             loginWithGoogle()
+        }
+
+        binding.lnApple.setOnClickListener {
+            Toast.makeText(this,"Đang bảo trì",Toast.LENGTH_SHORT).show()
+        }
+
+        binding.lnFacebook.setOnClickListener {
+            Toast.makeText(this,"Đang bảo trì",Toast.LENGTH_SHORT).show()
         }
 
 

@@ -34,10 +34,16 @@ class Notification {
 
 
     private var _time: Date? = null
-    var time: Date?
+    var timeSend: Date?
         get() = _time
         set(value) {
             _time = value
+        }
+    private var _isRead: Boolean? = null
+    var isRead: Boolean?
+        get() = _isRead
+        set(value) {
+            _isRead = value
         }
 
 }

@@ -33,6 +33,7 @@
         android:background="@color/white"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
         app:tabIndicatorColor="@color/primarykeyColor"
         app:tabSelectedTextColor="@color/primarykeyColor"
         android:scrollbars="horizontal">
@@ -48,6 +49,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Đơn đã hủy"/>
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Đánh giá"/>
     </com.google.android.material.tabs.TabLayout>
 
     <androidx.viewpager2.widget.ViewPager2

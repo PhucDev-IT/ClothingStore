@@ -6,6 +6,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.clothingstoreapp.Activity.TrackOrderScreen
 import com.example.clothingstoreapp.Adapter.RvPurchasedHistoryAdapter
@@ -14,6 +15,7 @@ import com.example.clothingstoreapp.Model.OrderModel
 import com.example.clothingstoreapp.Model.PaginationScrollListener
 import com.example.clothingstoreapp.R
 import com.example.clothingstoreapp.Service.OrderService
+import com.example.clothingstoreapp.ViewModel.PurchaseHistoryViewModel
 import com.example.clothingstoreapp.databinding.FragmentDangDatHangBinding
 import com.example.clothingstoreapp.databinding.FragmentLichSuMuaHangFrangmentBinding
 
@@ -23,7 +25,8 @@ class LichSuMuaHangFragment : Fragment() {
     private lateinit var adapter: RvPurchasedHistoryAdapter
     private var  isLoading:Boolean = false
     private var isLastPage:Boolean = false
-    private val orderService = OrderService()
+
+    private val sharedViewModel:PurchaseHistoryViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -74,7 +77,9 @@ class LichSuMuaHangFragment : Fragment() {
         binding.rvOrders.visibility = View.GONE
         binding.lnChuaCoDonHang.visibility = View.GONE
 
-        orderService.getPurchaseHistory {
+
+
+        sharedViewModel.getOrderDelivery {
             isLoading = false
 
             if(it.isEmpty()){

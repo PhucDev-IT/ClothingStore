@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:background="@color/white"
     tools:context=".Activity.LoginScreen">
 
     <LinearLayout
@@ -143,6 +144,7 @@
         android:orientation="horizontal">
 
         <LinearLayout
+            android:id="@+id/lnApple"
             android:layout_width="55dp"
             android:layout_height="55dp"
             android:layout_marginHorizontal="10dp"
@@ -171,6 +173,7 @@
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/lnFacebook"
             android:layout_width="55dp"
             android:layout_height="55dp"
             android:layout_marginHorizontal="10dp"

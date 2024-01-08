@@ -11,6 +11,7 @@ import com.example.clothingstoreapp.Activity.MyVoucherScreen
 import com.example.clothingstoreapp.Activity.ProductsIsLikedScreen
 import com.example.clothingstoreapp.Activity.PurchasedHistoryScreen
 import com.example.clothingstoreapp.Activity.SettingsActivity
+import com.example.clothingstoreapp.Model.ProgressOrder
 import com.example.clothingstoreapp.R
 import com.example.clothingstoreapp.databinding.FragmentUserBinding
 import com.google.firebase.Firebase
@@ -46,6 +47,9 @@ class UserFragment : Fragment(), View.OnClickListener {
         binding.lnLichSuMuaHang.setOnClickListener(this)
         binding.lnMyCoupon.setOnClickListener(this)
         binding.lnProductIsLiked.setOnClickListener(this)
+        binding.lnDangXuLy.setOnClickListener(this)
+        binding.lnPreview.setOnClickListener(this)
+
     }
 
     override fun onClick(v: View?) {
@@ -57,6 +61,7 @@ class UserFragment : Fragment(), View.OnClickListener {
 
             R.id.lnLichSuMuaHang -> {
                 intent = Intent(context, PurchasedHistoryScreen::class.java)
+                intent.putExtra("key_tab","Purchase")
             }
 
             R.id.lnMyCoupon -> {
@@ -67,6 +72,16 @@ class UserFragment : Fragment(), View.OnClickListener {
             R.id.lnProductIsLiked -> {
                 intent = Intent(context, ProductsIsLikedScreen::class.java)
 
+            }
+
+            R.id.lnDangXuLy ->{
+                intent = Intent(context, PurchasedHistoryScreen::class.java)
+                intent.putExtra("key_tab","Processing")
+            }
+
+            R.id.lnPreview->{
+                intent = Intent(context, PurchasedHistoryScreen::class.java)
+                intent.putExtra("key_tab","isPreview")
             }
 
             R.id.btnLogout -> {

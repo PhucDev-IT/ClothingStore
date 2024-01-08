@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.os.Handler
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.ui.AppBarConfiguration
+import com.example.clothingstoreapp.Data_Local.DataLocalManager
 import com.example.clothingstoreapp.FragmentLayout.HomeFragment
 import com.example.clothingstoreapp.MainActivity
 import com.example.clothingstoreapp.databinding.ActivitySplashScreenBinding
@@ -29,13 +30,23 @@ class SplashScreen : AppCompatActivity() {
 
     private fun nextActivity(){
 
-        val user = Firebase.auth.currentUser
-        var intent = Intent(this, MainActivity::class.java)
-        if (user == null) {
-            intent = Intent(this,LoginScreen::class.java)
+        //Kiểm tra có phải lần đầu sử dụng ứng dụng ?
+        if(DataLocalManager.checkIsFirstUseApp()){
+
+            val intent = Intent(this,OnBoardingActivity::class.java)
+            startActivity(intent)
+            finishAffinity()
+        }else{
+            val user = Firebase.auth.currentUser
+            var intent = Intent(this, MainActivity::class.java)
+            if (user == null) {
+                intent = Intent(this,LoginScreen::class.java)
+            }
+            startActivity(intent)
+            finishAffinity()
         }
-        startActivity(intent)
-        finishAffinity()
+
+
     }
 
 }

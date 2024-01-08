@@ -1,6 +1,7 @@
 package com.example.clothingstoreadmin.model
 
 import java.io.Serializable
+import java.util.Date
 
 class Voucher :Serializable{
     private var _id: String? = null
@@ -38,4 +39,24 @@ class Voucher :Serializable{
             _typeVoucher = value
         }
 
+    private var _quantity:Int?=null
+    var quantity: Int?
+        get() = _quantity
+        set(value) {
+            _quantity = value
+        }
+
+    private var _timeStart:Date?=null
+    var timeStart: Date?
+        get() = _timeStart
+        set(value) {
+            _timeStart = value
+        }
+
+    private var _timeEnd:Date?=null
+    var timeEnd: Date?
+        get() = _timeEnd
+        set(value) {
+            _timeEnd = value
+        }
 }

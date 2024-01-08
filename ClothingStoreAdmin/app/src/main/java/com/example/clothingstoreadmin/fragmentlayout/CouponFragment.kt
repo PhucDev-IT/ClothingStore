@@ -1,60 +1,99 @@
 package com.example.clothingstoreadmin.fragmentlayout
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.clothingstoreadmin.Interface.ClickObjectInterface
 import com.example.clothingstoreadmin.R
+import com.example.clothingstoreadmin.activity.AddNewVoucherScreen
+import com.example.clothingstoreadmin.adapter.RvVoucherAdapter
+import com.example.clothingstoreadmin.databinding.FragmentChoGiaoHangBinding
+import com.example.clothingstoreadmin.databinding.FragmentCouponBinding
+import com.example.clothingstoreadmin.model.Voucher
+import com.example.clothingstoreadmin.service.VoucherService
+import com.google.firebase.Firebase
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.firestore
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-/**
- * A simple [Fragment] subclass.
- * Use the [CouponFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class CouponFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
-    }
+    private lateinit var _binding: FragmentCouponBinding
+    private val binding get() = _binding
+    private lateinit var db : FirebaseFirestore
+    private lateinit var voucherService : VoucherService
+    private lateinit var adapter : RvVoucherAdapter
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
+        inflater: LayoutInflater,
+        container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_coupon, container, false)
+        _binding = FragmentCouponBinding.inflate(inflater,container,false)
+
+        db = Firebase.firestore
+        voucherService = VoucherService(db)
+
+        initView()
+        handleClick()
+        return binding.root
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment CouponFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            CouponFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
+    private fun initView(){
+
+
+        adapter = RvVoucherAdapter(object : ClickObjectInterface<Voucher> {
+            override fun onClickListener(t: Voucher) {
+                Toast.makeText(context,"Định sửa voucher", Toast.LENGTH_SHORT).show()
+            }
+        },object : ClickObjectInterface<String>{
+            override fun onClickListener(t: String) {
+                context?.let {
+                    copyToClipboard(it,t)
+                    Toast.makeText(it,"Đã lưu vào bộ nhớ tạm", Toast.LENGTH_SHORT).show()
                 }
             }
+        })
+
+        val linearLayoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL,false)
+        binding.rvCoupons.adapter = adapter
+        binding.rvCoupons.layoutManager = linearLayoutManager
+
+
+        getData()
+    }
+
+    private fun getData(){
+
+        binding.shimmerLayout.startLayoutAnimation()
+        binding.shimmerLayout.visibility =  View.VISIBLE
+        voucherService.selectAllVouchers{list->
+            adapter.setData(list)
+
+            binding.shimmerLayout.stopShimmer()
+            binding.shimmerLayout.visibility = View.GONE
+        }
+
+    }
+
+    // Hàm này sẽ được gọi khi người dùng nhấn vào nút "Copy"
+    fun copyToClipboard(context: Context, text: String) {
+        val clipboardManager = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        val clipData = ClipData.newPlainText("Clothing code", text)
+        clipboardManager.setPrimaryClip(clipData)
+    }
+
+
+    private fun handleClick(){
+        binding.btnAddNewCoupon.setOnClickListener {
+            val intent = Intent(context,AddNewVoucherScreen::class.java)
+            startActivity(intent)
+        }
     }
 }

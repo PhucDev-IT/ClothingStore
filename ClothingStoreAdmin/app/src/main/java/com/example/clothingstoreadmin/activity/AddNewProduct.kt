@@ -1,0 +1,139 @@
+package com.example.clothingstoreadmin.activity
+
+import android.content.Intent
+import android.content.res.ColorStateList
+import android.graphics.Color
+import android.graphics.PorterDuff
+import android.graphics.drawable.GradientDrawable
+import android.graphics.drawable.RippleDrawable
+import android.net.Uri
+import androidx.appcompat.app.AppCompatActivity
+import android.os.Bundle
+import android.view.View
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
+import android.widget.Toast
+import androidx.core.content.ContextCompat
+import com.example.clothingstoreadmin.R
+import com.example.clothingstoreadmin.databinding.ActivityAddNewProductBinding
+import com.example.clothingstoreapp.Service.CategoryService
+import com.google.firebase.Firebase
+import com.google.firebase.FirebaseApp
+import com.nvt.color.ColorPickerDialog
+
+
+class AddNewProduct : AppCompatActivity() {
+
+    private val PICK_IMAGE_REQUEST_1 = 1
+    private val PICK_IMAGE_REQUEST_2 = 2
+    private lateinit var binding:ActivityAddNewProductBinding
+    private var listImagePreview = mutableListOf<Uri>()
+
+    private val categoryService = CategoryService()
+
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = ActivityAddNewProductBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        initView()
+        handleClick()
+    }
+
+    private fun initView(){
+        categoryService.getAllCategory { list->
+            val adapter =
+                ArrayAdapter(this, android.R.layout.simple_spinner_item, list.map { it.nameCategory })
+
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            binding.spinnerCategory.adapter = adapter
+        }
+
+        binding.spinnerCategory.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                // Xử lý khi không có mục nào được chọn
+            }
+        }
+    }
+
+    private fun handleClick(){
+        binding.tvSelectedColor.setOnClickListener {
+            val colorPicker = ColorPickerDialog(
+                this,
+                Color.BLACK, // color init
+                true, // true is show alpha
+                object : ColorPickerDialog.OnColorPickerListener {
+                    override fun onCancel(dialog: ColorPickerDialog?) {
+                        // handle click button Cancel
+                    }
+
+                    override fun onOk(dialog: ColorPickerDialog?, colorPicker: Int) {
+                        binding.tvSelectedColor.imageTintList = ColorStateList.valueOf(colorPicker)
+                    }
+                })
+            colorPicker.show()
+        }
+
+        binding.btnPickImage.setOnClickListener {
+            openFileChooseImage(PICK_IMAGE_REQUEST_1)
+        }
+
+        binding.containerImg1.setOnClickListener {
+            openFileChooseImage(PICK_IMAGE_REQUEST_2)
+        }
+
+        binding.containerImg2.setOnClickListener {
+            openFileChooseImage(PICK_IMAGE_REQUEST_2)
+        }
+
+        binding.containerImg3.setOnClickListener {
+            openFileChooseImage(PICK_IMAGE_REQUEST_2)
+        }
+
+        binding.imageRemove1.setOnClickListener {
+            listImagePreview.removeAt(0)
+            setImage()
+        }
+    }
+
+
+    //----------------Xử lý chọn ảnh từ thiết bị cục bộ----------------------
+    private fun openFileChooseImage(requestID:Int) {
+        val intent: Intent = Intent()
+        intent.type = "image/*"
+        intent.action = Intent.ACTION_GET_CONTENT
+        startActivityForResult(intent, requestID)
+    }
+
+    @Deprecated("Deprecated in Java")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if ( resultCode == RESULT_OK && data != null && data.data != null) {
+            val url = data.data
+            if(requestCode == PICK_IMAGE_REQUEST_1){
+              // url?.let {  listImagePreview.add(0,it) }
+                binding.imgProduct.setImageURI(url)
+            }else{
+                url?.let {  listImagePreview.add(it) }
+                setImage()
+            }
+        }
+    }
+
+    private fun setImage(){
+        for(i in 0 until listImagePreview.size){
+            when(i){
+                0 -> binding.imgProduct1.setImageURI(listImagePreview[i])
+                1-> binding.imgProduct2.setImageURI(listImagePreview[i])
+                2-> binding.imgProduct3.setImageURI(listImagePreview[i])
+            }
+        }
+    }
+
+
+}

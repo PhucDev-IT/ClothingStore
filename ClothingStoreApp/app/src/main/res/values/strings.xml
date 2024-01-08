@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Clothing Store</string>
     <string name="title_activity_splash_screen">SplashScreen</string>
@@ -15,7 +16,8 @@
     <string name="signIn"><u>Sign In</u></string>
     <string name="welcome_text">The <font color="#704F38">Fashion App</font> That \nMakes You Look Your Best</string>
     <string name="resendOTP"><u>Resend code</u></string>
-
+    <string name="onboarding_1"><font color="#704F38">Seamless</font> Shopping \nExperience</string>
+    <string name="onboarding_2"><font color="#704F38">Swift</font> and <font color="#704F38">Reliable</font>\nDelivery</string>
     <string name="channel_name">chanel_one</string>
     <string name="channel_description">Đây là kênh số 1</string>
 

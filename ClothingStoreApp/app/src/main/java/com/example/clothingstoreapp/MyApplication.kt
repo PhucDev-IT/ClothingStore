@@ -8,6 +8,7 @@ import android.media.AudioAttributes
 import android.media.RingtoneManager
 import android.net.Uri
 import android.os.Build
+import com.example.clothingstoreapp.Data_Local.DataLocalManager
 
 
 class MyApplication: Application() {
@@ -18,7 +19,7 @@ class MyApplication: Application() {
 
     override fun onCreate() {
         super.onCreate()
-      //  DataLocalManager.init(applicationContext)
+        DataLocalManager.init(applicationContext)
         createNotificationChannel()
     }
 

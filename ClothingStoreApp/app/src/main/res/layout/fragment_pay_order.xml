@@ -107,14 +107,14 @@
                             android:layout_height="wrap_content"
                             android:textSize="14sp"
                             android:textColor="@color/placeholdercolor"
-                            android:text="1091 Kiều Tiến, Hoằng Đại, Tp.Thanh Hóa"/>
+                            android:text=""/>
                         <TextView
                             android:id="@+id/tvInforAddress"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:textSize="14sp"
                             android:textColor="@color/placeholdercolor"
-                            android:text="1091 Kiều Tiến, Hoằng Đại, Tp.Thanh Hóa"/>
+                            android:text=""/>
                     </LinearLayout>
                     <LinearLayout
                         android:id="@+id/lnNotAddress"
@@ -199,7 +199,7 @@
                     android:layout_weight="1"
                     android:gravity="right"
                     android:background="@drawable/effect_pressing"
-                    android:paddingRight="10dp"
+                    android:paddingEnd="10dp"
                     android:text="Chọn mã voucher"
                     android:textColor="#807b7a"
                     android:textSize="15sp" />
@@ -208,7 +208,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="0"
-                    app:srcCompat="@drawable/baseline_navigate_next_24" />
+                    app:srcCompat="@drawable/baseline_navigate_next_24"
+                    android:contentDescription="TODO" />
             </LinearLayout>
             <LinearLayout
                 android:layout_width="match_parent"

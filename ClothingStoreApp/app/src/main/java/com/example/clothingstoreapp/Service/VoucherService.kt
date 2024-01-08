@@ -21,7 +21,7 @@ class VoucherService(private val db:FirebaseFirestore) {
                 val idVoucher = document.id
 
                 db.collection("orders").whereEqualTo("voucher.id",idVoucher)
-                    .whereEqualTo("idUser",uid).get().addOnSuccessListener { result->
+                    .whereEqualTo("user.userID",uid).get().addOnSuccessListener { result->
                         if(result.isEmpty){
                             val voucher = document.toObject(Voucher::class.java)
                             listVouchers.add(voucher)

@@ -168,4 +168,22 @@ class ProductService(private val db: FirebaseFirestore) {
                 Log.e(ContentValues.TAG, "Lỗi: .", exception)
             }
     }
+
+    //Lấy sản phẩm theo danh mục
+    fun selectProductByCategory(id:String,callBack:(List<Product>)->Unit){
+        db.collection("products").whereEqualTo("idCategory",id).limit(10).get()
+            .addOnSuccessListener { documents->
+                val list = mutableListOf<Product>()
+                for (item in documents){
+                    val pro = item.toObject(Product::class.java)
+                    pro.id = item.id
+
+                    list.add(pro)
+                }
+                callBack(list)
+            }.addOnFailureListener {
+                Log.e(ContentValues.TAG,"Có lỗi: ${it.message}")
+                callBack(emptyList())
+            }
+    }
 }

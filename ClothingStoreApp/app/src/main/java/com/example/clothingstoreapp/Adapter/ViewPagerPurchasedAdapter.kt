@@ -6,20 +6,22 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.example.clothingstoreapp.FragmentLayout.DangDatHangFragment
 import com.example.clothingstoreapp.FragmentLayout.DonHangDaHuyFragment
 import com.example.clothingstoreapp.FragmentLayout.LichSuMuaHangFragment
+import com.example.clothingstoreapp.FragmentLayout.PreviewInPurchaseFragment
 
 class ViewPagerPurchasedAdapter(fragmentActivity: FragmentActivity) :
     FragmentStateAdapter(fragmentActivity) {
 
 
     override fun getItemCount(): Int {
-        return 3
+        return 4
     }
 
     override fun createFragment(position: Int): Fragment {
-        return when(position){
+        return when (position) {
             0 -> DangDatHangFragment()
-            1-> LichSuMuaHangFragment()
-            2-> DonHangDaHuyFragment()
+            1 -> LichSuMuaHangFragment()
+            2 -> DonHangDaHuyFragment()
+            3 -> PreviewInPurchaseFragment()
             else -> LichSuMuaHangFragment()
         }
     }

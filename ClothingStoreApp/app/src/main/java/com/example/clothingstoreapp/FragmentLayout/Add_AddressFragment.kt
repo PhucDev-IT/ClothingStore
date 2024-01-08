@@ -49,7 +49,7 @@ class Add_AddressFragment : Fragment() {
         apiService = ApiService.create()
         initView()
         CallApiProvinces()
-
+        handleClick()
 
         return binding.root
     }
@@ -265,6 +265,7 @@ class Add_AddressFragment : Fragment() {
                 addressService.addNewAddress(customer) { reuslt ->
                     if (reuslt) {
                         Toast.makeText(context, "Thêm thành công", Toast.LENGTH_SHORT).show()
+                        requireActivity().onBackPressed()
                     } else {
                         Toast.makeText(context, "Có lỗi xảy ra", Toast.LENGTH_SHORT).show()
                     }

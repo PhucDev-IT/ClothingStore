@@ -1,8 +1,10 @@
 package com.example.clothingstoreadmin.activity
 
 import android.annotation.SuppressLint
+import android.content.ContentValues.TAG
 import android.graphics.PorterDuff
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -11,23 +13,23 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.clothingstoreadmin.R
 import com.example.clothingstoreadmin.adapter.CustomDialog
 import com.example.clothingstoreadmin.adapter.RvCheckoutAdapter
+import com.example.clothingstoreadmin.api.ApiNotificationService
 import com.example.clothingstoreadmin.databinding.ActivityOrderDetailsScreenBinding
+import com.example.clothingstoreadmin.model.Data
+import com.example.clothingstoreadmin.model.DataMessageNotification
 import com.example.clothingstoreadmin.model.FormatCurrency
+import com.example.clothingstoreadmin.model.NotificationModel
 import com.example.clothingstoreadmin.model.OrderModel
 import com.example.clothingstoreadmin.model.ProgressOrder
 import com.example.clothingstoreadmin.model.TypeVoucher
+import com.example.clothingstoreadmin.service.NotificationService
 import com.example.clothingstoreadmin.service.OrderService
-import okhttp3.Call
-import okhttp3.Callback
-import okhttp3.FormBody
-import okhttp3.MediaType
-import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.RequestBody
-import okhttp3.Response
-import org.json.JSONObject
-import java.io.IOException
+import com.google.firebase.Firebase
+import com.google.firebase.firestore.firestore
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+
 import java.util.Date
 import java.util.Locale
 
@@ -37,6 +39,9 @@ class OrderDetailsScreen : AppCompatActivity() {
     private lateinit var adapter: RvCheckoutAdapter
     private lateinit var order:OrderModel
     private lateinit var customDialog: CustomDialog
+    private  val db = Firebase.firestore
+    private val notificationService = NotificationService(db)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityOrderDetailsScreenBinding.inflate(layoutInflater)
@@ -129,6 +134,7 @@ class OrderDetailsScreen : AppCompatActivity() {
                 Toast.makeText(this,"Đơn hàng đã được xác nhận",Toast.LENGTH_SHORT).show()
                 onSendMess()
                 initView()
+                postNotification()
             }else{
                 Toast.makeText(this,"Có lỗi xảy ra",Toast.LENGTH_SHORT).show()
             }
@@ -138,30 +144,50 @@ class OrderDetailsScreen : AppCompatActivity() {
 
     }
 
-    private fun onSendMess(){
-         val JSON: MediaType = "application/json".toMediaType()
-        val client : OkHttpClient = OkHttpClient()
-        val url = "https://fcm.googleapis.com/fcm/send"
-        val requestBody = FormBody.Builder()
-            .add("title", "Cập nhật đơn hàng")
-            .add("key2", "Đơn hàng đã được xác nhận")
-            .build()
+    private fun postNotification(){
+        val notification = NotificationModel()
+        notification.title = "Đơn hàng của bạn đã được xác nhận"
+        notification.content = "Đơn hàng \"${binding.tvIdOrder.text}\" đã được người bán chấp nhận, đơn hàng sẽ sớm vận chuyển đến bạn"
+        notification.timeSend = Date()
+        notification.img = order.carts?.get(0)?.product?.imgPreview
+        notification.isRead = false
 
-        val request: Request = Request.Builder()
-            .url(url)
-            .post(requestBody)
-            .header("Authorization","key AAAAbjZgOC4:APA91bHTS6nx9yFOrB4OiDR-72eWoQdn4KCINa6vNnx5P8OIgfUG9bf5vnvYoxInwq0I8lozT0MzqIjEPnADWZlvn8e6MWNiN42ZdD0erCipDoYR3tw1yGIhsae_q49bM0rO2h38KT8y")
-            .build()
-
-        client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                // Xử lý khi gặp lỗi
+        order.user?.userId?.let {
+            notificationService.addNewNotificationForUser(it,notification){ b ->
+                if(b){
+                    Log.d(TAG,"Send is success")
+                }else{
+                    Log.d(TAG,"Send is failed")
+                }
             }
+        }
+    }
 
-            override fun onResponse(call: Call, response: Response) {
-                val responseData = response.body?.string()
-               Toast.makeText(applicationContext,responseData,Toast.LENGTH_SHORT).show()
-            }})
+    private fun onSendMess(){
+
+        val api =ApiNotificationService.create()
+        order.user?.tokenFCM?.let {
+
+            api.sendNotification(DataMessageNotification(it,
+                Data("Cập nhật thông tin đơn hàng","Đơn hàng của bạn đang được chẩn bị")))
+                .enqueue(object : Callback<DataMessageNotification>{
+                    override fun onResponse(
+                        call: Call<DataMessageNotification>?,
+                        response: Response<DataMessageNotification>?
+                    ) {
+                        if(response?.isSuccessful == true){
+                            Toast.makeText(application,"Gửi thành công",Toast.LENGTH_SHORT).show()
+                        }else{
+                            Toast.makeText(application,"Có lỗi xảy ra",Toast.LENGTH_SHORT).show()
+                        }
+                    }
+
+                    override fun onFailure(call: Call<DataMessageNotification>?, t: Throwable?) {
+                        Toast.makeText(application,t?.message.toString(),Toast.LENGTH_SHORT).show()
+                    }
+                })
+        }
+
     }
 
 

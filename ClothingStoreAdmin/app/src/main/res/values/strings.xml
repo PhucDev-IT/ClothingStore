@@ -13,4 +13,7 @@
     <string name="size_cart">Size: %s</string>
     <string name="str_quantity">x%s sản phẩm</string>
     <string name="str_classify">Phân loại: %s</string>
+
+    <string name="channel_name">chanel_one</string>
+    <string name="channel_description">Đây là kênh số 1</string>
 </resources>

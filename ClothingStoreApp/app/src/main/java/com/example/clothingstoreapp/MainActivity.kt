@@ -40,10 +40,12 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         getUserCurrent()
-
+        registerFCM()
         askNotificationPermission()
 
+
         binding.bottomNavigation.setOnNavigationItemSelectedListener { menuItem ->
+
             when (menuItem.itemId) {
                 R.id.home -> {
                     supportFragmentManager.beginTransaction()
@@ -54,9 +56,7 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 R.id.shopping_cart -> {
-//                    supportFragmentManager.beginTransaction()
-//                        .replace(R.id.body_container, ShoppingCart())
-//                        .commit()
+
                     val intent = Intent(this, MyCartScreen::class.java)
                     startActivity(intent)
                     return@setOnNavigationItemSelectedListener true
@@ -127,7 +127,17 @@ class MainActivity : AppCompatActivity() {
     }
 
 
+    private fun registerFCM(){
+        FirebaseMessaging.getInstance().subscribeToTopic("/topics/allDevices")
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    Log.d(TAG, "Đăng ký thành công")
+                } else {
+                    Log.e(TAG, "Đăng ký thất bại")
+                }
+            }
 
+    }
 
     //Lấy vị trí hiện tại
     private fun getLocation(){

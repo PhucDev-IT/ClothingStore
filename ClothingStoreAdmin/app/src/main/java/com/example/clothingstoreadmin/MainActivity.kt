@@ -1,8 +1,10 @@
 package com.example.clothingstoreadmin
 
 import android.annotation.SuppressLint
+import android.content.ContentValues
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.MenuItem
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.core.view.GravityCompat
@@ -14,6 +16,7 @@ import com.example.clothingstoreadmin.fragmentlayout.HomeFragment
 import com.example.clothingstoreadmin.fragmentlayout.ManagerProductFragment
 import com.example.clothingstoreadmin.fragmentlayout.OrderFragment
 import com.google.android.material.navigation.NavigationView
+import com.google.firebase.messaging.FirebaseMessaging
 
 class MainActivity : AppCompatActivity(),  NavigationView.OnNavigationItemSelectedListener {
 
@@ -79,4 +82,6 @@ class MainActivity : AppCompatActivity(),  NavigationView.OnNavigationItemSelect
 
         }
     }
+
+
 }

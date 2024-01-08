@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.graphics.PorterDuff
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
 import androidx.compose.ui.text.toUpperCase
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -73,6 +74,7 @@ class TrackOrderScreen : AppCompatActivity() {
                 ProgressOrder.WaitConfirmOrder.name -> {
                     binding.imgCircleDaDatHang.setColorFilter(color, PorterDuff.Mode.SRC_IN)
                     binding.tvTimeOrderDate.text = FormatCurrency.dateTimeFormat.format(value)
+                    binding.btnCancelOrder.visibility = View.VISIBLE
                 }
 
                 ProgressOrder.PackagingOrder.name ->{
@@ -81,6 +83,7 @@ class TrackOrderScreen : AppCompatActivity() {
 
                     binding.lineBottomDaDatHang.setBackgroundColor(color)
                     binding.lineTopPackaging.setBackgroundColor(color)
+                    binding.btnCancelOrder.visibility = View.VISIBLE
                 }
                 ProgressOrder.TransportingOrder.name ->{
                     binding.imgCircleTransport.setColorFilter(color, PorterDuff.Mode.SRC_IN)
@@ -105,6 +108,11 @@ class TrackOrderScreen : AppCompatActivity() {
     private fun handleClick(){
         binding.btnBack.setOnClickListener {
             onBackPressed()
+        }
+
+        binding.btnCancelOrder.setOnClickListener {
+
+
         }
     }
 }

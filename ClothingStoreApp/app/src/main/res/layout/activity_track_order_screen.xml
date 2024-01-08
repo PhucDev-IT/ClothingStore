@@ -156,6 +156,7 @@
                 android:background="@drawable/dashed_line"/>
 
             <LinearLayout
+
                 android:layout_marginTop="10dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -223,14 +224,14 @@
                             android:layout_height="wrap_content"
                             android:textSize="14sp"
                             android:textColor="@color/placeholdercolor"
-                            android:text="1091 Kiều Tiến, Hoằng Đại, Tp.Thanh Hóa"/>
+                            android:text=""/>
                         <TextView
                             android:id="@+id/tvInForAddress"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:textSize="14sp"
                             android:textColor="@color/placeholdercolor"
-                            android:text="1091 Kiều Tiến, Hoằng Đại, Tp.Thanh Hóa"/>
+                            android:text=""/>
                     </LinearLayout>
                 </LinearLayout>
             </LinearLayout>
@@ -477,6 +478,17 @@
                         android:src="@drawable/icon_da_giao_hang_24"/>
                 </LinearLayout>
             </LinearLayout>
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btnCancelOrder"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Hủy đơn hàng"
+                android:visibility="gone"
+                android:textSize="17sp"
+                android:layout_marginVertical="20dp"
+                android:textColor="@color/primarykeyColor"
+                android:background="@drawable/btn_logout"/>
 
         </LinearLayout>
     </ScrollView>

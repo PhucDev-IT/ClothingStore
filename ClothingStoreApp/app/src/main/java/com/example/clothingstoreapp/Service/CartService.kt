@@ -1,6 +1,5 @@
 package com.example.clothingstoreapp.Service
 
-import android.content.ContentValues.TAG
 import android.util.Log
 import com.example.clothingstoreapp.Model.CustomProduct
 import com.example.clothingstoreapp.Model.ItemCart
@@ -9,7 +8,6 @@ import com.google.android.gms.tasks.Task
 import com.google.android.gms.tasks.Tasks
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.firestore.toObject
 
 class CartService(private val db: FirebaseFirestore) {
@@ -17,31 +15,38 @@ class CartService(private val db: FirebaseFirestore) {
     private val maxSize: Long = 10
 
 
-    fun addToCart(idUser: String, cart: ItemCart, resultData: (b: Boolean) -> Unit) {
-        val cartData = hashMapOf(
-            "idProduct" to cart.idProduct,
+    fun addToCart(
+        idUser: String,
+        cart: ItemCart,
+        resultData: (b: Boolean) -> Unit
+    ) {
+        val cartData = hashMapOf<String, Any>(
+            "idProduct" to cart.idProduct!!,
             "quantity" to cart.quantity,
-            "classify" to cart.classify,
-            "color" to cart.color
+            "classify" to cart.classify!!,
+            "color" to cart.color!!
         )
-
 
 
         db.collection("carts")
             .document(idUser)
-            .collection("cartItems").whereEqualTo("idProduct", cart.idProduct)
+            .collection("cartItems")
+            .whereEqualTo("idProduct", cart.idProduct)
             .get()
             .addOnSuccessListener { documents ->
                 if (!documents.isEmpty) {
+                    var isUpdated = false
                     for (document in documents) {
                         val value = document.toObject(ItemCart::class.java)
                         if (value.color == cart.color && value.classify == cart.classify) {
-                            val quantity = value.quantity?.plus(cart.quantity!!)
+                            val quantity = value.quantity + cart.quantity
                             db.collection("carts")
                                 .document(idUser)
-                                .collection("cartItems").document(document.id)
+                                .collection("cartItems")
+                                .document(document.id)
                                 .update("quantity", quantity)
                                 .addOnSuccessListener {
+                                    isUpdated = true
                                     resultData(true)
                                 }
                                 .addOnFailureListener {
@@ -51,24 +56,37 @@ class CartService(private val db: FirebaseFirestore) {
                             break
                         }
                     }
+                    if (!isUpdated) {
+                        addToCartData(idUser, cartData, resultData)
+                    }
                 } else {
-                    db.collection("carts")
-                        .document(idUser)
-                        .collection("cartItems").add(cartData)
-                        .addOnSuccessListener { _ ->
-                            resultData(true)
-                        }
-                        .addOnFailureListener { e ->
-                            resultData(false)
-                            Log.e("Error", "Error adding document", e)
-                        }
+                    addToCartData(idUser, cartData, resultData)
                 }
-            }.addOnFailureListener { e ->
+            }
+            .addOnFailureListener { e ->
                 resultData(false)
                 Log.e("Error", "Error found document", e)
             }
-
     }
+
+    private fun addToCartData(
+        idUser: String,
+        cartData: HashMap<String, Any>,
+        resultData: (b: Boolean) -> Unit
+    ) {
+        db.collection("carts")
+            .document(idUser)
+            .collection("cartItems")
+            .add(cartData)
+            .addOnSuccessListener {
+                resultData(true)
+            }
+            .addOnFailureListener { e ->
+                resultData(false)
+                Log.e("Error", "Error adding document", e)
+            }
+    }
+
 
     fun selectData(idUser: String, onDataLoader: (List<ItemCart>) -> Unit) {
         db.collection("carts").document(idUser).collection("cartItems")

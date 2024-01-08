@@ -1,5 +1,6 @@
 package com.example.clothingstoreapp.Adapter
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,8 +10,14 @@ import com.bumptech.glide.Glide
 import com.example.clothingstoreapp.Interface.ClickObjectInterface
 import com.example.clothingstoreapp.R
 
-class RvImagePreviewAdapter(private val list: List<String>, private val onClick:ClickObjectInterface<String>) : RecyclerView.Adapter<RvImagePreviewAdapter.viewHolder>(){
+class RvImagePreviewAdapter(private var list: List<String>, private val onClick:ClickObjectInterface<String>) : RecyclerView.Adapter<RvImagePreviewAdapter.viewHolder>(){
     class viewHolder(itemView:View):RecyclerView.ViewHolder(itemView)
+
+    @SuppressLint("NotifyDataSetChanged")
+    fun setData(lst:List<String>){
+        list = lst
+        notifyDataSetChanged()
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): viewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.img_preview_product,parent,false)
