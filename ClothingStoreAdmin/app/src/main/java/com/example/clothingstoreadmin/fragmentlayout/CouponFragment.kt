@@ -12,10 +12,8 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.clothingstoreadmin.Interface.ClickObjectInterface
-import com.example.clothingstoreadmin.R
 import com.example.clothingstoreadmin.activity.AddNewVoucherScreen
 import com.example.clothingstoreadmin.adapter.RvVoucherAdapter
-import com.example.clothingstoreadmin.databinding.FragmentChoGiaoHangBinding
 import com.example.clothingstoreadmin.databinding.FragmentCouponBinding
 import com.example.clothingstoreadmin.model.Voucher
 import com.example.clothingstoreadmin.service.VoucherService
@@ -34,7 +32,7 @@ class CouponFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentCouponBinding.inflate(inflater,container,false)
 
         db = Firebase.firestore

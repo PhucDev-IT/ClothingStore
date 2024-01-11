@@ -19,6 +19,21 @@
         android:theme="@style/Theme.ClothingStoreAdmin"
         tools:targetApi="31">
         <activity
+            android:name=".activity.LoginScreen"
+            android:exported="false" />
+        <activity
+            android:name=".activity.OnBoardingActivity"
+            android:exported="false" />
+        <activity
+            android:name=".MainActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activity.ChatDetailsScreen"
+            android:exported="false" />
+        <activity
+            android:name=".activity.ChatScreen"
+            android:exported="false" />
+        <activity
             android:name=".activity.AddNewProduct"
             android:exported="false" />
         <activity
@@ -31,7 +46,7 @@
             android:name=".activity.OrderDetailsScreen"
             android:exported="false" />
         <activity
-            android:name=".MainActivity"
+            android:name=".activity.SplashScreen"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

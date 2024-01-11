@@ -19,6 +19,7 @@
            android:textSize="18sp"
            android:fontFamily="@font/inter_medium"/>
        <ImageButton
+           android:id="@+id/btnChat"
            android:layout_gravity="right"
            android:layout_width="wrap_content"
            android:layout_height="wrap_content"

@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/primarykeyColor"
+    android:orientation="vertical"
+    tools:context=".Activity.ChatDetailsScreen">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:padding="10dp"
+        android:gravity="center_vertical"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <ImageButton
+            android:id="@+id/btnBack"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/circle_layout_white"
+            android:padding="7dp"
+            android:src="@drawable/icon_back_24"
+            android:contentDescription="TODO" />
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:layout_marginStart="30dp"
+            android:id="@+id/profile_image"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginEnd="15dp"
+            android:src="@drawable/avatar_nam"
+            app:civ_border_color="@color/white"
+            app:civ_border_width="2dp"
+            tools:ignore="MissingConstraints"
+            tools:layout_editor_absoluteX="7dp"
+            tools:layout_editor_absoluteY="7dp" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Clothing Store"
+                android:textColor="@color/white"
+                android:fontFamily="@font/inter_bold"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Online"
+                android:textColor="@color/white"/>
+
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:background="@drawable/bg_corner_top_lr"
+        android:paddingVertical="20dp"
+        android:paddingHorizontal="10dp"
+        android:layout_width="match_parent"
+        android:orientation="vertical"
+        android:layout_height="match_parent">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvMessage"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1" />
+
+        <LinearLayout
+            android:background="@drawable/bg_radius_outline_white"
+            android:layout_width="match_parent"
+            android:gravity="center_vertical"
+            android:padding="3dp"
+            android:orientation="horizontal"
+            android:layout_height="wrap_content">
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/baseline_add_24"/>
+
+            <EditText
+                android:id="@+id/edtMess"
+                android:paddingHorizontal="5dp"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:backgroundTint="@color/white"
+                android:gravity="center_vertical"
+                android:hint="Nhập tin nhắn"
+                android:autofillHints="" />
+
+            <ImageView
+                android:id="@+id/btnSend"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="7dp"
+                android:src="@drawable/baseline_send_24"/>
+
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

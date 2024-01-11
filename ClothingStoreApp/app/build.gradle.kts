@@ -126,6 +126,10 @@ dependencies {
     //Onboarding
     implementation("me.relex:circleindicator:2.1.6")
 
+
+    // FirebaseUI for Cloud Firestore
+    implementation("com.firebaseui:firebase-ui-firestore:8.0.2")
+
     //Momo
     //implementation("com.github.momo-wallet:mobile-sdk:1.0.7")
 }

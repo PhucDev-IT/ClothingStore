@@ -38,6 +38,13 @@ class Customer:Serializable {
             _defaultAddress = value
         }
 
+    private var _avatar: String? = null
+    var avatar: String?
+        get() = _avatar
+        set(value) {
+            _avatar = value
+        }
+
     private var _tokenFCM: String? = null
     var tokenFCM: String?
         get() = _tokenFCM

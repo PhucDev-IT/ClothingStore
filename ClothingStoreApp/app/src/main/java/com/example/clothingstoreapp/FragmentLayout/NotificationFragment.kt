@@ -1,11 +1,13 @@
 package com.example.clothingstoreapp.FragmentLayout
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.clothingstoreapp.Activity.ChatDetailsScreen
 import com.example.clothingstoreapp.Adapter.RvNotificationAdapter
 import com.example.clothingstoreapp.R
 import com.example.clothingstoreapp.Service.NotificationService
@@ -29,8 +31,10 @@ class NotificationFragment : Fragment() {
         _binding = FragmentNotificationBinding.inflate(inflater,container,false)
 
         db = Firebase.firestore
-        notificationService = NotificationService(db)
+        notificationService = NotificationService()
+
         initView()
+        handleClick()
         return binding.root
     }
 
@@ -58,6 +62,13 @@ class NotificationFragment : Fragment() {
         }
 
 
+    }
+
+    private fun handleClick(){
+        binding.btnChat.setOnClickListener {
+            val intent = Intent(context, ChatDetailsScreen::class.java)
+            startActivity(intent)
+        }
     }
 
 

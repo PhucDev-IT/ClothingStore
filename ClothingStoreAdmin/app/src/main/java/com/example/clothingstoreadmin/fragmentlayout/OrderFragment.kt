@@ -6,7 +6,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.viewpager2.widget.ViewPager2
-import com.example.clothingstoreadmin.R
 import com.example.clothingstoreadmin.adapter.ViewPagerOderAdapter
 import com.example.clothingstoreadmin.databinding.FragmentOrderBinding
 import com.google.android.material.tabs.TabLayout

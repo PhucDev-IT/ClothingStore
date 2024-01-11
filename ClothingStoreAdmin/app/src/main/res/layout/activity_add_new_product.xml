@@ -288,11 +288,14 @@
                         android:layout_height="wrap_content"
                         android:textColorHint="#757573">
                         <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/edtColor"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:hint="Chọn màu"
                             android:text="Đen"
-                            android:inputType="number" />
+                            android:maxLength="20"
+                            android:lines="1"
+                            android:inputType="text" />
                     </com.google.android.material.textfield.TextInputLayout>
 
                    <ImageView
@@ -307,6 +310,7 @@
 
 
                     <androidx.appcompat.widget.AppCompatButton
+                        android:id="@+id/btnAddColor"
                         android:layout_width="60dp"
                         android:layout_height="35dp"
                         android:text="Thêm"
@@ -317,8 +321,9 @@
 
                 </LinearLayout>
                 <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvColors"
                     android:layout_marginTop="10dp"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"/>
             </LinearLayout>
 

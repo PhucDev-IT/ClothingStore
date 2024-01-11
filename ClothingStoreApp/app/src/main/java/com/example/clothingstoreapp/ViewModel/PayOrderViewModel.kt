@@ -7,6 +7,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.clothingstoreapp.Model.AddressModel
 import com.example.clothingstoreapp.Model.ItemCart
+import com.example.clothingstoreapp.Model.OrderModel
 import com.example.clothingstoreapp.Model.Voucher
 import kotlin.math.log
 
@@ -24,6 +25,9 @@ class PayOrderViewModel : ViewModel() {
     private val _paymentMethod  = MutableLiveData("Thanh toán khi nhận hàng")
     val paymentMethod: LiveData<String> = _paymentMethod
 
+    private val _order  = MutableLiveData<OrderModel>()
+    val order: LiveData<OrderModel> = _order
+
     fun setDeliveryAddress(addressModel: AddressModel?){
         _deliveryAddress.value = addressModel
     }
@@ -31,6 +35,12 @@ class PayOrderViewModel : ViewModel() {
     fun setListCart(list:List<ItemCart>){
         _mListCart.value = list
     }
+
+    fun setOrder(o:OrderModel)
+    {
+        _order.value = o
+    }
+
 
     fun setVoucher(coupon:Voucher?){
         _voucher.value = coupon

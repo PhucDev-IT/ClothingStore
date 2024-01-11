@@ -2,6 +2,7 @@ package com.example.clothingstoreapp.Activity
 
 import android.content.ContentValues.TAG
 import android.content.Context
+import android.content.Intent
 import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -165,6 +166,11 @@ class ProductDetailsScreen : AppCompatActivity() {
                 isOpenPreview = true
                 binding.btnControlPreview.setImageResource(R.drawable.baseline_keyboard_double_arrow_right_24)
             }
+        }
+
+        binding.btnChat.setOnClickListener {
+            val intent = Intent(this,ChatDetailsScreen::class.java)
+            startActivity(intent)
         }
 
         binding.btnAddToCart.setOnClickListener {

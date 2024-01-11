@@ -83,4 +83,10 @@ dependencies {
 
     //Picker color
     implementation("com.github.novatien:SmartColorPicker:1.0.2")
+
+    // FirebaseUI for Cloud Firestore
+    implementation("com.firebaseui:firebase-ui-firestore:8.0.2")
+
+    //Onboarding
+    implementation("me.relex:circleindicator:2.1.6")
 }

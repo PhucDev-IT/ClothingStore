@@ -15,5 +15,7 @@ class FormatCurrency {
       val dateFormat = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
 
       val dateTimeFormat = SimpleDateFormat("dd-MM-yyyy HH:mm", Locale.getDefault())
+
+      val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
   }
 }

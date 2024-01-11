@@ -4,6 +4,7 @@ import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.PorterDuff
+import android.graphics.PorterDuffColorFilter
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.RippleDrawable
 import android.net.Uri
@@ -14,7 +15,10 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.clothingstoreadmin.Interface.ClickObjectInterface
 import com.example.clothingstoreadmin.R
+import com.example.clothingstoreadmin.adapter.RvAddColorsAdapter
 import com.example.clothingstoreadmin.databinding.ActivityAddNewProductBinding
 import com.example.clothingstoreapp.Service.CategoryService
 import com.google.firebase.Firebase
@@ -26,11 +30,16 @@ class AddNewProduct : AppCompatActivity() {
 
     private val PICK_IMAGE_REQUEST_1 = 1
     private val PICK_IMAGE_REQUEST_2 = 2
+    private val PICK_IMAGE_REQUEST_3 = 3
+    private val PICK_IMAGE_REQUEST_4 = 4
+
+
     private lateinit var binding:ActivityAddNewProductBinding
     private var listImagePreview = mutableListOf<Uri>()
-
+    private lateinit var adapterColor:RvAddColorsAdapter
     private val categoryService = CategoryService()
-
+    private var colorSelected:Int? = null
+    private var listColors: MutableMap<String, Int> = mutableMapOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,6 +67,23 @@ class AddNewProduct : AppCompatActivity() {
                 // Xử lý khi không có mục nào được chọn
             }
         }
+
+        //Init adapter new colors
+        adapterColor = RvAddColorsAdapter(object : ClickObjectInterface<Map<String,Int>>{
+            override fun onClickListener(t: Map<String, Int>) {
+                t.forEach { (key, value) ->
+                    listColors[key] = value
+                }
+            }
+        },object : ClickObjectInterface<String>{
+            override fun onClickListener(t: String) {
+                listColors.remove(t)
+            }
+        })
+        val linearLayoutManager = LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false)
+        binding.rvColors.layoutManager = linearLayoutManager
+        binding.rvColors.adapter = adapterColor
+
     }
 
     private fun handleClick(){
@@ -73,6 +99,7 @@ class AddNewProduct : AppCompatActivity() {
 
                     override fun onOk(dialog: ColorPickerDialog?, colorPicker: Int) {
                         binding.tvSelectedColor.imageTintList = ColorStateList.valueOf(colorPicker)
+                        colorSelected = colorPicker
                     }
                 })
             colorPicker.show()
@@ -87,16 +114,25 @@ class AddNewProduct : AppCompatActivity() {
         }
 
         binding.containerImg2.setOnClickListener {
-            openFileChooseImage(PICK_IMAGE_REQUEST_2)
+            openFileChooseImage(PICK_IMAGE_REQUEST_3)
         }
 
         binding.containerImg3.setOnClickListener {
-            openFileChooseImage(PICK_IMAGE_REQUEST_2)
+            openFileChooseImage(PICK_IMAGE_REQUEST_4)
         }
 
         binding.imageRemove1.setOnClickListener {
-            listImagePreview.removeAt(0)
-            setImage()
+            binding.imgProduct1.setImageURI(null)
+        }
+        binding.imageRemove2.setOnClickListener {
+            binding.imgProduct2.setImageURI(null)
+        }
+        binding.imageRemove3.setOnClickListener {
+            binding.imgProduct3.setImageURI(null)
+        }
+
+        binding.btnAddColor.setOnClickListener {
+            addColor()
         }
     }
 
@@ -115,23 +151,25 @@ class AddNewProduct : AppCompatActivity() {
 
         if ( resultCode == RESULT_OK && data != null && data.data != null) {
             val url = data.data
-            if(requestCode == PICK_IMAGE_REQUEST_1){
-              // url?.let {  listImagePreview.add(0,it) }
-                binding.imgProduct.setImageURI(url)
-            }else{
-                url?.let {  listImagePreview.add(it) }
-                setImage()
+
+            when(requestCode){
+                PICK_IMAGE_REQUEST_1 -> binding.imgProduct.setImageURI(url)
+                PICK_IMAGE_REQUEST_2 -> binding.imgProduct1.setImageURI(url)
+                PICK_IMAGE_REQUEST_3 -> binding.imgProduct2.setImageURI(url)
+                PICK_IMAGE_REQUEST_4 -> binding.imgProduct3.setImageURI(url)
             }
+
         }
     }
 
-    private fun setImage(){
-        for(i in 0 until listImagePreview.size){
-            when(i){
-                0 -> binding.imgProduct1.setImageURI(listImagePreview[i])
-                1-> binding.imgProduct2.setImageURI(listImagePreview[i])
-                2-> binding.imgProduct3.setImageURI(listImagePreview[i])
-            }
+
+    private fun addColor(){
+        if(binding.edtColor.text.toString().trim().isEmpty()){
+            binding.edtColor.error = "Chưa nhập màu"
+        }else{
+            if(colorSelected!=null)
+                listColors[binding.edtColor.text.toString().trim()] = colorSelected!!
+            adapterColor.insertData(binding.edtColor.text.toString().trim(),colorSelected)
         }
     }
 

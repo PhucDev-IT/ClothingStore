@@ -196,7 +196,6 @@ class PayOrderFragment : Fragment() {
 
             val order = OrderModel()
 
-
             order.deliveryAddress = sharedViewModel.getDeliveryAddress()
             order.carts = sharedViewModel.getListCart()
             order.orderDate = Date()
@@ -210,6 +209,7 @@ class PayOrderFragment : Fragment() {
 
             orderSevice.addOrder(order) { b ->
                 if (b) {
+                    sharedViewModel.setOrder(order)
                     navController.navigate(R.id.action_payOrderFragment_to_paymentSuccess)
 
                 } else {

@@ -9,6 +9,7 @@ import android.media.RingtoneManager
 import android.net.Uri
 import android.os.Build
 import com.example.clothingstoreapp.Data_Local.DataLocalManager
+import com.example.clothingstoreapp.Service.FirebaseManager
 
 
 class MyApplication: Application() {
@@ -19,6 +20,7 @@ class MyApplication: Application() {
 
     override fun onCreate() {
         super.onCreate()
+        FirebaseManager.initializeFirebaseApp(applicationContext)
         DataLocalManager.init(applicationContext)
         createNotificationChannel()
     }

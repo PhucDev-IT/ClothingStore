@@ -8,11 +8,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.clothingstoreadmin.Interface.ClickObjectInterface
-import com.example.clothingstoreadmin.R
 import com.example.clothingstoreadmin.activity.OrderDetailsScreen
 import com.example.clothingstoreadmin.adapter.RvOrderAdapter
 import com.example.clothingstoreadmin.databinding.FragmentChoGiaoHangBinding
-import com.example.clothingstoreadmin.databinding.FragmentOrderBinding
 import com.example.clothingstoreadmin.model.OrderModel
 import com.example.clothingstoreadmin.model.PaginationScrollListener
 import com.example.clothingstoreadmin.service.OrderService

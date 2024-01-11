@@ -7,13 +7,14 @@ import java.util.Locale
 
 class FormatCurrency {
   companion object{
-      val lc = Locale("vi","VN")
-      val numberFormat = NumberFormat.getCurrencyInstance(lc)
+      private val lc = Locale("vi","VN")
+      val numberFormat: NumberFormat = NumberFormat.getCurrencyInstance(lc)
 
       // Định dạng ngày tháng
       @SuppressLint("ConstantLocale")
       val dateFormat = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
 
+      @SuppressLint("ConstantLocale")
       val dateTimeFormat = SimpleDateFormat("dd-MM-yyyy HH:mm", Locale.getDefault())
   }
 }
