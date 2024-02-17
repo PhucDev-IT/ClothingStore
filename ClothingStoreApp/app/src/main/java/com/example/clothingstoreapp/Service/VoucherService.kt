@@ -6,36 +6,39 @@ import com.example.clothingstoreapp.Model.UserManager
 import com.example.clothingstoreapp.Model.Voucher
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.toObject
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.tasks.await
 import java.util.concurrent.atomic.AtomicInteger
 
 class VoucherService(private val db:FirebaseFirestore) {
 
-    fun selectAllVoucherNotUse(uid:String,onDataLoader:(List<Voucher>)->Unit){
+    fun selectAllVoucherNotUse(uid: String, onDataLoader: (List<Voucher>) -> Unit) = runBlocking {
 
-        db.collection("vouchers").get().addOnSuccessListener { documents->
+        val documents = db.collection("vouchers").get().await()
 
-            val listVouchers = mutableListOf<Voucher>()
-            val tasksCount = AtomicInteger(documents.size())
+        val listVouchers = documents.documents.map { document ->
+            val idVoucher = document.id
+            val voucher = async(Dispatchers.IO) {
+                val result = db.collection("orders")
+                    .whereEqualTo("voucher.id", idVoucher)
+                    .whereEqualTo("user.userId", uid).get().await()
 
-            for (document in documents){
-                val idVoucher = document.id
-
-                db.collection("orders").whereEqualTo("voucher.id",idVoucher)
-                    .whereEqualTo("user.userID",uid).get().addOnSuccessListener { result->
-                        if(result.isEmpty){
-                            val voucher = document.toObject(Voucher::class.java)
-                            listVouchers.add(voucher)
-                        }
-
-                        if (tasksCount.decrementAndGet() == 0) {
-                            onDataLoader(listVouchers)
-                        }
-                    }
+                if (result.isEmpty) {
+                    document.toObject(Voucher::class.java)
+                } else {
+                    null
+                }
             }
-        }.addOnFailureListener {
-            Log.e(TAG,"lỗi: $it")
+            voucher
         }
+
+        val resultVouchers = listVouchers.awaitAll().filterNotNull()
+        onDataLoader(resultVouchers)
     }
+
 
     fun selectMyVouchers(uid:String,onDataLoader:(List<Voucher>)->Unit)
     {

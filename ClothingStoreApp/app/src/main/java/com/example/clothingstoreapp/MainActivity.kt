@@ -25,9 +25,11 @@ import com.google.firebase.firestore.firestore
 import android.Manifest
 import android.content.ContentValues.TAG
 import android.util.Log
+import com.example.clothingstoreapp.Service.VoucherService
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.tasks.OnCompleteListener
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.messaging.FirebaseMessaging
 
 class MainActivity : AppCompatActivity() {
@@ -42,6 +44,7 @@ class MainActivity : AppCompatActivity() {
         getUserCurrent()
         registerFCM()
         askNotificationPermission()
+
 
 
         binding.bottomNavigation.setOnNavigationItemSelectedListener { menuItem ->

@@ -1,5 +1,6 @@
 package com.example.clothingstoreapp.Service
 
+import android.content.ContentValues.TAG
 import android.util.Log
 import com.example.clothingstoreapp.Model.CustomProduct
 import com.example.clothingstoreapp.Model.ItemCart
@@ -104,6 +105,7 @@ class CartService(private val db: FirebaseFirestore) {
                     cartTask.addOnSuccessListener { documentRef ->
                         if (documentRef.exists()) {
                             val cart = document.toObject(ItemCart::class.java)
+                            cart.idCart = document.id
                             val product = documentRef.toObject(Product::class.java)
                             product?.id = documentRef.id
 
@@ -131,5 +133,30 @@ class CartService(private val db: FirebaseFirestore) {
                 Log.e("Error", "Error fetching documents", e)
             }
     }
+
+    fun removeItemCart(list: List<ItemCart>, userID: String, onResult: (Boolean) -> Unit) {
+        val query = db.collection("carts").document(userID).collection("cartItems")
+
+        val tasks = mutableListOf<Task<Void>>()
+
+        for (item in list) {
+            item.idCart?.let {
+                val deleteTask = query.document(it).delete()
+                Log.w(TAG,"Id: ${item.idCart} - $deleteTask")
+                tasks.add(deleteTask)
+            }
+        }
+
+        Tasks.whenAllComplete(tasks)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    onResult(true) // Tất cả xóa thành công
+                } else {
+                    onResult(false) // Có lỗi xảy ra
+                    Log.e(TAG, task.exception.toString())
+                }
+            }
+    }
+
 
 }

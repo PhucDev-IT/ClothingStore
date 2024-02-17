@@ -14,14 +14,19 @@ import com.example.clothingstoreadmin.model.FormatCurrency
 import com.example.clothingstoreadmin.model.OrderModel
 
 
-class RvOrderAdapter(private var list: List<OrderModel>, private val onClick: ClickObjectInterface<OrderModel>):RecyclerView.Adapter<RvOrderAdapter.viewHolder>() {
-
+class RvOrderAdapter( private val onClick: ClickObjectInterface<OrderModel>):RecyclerView.Adapter<RvOrderAdapter.viewHolder>() {
+    private var list: MutableList<OrderModel> = mutableListOf()
     @SuppressLint("NotifyDataSetChanged")
     fun setData(list:List<OrderModel>){
-        this.list  = list
+        this.list.clear()
+        this.list.addAll(list)
         notifyDataSetChanged()
     }
 
+    fun updateData(list:List<OrderModel>){
+        this.list.addAll(list)
+        notifyItemChanged((this.list.size - list.size)-1)
+    }
 
     class viewHolder(itemView:View):RecyclerView.ViewHolder(itemView){
         var imgProduct:ImageView

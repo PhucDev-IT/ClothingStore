@@ -1,5 +1,8 @@
 package com.example.clothingstoreapp.Activity
 
+import android.annotation.SuppressLint
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -18,11 +21,13 @@ import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.Query
 
 class ChatDetailsScreen : AppCompatActivity() {
-    private lateinit var binding:ActivityChatDetailsScreenBinding
-    private var idChatRoom:String = UserManager.getInstance().getUserID()!!
+    private lateinit var binding: ActivityChatDetailsScreenBinding
+    private var idChatRoom: String = UserManager.getInstance().getUserID()!!
     private lateinit var adapter: RvMessageAdapter
-    private  var chatRoomModel:ChatRoomModel = ChatRoomModel()
+    private var chatRoomModel: ChatRoomModel = ChatRoomModel()
     private val userCurrent = UserManager.getInstance().getUserCurrent()
+    private val PICK_IMAGES_REQUEST = 81
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,7 +44,7 @@ class ChatDetailsScreen : AppCompatActivity() {
         val options: FirestoreRecyclerOptions<MessageModel> =
             FirestoreRecyclerOptions.Builder<MessageModel>()
                 .setQuery(query, MessageModel::class.java).build()
-        adapter = RvMessageAdapter(applicationContext,options)
+        adapter = RvMessageAdapter(applicationContext, options)
         val manager = LinearLayoutManager(this)
         manager.reverseLayout = true
         binding.rvMessage.layoutManager = manager
@@ -53,17 +58,26 @@ class ChatDetailsScreen : AppCompatActivity() {
         })
     }
 
-    private fun handleClick(){
+    private fun handleClick() {
         binding.btnSend.setOnClickListener {
             sendMessageToUser()
+        }
+
+        binding.btnPickImage.setOnClickListener {
+            openFileChooseImage()
         }
 
     }
 
 
-    private fun sendMessageToUser(){
-        if(binding.edtMess.text.toString().trim().isNotEmpty()){
-            val sender = CustomSender(userCurrent?.id,userCurrent?.fullName,userCurrent?.avatar,userCurrent?.tokenFCM)
+    private fun sendMessageToUser() {
+        if (binding.edtMess.text.toString().trim().isNotEmpty()) {
+            val sender = CustomSender(
+                userCurrent?.id,
+                userCurrent?.fullName,
+                userCurrent?.avatar,
+                userCurrent?.tokenFCM
+            )
             chatRoomModel.lastMessage = binding.edtMess.text.toString().trim()
             chatRoomModel.lastMessageTimestamp = Timestamp.now()
             chatRoomModel.lastMessageSenderId = userCurrent?.id
@@ -72,7 +86,11 @@ class ChatDetailsScreen : AppCompatActivity() {
 
             ChatService.getChatroomReference(idChatRoom).set(chatRoomModel)
 
-            val messageModel:MessageModel = MessageModel(Timestamp.now(),binding.edtMess.text.toString().trim(),userCurrent?.id)
+            val messageModel: MessageModel = MessageModel(
+                Timestamp.now(),
+                binding.edtMess.text.toString().trim(),
+                userCurrent?.id
+            )
             ChatService.getChatroomMessageReference(idChatRoom).add(messageModel)
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
@@ -82,4 +100,43 @@ class ChatDetailsScreen : AppCompatActivity() {
                 }
         }
     }
+
+
+    //----------------Xử lý chọn ảnh từ thiết bị cục bộ----------------------
+
+
+    private fun openFileChooseImage() {
+        val intent = Intent()
+        intent.type = "image/*"
+        intent.action = Intent.ACTION_OPEN_DOCUMENT
+        intent.addCategory(Intent.CATEGORY_OPENABLE)
+        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
+        startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGES_REQUEST)
+    }
+
+    @SuppressLint("SuspiciousIndentation")
+    @Deprecated("Deprecated in Java")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (resultCode == RESULT_OK) {
+
+            if (data?.clipData != null) {
+                // Multiple images selected
+                for (i in 0 until data.clipData!!.itemCount) {
+                    val uri = data.clipData!!.getItemAt(i).uri
+                    handleImage(uri)
+                }
+            } else if (data?.data != null) {
+                // Single image selected
+                val uri = data.data
+                handleImage(uri!!)
+            }
+        }
+    }
+
+    private fun handleImage(uri: Uri) {
+        // Implement your logic for handling the selected image(s)
+    }
+
 }

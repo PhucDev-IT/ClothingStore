@@ -28,10 +28,10 @@ import com.nvt.color.ColorPickerDialog
 
 class AddNewProduct : AppCompatActivity() {
 
-    private val PICK_IMAGE_REQUEST_1 = 1
-    private val PICK_IMAGE_REQUEST_2 = 2
-    private val PICK_IMAGE_REQUEST_3 = 3
-    private val PICK_IMAGE_REQUEST_4 = 4
+    private val PICK_IMAGE_REQUEST_1 = 0
+    private val PICK_IMAGE_REQUEST_2 = 1
+    private val PICK_IMAGE_REQUEST_3 = 2
+    private val PICK_IMAGE_REQUEST_4 = 3
 
 
     private lateinit var binding:ActivityAddNewProductBinding
@@ -152,6 +152,9 @@ class AddNewProduct : AppCompatActivity() {
         if ( resultCode == RESULT_OK && data != null && data.data != null) {
             val url = data.data
 
+            if (url != null) {
+                listImagePreview[requestCode] = url
+            }
             when(requestCode){
                 PICK_IMAGE_REQUEST_1 -> binding.imgProduct.setImageURI(url)
                 PICK_IMAGE_REQUEST_2 -> binding.imgProduct1.setImageURI(url)

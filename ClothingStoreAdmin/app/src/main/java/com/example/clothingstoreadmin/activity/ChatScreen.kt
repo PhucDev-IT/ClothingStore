@@ -2,16 +2,14 @@ package com.example.clothingstoreadmin.activity
 
 import android.content.ContentValues.TAG
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.clothingstoreadmin.Interface.ClickObjectInterface
-import com.example.clothingstoreadmin.R
 import com.example.clothingstoreadmin.adapter.RvRecentChatAdapter
 import com.example.clothingstoreadmin.databinding.ActivityChatScreenBinding
 import com.example.clothingstoreadmin.model.ChatRoomModel
-import com.example.clothingstoreadmin.model.MessageModel
 import com.example.clothingstoreadmin.service.ChatService
 
 class ChatScreen : AppCompatActivity() {
@@ -30,7 +28,7 @@ class ChatScreen : AppCompatActivity() {
         adapter = RvRecentChatAdapter(emptyList(),object : ClickObjectInterface<ChatRoomModel>{
             override fun onClickListener(t: ChatRoomModel) {
                 val intent = Intent(applicationContext,ChatDetailsScreen::class.java)
-                intent.putExtra("room",t)
+                intent.putExtra("informationRoom",t.senderBy)
                 startActivity(intent)
             }
         })

@@ -58,6 +58,15 @@ class Customer:Serializable {
         set(value) {
             _role = value
         }
+
+    constructor()
+    constructor(id:String?,name:String?,avt:String?,token:String?){
+        this.id = id
+        this.fullName = name
+        this.avatar = avt
+        this.tokenFCM = token
+    }
+
     override fun toString(): String {
         return "Customer(_id=$_id, _fullName=$_fullName, _email=$_email, _listAddress=$_listAddress, _defaultAddress=$_defaultAddress)"
     }

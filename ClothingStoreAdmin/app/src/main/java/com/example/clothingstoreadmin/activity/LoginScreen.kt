@@ -42,7 +42,7 @@ class LoginScreen : AppCompatActivity() {
         binding = ActivityLoginScreenBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        db = FirebaseFirestore.getInstance()
+        db = Firebase.firestore
         auth = FirebaseAuth.getInstance()
         customDialog = CustomDialog(this)
 
