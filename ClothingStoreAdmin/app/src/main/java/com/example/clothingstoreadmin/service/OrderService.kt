@@ -15,10 +15,10 @@ import com.google.firebase.firestore.firestore
 class OrderService {
     private val db = Firebase.firestore
     private val maxSize:Long  =  5
-    private var lastIdOrder: DocumentSnapshot? = null
+    var lastIdOrder: DocumentSnapshot? = null
     fun addOrder(order: OrderModel, onResult: (Boolean) -> Unit) {
 
-        db.collection("orders").add(order).addOnSuccessListener {
+        db.collection("orders").document("WaitingShipping").collection("itemOrders").add(order).addOnSuccessListener {
 
             onResult(true)
 
@@ -31,9 +31,8 @@ class OrderService {
     //Lấy hóa đơn đang vận chuyển
     fun getOrderWaitShipping(onLoadData:(List<OrderModel>)->Unit){
 
-        db.collection("orders")
-            .whereNotEqualTo("currentStatus",ProgressOrder.TransportingOrder.name)
-            .orderBy("currentStatus")
+        db.collection("orders").document("WaitingShipping").collection("itemOrders")
+            .orderBy(FieldPath.documentId())
             .limit(maxSize).get()
             .addOnSuccessListener {  documents->
                 lastIdOrder = documents.documents[documents.size() - 1]
@@ -56,12 +55,12 @@ class OrderService {
 
     fun getNextPage(status: String = ProgressOrder.TransportingOrder.name, onLoadData: (List<OrderModel>) -> Unit) {
         if (lastIdOrder == null) return
-        Log.w(TAG, "Last id pre: ${lastIdOrder!!.id}") // Chú ý sử dụng lastIdOrder.id để lấy ID của DocumentSnapshot
+
         db.collection("orders")
-            .whereNotEqualTo("currentStatus", status)
-            .orderBy("currentStatus")
-            .startAfter(lastIdOrder!!["currentStatus"]) // Sử dụng trường currentStatus để phân trang
-            .limit(maxSize.toLong())
+            .document("WaitingShipping").collection("itemOrders")
+            .orderBy(FieldPath.documentId())
+            .startAfter(lastIdOrder!!.id) // Sử dụng trường currentStatus để phân trang
+            .limit(maxSize)
             .get()
             .addOnSuccessListener { documents ->
                 if (!documents.isEmpty) {

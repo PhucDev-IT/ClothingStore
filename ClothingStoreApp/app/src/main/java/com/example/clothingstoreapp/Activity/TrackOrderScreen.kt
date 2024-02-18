@@ -1,9 +1,11 @@
 package com.example.clothingstoreapp.Activity
 
 import android.annotation.SuppressLint
+import android.content.ContentValues.TAG
 import android.graphics.PorterDuff
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.compose.ui.text.toUpperCase
 import androidx.core.content.ContextCompat
@@ -14,6 +16,7 @@ import com.example.clothingstoreapp.Model.OrderModel
 import com.example.clothingstoreapp.Model.ProgressOrder
 import com.example.clothingstoreapp.Model.TypeVoucher
 import com.example.clothingstoreapp.R
+import com.example.clothingstoreapp.Service.OrderService
 import com.example.clothingstoreapp.databinding.ActivityTrackOrderScreenBinding
 import com.google.firestore.v1.StructuredQuery.Order
 import java.util.Locale
@@ -35,73 +38,82 @@ class TrackOrderScreen : AppCompatActivity() {
 
     @SuppressLint("SetTextI18n", "ResourceAsColor")
     private fun initView(){
-        val order = intent.getSerializableExtra("order") as OrderModel
+        val id = intent.getStringExtra("id")
+        val status = intent.getStringExtra("status")
+        Log.w(TAG,"Track: $id - $status")
+        if(id==null || status==null) return
+        OrderService().getInformationOrderByID(status,id){order->
+            if(order!=null){
 
-        adapter = RvCheckoutAdapter(order.carts)
+                adapter = RvCheckoutAdapter(order.carts)
 
-        val linearLayoutManager = LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false)
-        binding.rvOrders.adapter = adapter
-        binding.rvOrders.layoutManager = linearLayoutManager
-
-
-        binding.tvOrderDate.text = order.orderDate?.let { FormatCurrency.dateTimeFormat.format(it) }
-        binding.tvTotalMoney.text = FormatCurrency.numberFormat.format(order.totalMoney)
+                val linearLayoutManager = LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false)
+                binding.rvOrders.adapter = adapter
+                binding.rvOrders.layoutManager = linearLayoutManager
 
 
-        if(order.voucher!=null )
-        {
-            if(order.voucher!!.typeVoucher == TypeVoucher.FREESHIP.name){
-                binding.tvUserVoucher.text = FormatCurrency.numberFormat.format(order.feeShip)
-            }else if(order.voucher!!.typeVoucher == TypeVoucher.DISCOUNTMONEY.name){
-                binding.tvUserVoucher.text = FormatCurrency.numberFormat.format(order.voucher!!.discount)
-            }else if(order.voucher!!.typeVoucher == TypeVoucher.DISCOUNTPERCENT.name){
-                binding.tvUserVoucher.text = "${order.voucher!!.discount}%"
+                binding.tvOrderDate.text = order.orderDate?.let { FormatCurrency.dateTimeFormat.format(it) }
+                binding.tvTotalMoney.text = FormatCurrency.numberFormat.format(order.totalMoney)
+
+
+                if(order.voucher!=null )
+                {
+                    if(order.voucher!!.typeVoucher == TypeVoucher.FREESHIP.name){
+                        binding.tvUserVoucher.text = FormatCurrency.numberFormat.format(order.feeShip)
+                    }else if(order.voucher!!.typeVoucher == TypeVoucher.DISCOUNTMONEY.name){
+                        binding.tvUserVoucher.text = FormatCurrency.numberFormat.format(order.voucher!!.discount)
+                    }else if(order.voucher!!.typeVoucher == TypeVoucher.DISCOUNTPERCENT.name){
+                        binding.tvUserVoucher.text = "${order.voucher!!.discount}%"
+                    }
+                }else{
+                    binding.tvUserVoucher.text = "0đ"
+                }
+
+                binding.tvTypeAddress.text = order.deliveryAddress?.typeAddress
+                binding.tvFullName.text = order.deliveryAddress?.fullName
+                binding.tvNumberPhone.text = order.deliveryAddress?.numberPhone
+                binding.tvDetailsAddress.text = order.deliveryAddress?.addressDetails
+                binding.tvInForAddress.text = "${order.deliveryAddress?.phuongXa}, ${order.deliveryAddress?.quanHuyen}, ${order.deliveryAddress?.tinhThanhPho}"
+                binding.tvIdOrder.text = order.id?.take(8)?.toUpperCase(Locale.ROOT)
+
+                order.orderStatus?.forEach { (key, value) ->
+                    val color = ContextCompat.getColor(this, R.color.primarykeyColor)
+                    when(key){
+                        ProgressOrder.WaitConfirmOrder.name -> {
+                            binding.imgCircleDaDatHang.setColorFilter(color, PorterDuff.Mode.SRC_IN)
+                            binding.tvTimeOrderDate.text = FormatCurrency.dateTimeFormat.format(value)
+                            binding.btnCancelOrder.visibility = View.VISIBLE
+                        }
+
+                        ProgressOrder.PackagingOrder.name ->{
+                            binding.imgCirclePackaging.setColorFilter(color, PorterDuff.Mode.SRC_IN)
+                            binding.tvTimePackagingOrder.text = FormatCurrency.dateTimeFormat.format(value)
+
+                            binding.lineBottomDaDatHang.setBackgroundColor(color)
+                            binding.lineTopPackaging.setBackgroundColor(color)
+                            binding.btnCancelOrder.visibility = View.GONE
+                        }
+                        ProgressOrder.Shipping.name ->{
+                            binding.imgCircleTransport.setColorFilter(color, PorterDuff.Mode.SRC_IN)
+                            binding.tvTimeTransport.text = FormatCurrency.dateTimeFormat.format(value)
+
+                            binding.lineTopTransport.setBackgroundColor(color)
+                            binding.lineBottomPackaging.setBackgroundColor(color)
+                        }
+
+                        ProgressOrder.DeliveredOrder.name ->{
+                            binding.imgCircleDelivered.setColorFilter(color, PorterDuff.Mode.SRC_IN)
+                            binding.tvTimeDelivered.text = FormatCurrency.dateTimeFormat.format(value)
+
+                            binding.lineTopDelivered.setBackgroundColor(color)
+                            binding.lineBottomTransport.setBackgroundColor(color)
+                        }
+                    }
+                }
+
             }
-        }else{
-            binding.tvUserVoucher.text = "0đ"
         }
 
-        binding.tvTypeAddress.text = order.deliveryAddress?.typeAddress
-        binding.tvFullName.text = order.deliveryAddress?.fullName
-        binding.tvNumberPhone.text = order.deliveryAddress?.numberPhone
-        binding.tvDetailsAddress.text = order.deliveryAddress?.addressDetails
-        binding.tvInForAddress.text = "${order.deliveryAddress?.phuongXa}, ${order.deliveryAddress?.quanHuyen}, ${order.deliveryAddress?.tinhThanhPho}"
-        binding.tvIdOrder.text = order.id?.take(8)?.toUpperCase(Locale.ROOT)
-
-        order.orderStatus?.forEach { (key, value) ->
-            val color = ContextCompat.getColor(this, R.color.primarykeyColor)
-            when(key){
-                ProgressOrder.WaitConfirmOrder.name -> {
-                    binding.imgCircleDaDatHang.setColorFilter(color, PorterDuff.Mode.SRC_IN)
-                    binding.tvTimeOrderDate.text = FormatCurrency.dateTimeFormat.format(value)
-                    binding.btnCancelOrder.visibility = View.VISIBLE
-                }
-
-                ProgressOrder.PackagingOrder.name ->{
-                    binding.imgCirclePackaging.setColorFilter(color, PorterDuff.Mode.SRC_IN)
-                    binding.tvTimePackagingOrder.text = FormatCurrency.dateTimeFormat.format(value)
-
-                    binding.lineBottomDaDatHang.setBackgroundColor(color)
-                    binding.lineTopPackaging.setBackgroundColor(color)
-                    binding.btnCancelOrder.visibility = View.VISIBLE
-                }
-                ProgressOrder.TransportingOrder.name ->{
-                    binding.imgCircleTransport.setColorFilter(color, PorterDuff.Mode.SRC_IN)
-                    binding.tvTimeTransport.text = FormatCurrency.dateTimeFormat.format(value)
-
-                    binding.lineTopTransport.setBackgroundColor(color)
-                    binding.lineBottomPackaging.setBackgroundColor(color)
-                }
-
-                ProgressOrder.DeliveredOrder.name ->{
-                    binding.imgCircleDelivered.setColorFilter(color, PorterDuff.Mode.SRC_IN)
-                    binding.tvTimeDelivered.text = FormatCurrency.dateTimeFormat.format(value)
-
-                    binding.lineTopDelivered.setBackgroundColor(color)
-                    binding.lineBottomTransport.setBackgroundColor(color)
-                }
-            }
-        }
 
     }
 

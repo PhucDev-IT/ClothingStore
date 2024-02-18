@@ -7,6 +7,7 @@ import com.example.clothingstoreapp.FragmentLayout.DangDatHangFragment
 import com.example.clothingstoreapp.FragmentLayout.DonHangDaHuyFragment
 import com.example.clothingstoreapp.FragmentLayout.LichSuMuaHangFragment
 import com.example.clothingstoreapp.FragmentLayout.PreviewInPurchaseFragment
+import com.example.clothingstoreapp.FragmentLayout.WaitingConfirmOrderFragment
 
 class ViewPagerPurchasedAdapter(fragmentActivity: FragmentActivity) :
     FragmentStateAdapter(fragmentActivity) {
@@ -18,7 +19,7 @@ class ViewPagerPurchasedAdapter(fragmentActivity: FragmentActivity) :
 
     override fun createFragment(position: Int): Fragment {
         return when (position) {
-            0 -> DangDatHangFragment()
+            0 -> WaitingConfirmOrderFragment()
             1 -> LichSuMuaHangFragment()
             2 -> DonHangDaHuyFragment()
             3 -> PreviewInPurchaseFragment()

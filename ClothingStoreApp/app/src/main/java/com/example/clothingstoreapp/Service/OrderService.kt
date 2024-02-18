@@ -6,25 +6,54 @@ import com.example.clothingstoreapp.Model.OrderModel
 import com.example.clothingstoreapp.Model.ProgressOrder
 import com.example.clothingstoreapp.Model.UserManager
 import com.google.firebase.Firebase
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.firestore
+import com.google.firebase.firestore.toObject
 
 class OrderService {
 
     private val uid: String? = UserManager.getInstance().getUserID()
-
+    var lastIdOrder:DocumentSnapshot? = null
     private val db = Firebase.firestore
-    private val maxSize:Long  =  10
+    private val maxSize: Long = 10
+
+
     fun addOrder(order: OrderModel, onResult: (Boolean) -> Unit) {
 
-        db.collection("orders").add(order).addOnSuccessListener {
+        db.collection("orders").document(ProgressOrder.WaitConfirmOrder.name)
+            .collection("itemOrders").add(order).addOnSuccessListener {
 
-            onResult(true)
+                onResult(true)
 
-        }.addOnFailureListener {
-            Log.e(TAG, "Có lỗi: ${it.message}")
-            onResult(false)
-        }
+            }.addOnFailureListener {
+                Log.e(TAG, "Có lỗi: ${it.message}")
+                onResult(false)
+            }
+    }
+
+
+    fun getInformationOrderByID(status: String, idOrder: String, onResult: (OrderModel?) -> Unit) {
+        db.collection("orders").document(status).collection("itemOrders")
+            .document(idOrder)
+            .addSnapshotListener { snapshot, e ->
+                if (e != null) {
+                    Log.w(TAG, "Listen failed.", e)
+                    onResult(null)
+                    return@addSnapshotListener
+                }
+
+                if (snapshot != null && snapshot.exists()) {
+                    val order = snapshot.toObject(OrderModel::class.java)
+                    order?.id = snapshot.id
+                    Log.w(TAG, "Result = $order")
+                    onResult(order)
+                } else {
+                    Log.d(TAG, "Current data: null")
+                    onResult(null)
+                }
+            }
     }
 
 
@@ -50,75 +79,66 @@ class OrderService {
         }
     }
 
+    //Lấy đơn hàng đang chờ xác nhận
+    fun getOrderWaitingConfirm(onLoadData: (List<OrderModel>) -> Unit) {
+        val query = db.collection("orders")
+            .document(ProgressOrder.WaitConfirmOrder.name).collection("itemOrders")
+            .whereEqualTo("user.userId", uid!!)
+            .orderBy("orderDate", Query.Direction.ASCENDING)
+            .limit(maxSize)
+        getDataToService(query, onLoadData)
+    }
+
+
 
     //Lấy hóa đơn đang vận chuyển
-    fun getOrderTransporting(onLoadData:(List<OrderModel>)->Unit){
+    fun getOrderTransporting(onLoadData: (List<OrderModel>) -> Unit) {
 
-        db.collection("orders").whereEqualTo("user.userId",uid!!)
-            .orderBy("orderDate",Query.Direction.ASCENDING)
-            .limit(maxSize).get()
-            .addOnSuccessListener {  documents->
-                val list = mutableListOf<OrderModel>()
-
-                for(document in documents){
-
-                    val order:OrderModel = document.toObject(OrderModel::class.java)
-                    order.id = document.id
-                    list.add(order)
-                    Log.w(TAG,"VALUES: ${order.id}")
-                }
-                onLoadData(list)
-
-            }.addOnFailureListener {
-                Log.e(TAG, "Có lỗi: ${it.message}")
-                onLoadData(emptyList())
-            }
+        val query = db.collection("orders")
+            .document(ProgressOrder.Shipping.name).collection("itemOrders")
+            .whereEqualTo("user.userId", uid!!)
+            .orderBy("orderDate", Query.Direction.ASCENDING)
+            .limit(maxSize)
+        getDataToService(query, onLoadData)
 
     }
 
-    fun getOrderDelivery(onLoadData:(List<OrderModel>)->Unit){
-        val uid =  UserManager.getInstance().getUserID()
-        db.collection("orders").whereEqualTo("user.userId",uid!!)
-            .whereEqualTo("currentStatus",ProgressOrder.DeliveredOrder.name)
-            .orderBy("orderDate",Query.Direction.ASCENDING)
-            .limit(maxSize).get()
-            .addOnSuccessListener {  documents->
-                val list = mutableListOf<OrderModel>()
-
-                for(document in documents){
-
-                    val order:OrderModel = document.toObject(OrderModel::class.java)
-                    order.id = document.id
-                    list.add(order)
-                    Log.w(TAG,"VALUES: ${order.id}")
-                }
-                onLoadData(list)
-
-            }.addOnFailureListener {
-                Log.e(TAG, "Có lỗi: ${it.message}")
-                onLoadData(emptyList())
-            }
+    fun getOrderDelivered(onLoadData: (List<OrderModel>) -> Unit) {
+        val query = db.collection("orders")
+            .document(ProgressOrder.DeliveredOrder.name).collection("itemOrders")
+            .whereEqualTo("user.userId", uid!!)
+            .orderBy("orderDate", Query.Direction.ASCENDING)
+            .limit(maxSize)
+        getDataToService(query, onLoadData)
     }
 
     //Lấy đơn hàng đã hủy
-    fun getCancelOrder(onLoadData: (List<OrderModel>) -> Unit){
-        db.collection("orders").document(uid!!).collection("items").limit(maxSize)
-            .get().addOnSuccessListener { documents->
+    fun getCancelOrder(onLoadData: (List<OrderModel>) -> Unit) {
+        val query = db.collection("orders")
+            .document(ProgressOrder.DeliveredOrder.name).collection(uid!!)
+            .limit(maxSize)
+        getDataToService(query, onLoadData)
+    }
+
+
+    private fun getDataToService(db: Query, onLoadData: (List<OrderModel>) -> Unit) {
+        db.get()
+            .addOnSuccessListener { documents ->
                 val list = mutableListOf<OrderModel>()
 
-                for(document in documents){
-
-                    val order:OrderModel = document.toObject(OrderModel::class.java)
+                for (document in documents) {
+                    val order: OrderModel = document.toObject(OrderModel::class.java)
                     order.id = document.id
                     list.add(order)
-                    Log.w(TAG,"VALUES: ${order.id}")
+                    Log.w(TAG, "VALUES: ${order.id}")
                 }
                 onLoadData(list)
-
-            }.addOnFailureListener {
+            }
+            .addOnFailureListener {
                 Log.e(TAG, "Có lỗi: ${it.message}")
                 onLoadData(emptyList())
             }
     }
+
 
 }

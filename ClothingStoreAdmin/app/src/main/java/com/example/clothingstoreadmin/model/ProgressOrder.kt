@@ -1,5 +1,10 @@
 package com.example.clothingstoreadmin.model
 
 enum class ProgressOrder {
-    WaitConfirmOrder,PackagingOrder,TransportingOrder,DeliveredOrder
+    WaitConfirmOrder,PackagingOrder,Shipping,DeliveredOrder,OrderCanceled
+
+
+    //WaitConfirmOrder,PackagingOrder
+    //TransportingOrder
+    //DeliveredOrder
 }

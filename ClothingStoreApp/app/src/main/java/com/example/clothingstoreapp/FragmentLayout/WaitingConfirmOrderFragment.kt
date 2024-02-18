@@ -13,6 +13,7 @@ import com.example.clothingstoreapp.Adapter.RvPurchasedHistoryAdapter
 import com.example.clothingstoreapp.Interface.ClickObjectInterface
 import com.example.clothingstoreapp.Model.OrderModel
 import com.example.clothingstoreapp.Model.PaginationScrollListener
+import com.example.clothingstoreapp.Model.ProgressOrder
 import com.example.clothingstoreapp.Model.UserManager
 import com.example.clothingstoreapp.R
 import com.example.clothingstoreapp.Service.OrderService
@@ -20,7 +21,7 @@ import com.example.clothingstoreapp.ViewModel.PurchaseHistoryViewModel
 import com.example.clothingstoreapp.databinding.FragmentDangDatHangBinding
 
 
-class DangDatHangFragment : Fragment() {
+class WaitingConfirmOrderFragment : Fragment() {
     private lateinit var _binding:FragmentDangDatHangBinding
     private val binding get() = _binding
     private lateinit var adapter: RvPurchasedHistoryAdapter
@@ -44,7 +45,8 @@ class DangDatHangFragment : Fragment() {
         adapter = RvPurchasedHistoryAdapter(emptyList(),object : ClickObjectInterface<OrderModel>{
             override fun onClickListener(t: OrderModel) {
                 val intent = Intent(context,TrackOrderScreen::class.java)
-                intent.putExtra("order",t)
+                intent.putExtra("id",t.id)
+                intent.putExtra("status",ProgressOrder.WaitConfirmOrder.name)
                 startActivity(intent)
             }
         })
@@ -78,22 +80,22 @@ class DangDatHangFragment : Fragment() {
         binding.rvOrders.visibility = View.GONE
         binding.lnChuaCoDonHang.visibility = View.GONE
 
-//        sharedViewModel.getOrder {
-//            isLoading = false
-//
-//            if(it.isEmpty()){
-//                isLoading = true
-//                isLastPage  = true
-//                binding.lnChuaCoDonHang.visibility = View.VISIBLE
-//            }else{
-//                adapter.setData(it)
-//                binding.rvOrders.visibility = View.VISIBLE
-//            }
-//
-//            binding.shimmerLayout.stopShimmer()
-//            binding.shimmerLayout.visibility = View.GONE
-//            binding.swipeRefresh.isRefreshing  = false
-//        }
+        sharedViewModel.getOrderWaitingConfirm {
+            isLoading = false
+
+            if(it.isEmpty()){
+                isLoading = true
+                isLastPage  = true
+                binding.lnChuaCoDonHang.visibility = View.VISIBLE
+            }else{
+                adapter.setData(it)
+                binding.rvOrders.visibility = View.VISIBLE
+            }
+
+            binding.shimmerLayout.stopShimmer()
+            binding.shimmerLayout.visibility = View.GONE
+            binding.swipeRefresh.isRefreshing  = false
+        }
 
     }
 

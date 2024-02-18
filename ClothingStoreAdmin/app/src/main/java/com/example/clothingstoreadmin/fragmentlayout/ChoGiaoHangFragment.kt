@@ -86,6 +86,7 @@ class ChoGiaoHangFragment : Fragment() {
     }
     private fun getFirsData(){
         isLoading.set(true)
+        isLastPage.set(false)
 
         binding.shimmerLayout.startLayoutAnimation()
         binding.shimmerLayout.visibility =  View.VISIBLE
@@ -114,6 +115,7 @@ class ChoGiaoHangFragment : Fragment() {
 
     private fun handleClick(){
         binding.swipeRefresh.setOnRefreshListener {
+            orderService.lastIdOrder = null
             getFirsData()
         }
     }
