@@ -37,7 +37,7 @@ Link: [thiết kế giao diện](https://www.figma.com/file/aCTPI43xRXgEkn1yYFiO
 #### 2.Authentication
 
 >Hiện tại người dùng có thể đăng nhập bằng tài khoản hệ thống hoặc thông qua google
-Trước khi đăng nhập vào hệ thống cần phải kiểm tra tài khoản đã được verify hay chưa?
+>Trước khi đăng nhập vào hệ thống cần phải kiểm tra tài khoản đã được verify hay chưa?
 >- Tên đăng nhập phải đúng định dạng là email
 >- Mật khẩu [6,20] kí tự
 
@@ -47,7 +47,7 @@ Trước khi đăng nhập vào hệ thống cần phải kiểm tra tài khoả
 
 >Người dùng có thể đăng ký bằng tài khoản email hoặc đăng ký nhanh thông qua dịch vụ của google
 >Thông tin sẽ được lưu vào authentication - google của Firebase và lấy ra uid để làm ID duy nhất của khách hàng trong Firestore.
-Trước khi đăng ký(đăng nhập) nhanh bằng tài khoản google cần phải kiểm tra liệu email này đã tồn tại trong Firestore hay chưa. Tránh tình trạng mất mát dữ liệu cũ
+>Trước khi đăng ký(đăng nhập) nhanh bằng tài khoản google cần phải kiểm tra liệu email này đã tồn tại trong Firestore hay chưa. Tránh tình trạng mất mát dữ liệu cũ
 
 ![example](ImageDemo/register.jpg)
 
@@ -67,8 +67,8 @@ Trước khi đăng ký(đăng nhập) nhanh bằng tài khoản google cần ph
 ***
 
 >Người dùng có thể xem chi tiết sản phẩm, size, màu sắc, hoặc thêm sản phẩm vào danh sách yêu thích
-Có thể xem thêm 1 số ảnh demo về sản phẩm nếu có
-Chọn số lượng và thêm vào giỏ hàng
+>Có thể xem thêm 1 số ảnh demo về sản phẩm nếu có
+>Chọn số lượng và thêm vào giỏ hàng
 
 ![example](ImageDemo/product_details.jpg)
 
@@ -82,15 +82,15 @@ Chọn số lượng và thêm vào giỏ hàng
 
 ***
 >Khi mua hàng cần đảm bảo có thầy đủ thông tin nhận hàng
-Sử dụng voucher nếu có (voucher mà người dùng có thể sử dụng và chưa từng được sử dụng trước đây)
-Chọn phương thức thanh toán và xác nhận mua hàng
+>Sử dụng voucher nếu có (voucher mà người dùng có thể sử dụng và chưa từng được sử dụng trước đây)
+>Chọn phương thức thanh toán và xác nhận mua hàng
 
 
 ![example](ImageDemo/payment.jpg)
 
 ***
 >View này sẽ hiển thị tất cả các mã giảm giá mà người dùng chưa sử dụng để áp dụng vào hóa đơn của mình
-=> Lấy tất cả voucher sau đó truy vấn collection "orders" kiểm tra nếu order đã sử dụng mã voucher với người dùng này thì sẽ không được thêm vào list, sau đó sẽ được kết quả là tất cả voucher mà người dùng chưa sử dụng để đảm bảo mỗi người chỉ được sử dụng một mã giảm giá duy nhất
+>=> Lấy tất cả voucher sau đó truy vấn collection "orders" kiểm tra nếu order đã sử dụng mã voucher với người dùng này thì sẽ không được thêm vào list, sau đó sẽ được kết quả là tất cả voucher mà người dùng chưa sử dụng để đảm bảo mỗi người chỉ được sử dụng một mã giảm giá duy nhất
 
 ![example](ImageDemo/use_coupon.jpg)
 
@@ -108,7 +108,7 @@ Chọn phương thức thanh toán và xác nhận mua hàng
 
 ***
 >Track order sẽ sử dụng thời gian thực để đảm bảo dữ liệu được cập nhật chính xác nhất
-Ví dụ: khi người dùng vào track order cùng lúc đó admin cũng đang chuẩn bị xác nhận đơn hàng, sau khi xác nhận thì bên client sẽ được cập nhật luôn và nút hủy đơn hàng sẽ không còn hiển thị nữa.
+>Ví dụ: khi người dùng vào track order cùng lúc đó admin cũng đang chuẩn bị xác nhận đơn hàng, sau khi xác nhận thì bên client sẽ được cập nhật luôn và nút hủy đơn hàng sẽ không còn hiển thị nữa.
 
 ![example](ImageDemo/track_order.jpg)
 
@@ -116,4 +116,6 @@ Ví dụ: khi người dùng vào track order cùng lúc đó admin cũng đang 
 
 
 
-# Xây dựng app: Nguyễn Văn Phúc
+# Xây dựng app:
+*Nguyễn Văn Phúc*
+*Email: nguyenvanphuc3603@gmail.com*
