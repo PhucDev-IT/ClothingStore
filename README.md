@@ -4,7 +4,7 @@
 
 ---
 
-##Mô tả:
+## Mô tả:
 - Phần mềm sử dụng API của firebase và các thư viện khác bên ngoài
 - Các chức năng được xây dựng tương tự với các nền tảng thương mại điện tử khác
 - Xem sản phẩm, Thêm giỏ hàng, Mua hàng (Sử dụng voucher),Chat, Xem lịch sử mua hàng, Quản lý thông tin cá nhân...
@@ -36,9 +36,18 @@ Link: [thiết kế giao diện](https://www.figma.com/file/aCTPI43xRXgEkn1yYFiO
 
 #### 2.Authentication
 
+>Hiện tại người dùng có thể đăng nhập bằng tài khoản hệ thống hoặc thông qua google
+Trước khi đăng nhập vào hệ thống cần phải kiểm tra tài khoản đã được verify hay chưa?
+>- Tên đăng nhập phải đúng định dạng là email
+>- Mật khẩu [6,20] kí tự
+
 ![example](ImageDemo/login.jpg)
 
 ***
+
+>Người dùng có thể đăng ký bằng tài khoản email hoặc đăng ký nhanh thông qua dịch vụ của google
+>Thông tin sẽ được lưu vào authentication - google của Firebase và lấy ra uid để làm ID duy nhất của khách hàng trong Firestore.
+Trước khi đăng ký(đăng nhập) nhanh bằng tài khoản google cần phải kiểm tra liệu email này đã tồn tại trong Firestore hay chưa. Tránh tình trạng mất mát dữ liệu cũ
 
 ![example](ImageDemo/register.jpg)
 
@@ -57,15 +66,33 @@ Link: [thiết kế giao diện](https://www.figma.com/file/aCTPI43xRXgEkn1yYFiO
 
 ***
 
+>Người dùng có thể xem chi tiết sản phẩm, size, màu sắc, hoặc thêm sản phẩm vào danh sách yêu thích
+Có thể xem thêm 1 số ảnh demo về sản phẩm nếu có
+Chọn số lượng và thêm vào giỏ hàng
+
 ![example](ImageDemo/product_details.jpg)
 
 ***
+>Trang giỏ hàng sẽ hiển thị tất cả sản phẩm đã được người dùng thêm vào giỏ hàng. Nếu không có sẽ hiển thị "chưa có sản phẩm nào trong giỏ hàng"
+> Một số test:
+>- Người dùng đã chọn sản phẩm bất kì sau đó sẽ tính và hiển thị tổng tiền
+>- Sau khi chọn sản phẩm, người dùng thay đổi số lượng hay xóa sản phẩm đều được đảm bảo cập nhật lại danh sách sản phẩm đã chọn và số tiền tránh xảy ra sai sót  
 
 ![example](ImageDemo/cart.jpg)
 
 ***
+>Khi mua hàng cần đảm bảo có thầy đủ thông tin nhận hàng
+Sử dụng voucher nếu có (voucher mà người dùng có thể sử dụng và chưa từng được sử dụng trước đây)
+Chọn phương thức thanh toán và xác nhận mua hàng
+
 
 ![example](ImageDemo/payment.jpg)
+
+***
+>View này sẽ hiển thị tất cả các mã giảm giá mà người dùng chưa sử dụng để áp dụng vào hóa đơn của mình
+=> Lấy tất cả voucher sau đó truy vấn collection "orders" kiểm tra nếu order đã sử dụng mã voucher với người dùng này thì sẽ không được thêm vào list, sau đó sẽ được kết quả là tất cả voucher mà người dùng chưa sử dụng để đảm bảo mỗi người chỉ được sử dụng một mã giảm giá duy nhất
+
+![example](ImageDemo/use_coupon.jpg)
 
 ***
 
@@ -80,6 +107,8 @@ Link: [thiết kế giao diện](https://www.figma.com/file/aCTPI43xRXgEkn1yYFiO
 ![example](ImageDemo/waiting_confirm.jpg)
 
 ***
+>Track order sẽ sử dụng thời gian thực để đảm bảo dữ liệu được cập nhật chính xác nhất
+Ví dụ: khi người dùng vào track order cùng lúc đó admin cũng đang chuẩn bị xác nhận đơn hàng, sau khi xác nhận thì bên client sẽ được cập nhật luôn và nút hủy đơn hàng sẽ không còn hiển thị nữa.
 
 ![example](ImageDemo/track_order.jpg)
 

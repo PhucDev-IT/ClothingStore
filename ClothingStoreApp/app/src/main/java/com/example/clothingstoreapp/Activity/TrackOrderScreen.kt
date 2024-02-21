@@ -39,9 +39,13 @@ class TrackOrderScreen : AppCompatActivity() {
     @SuppressLint("SetTextI18n", "ResourceAsColor")
     private fun initView(){
         val id = intent.getStringExtra("id")
-        val status = intent.getStringExtra("status")
-        Log.w(TAG,"Track: $id - $status")
+        var status = intent.getStringExtra("status")
+
         if(id==null || status==null) return
+        if(status == ProgressOrder.WaitConfirmOrder.name || status == ProgressOrder.Shipping.name)
+            status = "WaitingDelivery"
+
+
         OrderService().getInformationOrderByID(status,id){order->
             if(order!=null){
 

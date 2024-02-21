@@ -14,15 +14,12 @@ import com.example.clothingstoreapp.Interface.ClickObjectInterface
 import com.example.clothingstoreapp.Model.OrderModel
 import com.example.clothingstoreapp.Model.PaginationScrollListener
 import com.example.clothingstoreapp.Model.ProgressOrder
-import com.example.clothingstoreapp.Model.UserManager
-import com.example.clothingstoreapp.R
-import com.example.clothingstoreapp.Service.OrderService
 import com.example.clothingstoreapp.ViewModel.PurchaseHistoryViewModel
-import com.example.clothingstoreapp.databinding.FragmentDangDatHangBinding
+import com.example.clothingstoreapp.databinding.FragmentWaitingConfirmOrderBinding
 
 
 class WaitingConfirmOrderFragment : Fragment() {
-    private lateinit var _binding:FragmentDangDatHangBinding
+    private lateinit var _binding:FragmentWaitingConfirmOrderBinding
     private val binding get() = _binding
     private lateinit var adapter: RvPurchasedHistoryAdapter
     private var  isLoading:Boolean = false
@@ -35,7 +32,7 @@ class WaitingConfirmOrderFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentDangDatHangBinding.inflate(inflater,container,false)
+        _binding = FragmentWaitingConfirmOrderBinding.inflate(inflater,container,false)
         initView()
         handleClick()
         return binding.root

@@ -16,7 +16,7 @@ import com.example.clothingstoreapp.Model.PaginationScrollListener
 import com.example.clothingstoreapp.R
 import com.example.clothingstoreapp.Service.OrderService
 import com.example.clothingstoreapp.ViewModel.PurchaseHistoryViewModel
-import com.example.clothingstoreapp.databinding.FragmentDangDatHangBinding
+
 import com.example.clothingstoreapp.databinding.FragmentLichSuMuaHangFrangmentBinding
 
 class LichSuMuaHangFragment : Fragment() {

@@ -105,7 +105,7 @@ class OrderDetailsScreen : AppCompatActivity() {
                     binding.lineBottomDaDatHang.setBackgroundColor(color)
                     binding.lineTopPackaging.setBackgroundColor(color)
                 }
-                ProgressOrder.TransportingOrder.name ->{
+                ProgressOrder.Shipping.name ->{
                     binding.imgCircleTransport.setColorFilter(color, PorterDuff.Mode.SRC_IN)
                     binding.tvTimeTransport.text = FormatCurrency.dateTimeFormat.format(value)
 

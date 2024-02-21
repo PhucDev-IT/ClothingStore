@@ -90,8 +90,8 @@ class OrderModel:Serializable {
             _feeShip = value
         }
 
-    private var _currentStatus: String? = null
-    var currentStatus: String?
+    private var _currentStatus: String = ProgressOrder.WaitConfirmOrder.name
+    var currentStatus: String
         get() = _currentStatus
         set(value) {
             _currentStatus = value

@@ -29,13 +29,16 @@ class OrderService {
     }
 
     //Lấy hóa đơn đang vận chuyển
+
     fun getOrderWaitShipping(onLoadData:(List<OrderModel>)->Unit){
 
-        db.collection("orders").document("WaitingShipping").collection("itemOrders")
+        db.collection("orders")
+            .whereEqualTo("currentStatus",ProgressOrder.WaitConfirmOrder.name)
             .orderBy(FieldPath.documentId())
             .limit(maxSize).get()
             .addOnSuccessListener {  documents->
-                lastIdOrder = documents.documents[documents.size() - 1]
+                if(documents!=null && !documents.isEmpty)
+                    lastIdOrder = documents.documents[documents.size() - 1]
                 Log.w(TAG,"Last id: $lastIdOrder")
                 val list = mutableListOf<OrderModel>()
                 for(document in documents){
@@ -53,11 +56,11 @@ class OrderService {
 
     }
 
-    fun getNextPage(status: String = ProgressOrder.TransportingOrder.name, onLoadData: (List<OrderModel>) -> Unit) {
+    fun getNextPage(onLoadData: (List<OrderModel>) -> Unit) {
         if (lastIdOrder == null) return
 
         db.collection("orders")
-            .document("WaitingShipping").collection("itemOrders")
+            .whereEqualTo("currentStatus",ProgressOrder.WaitConfirmOrder.name)
             .orderBy(FieldPath.documentId())
             .startAfter(lastIdOrder!!.id) // Sử dụng trường currentStatus để phân trang
             .limit(maxSize)
@@ -89,7 +92,8 @@ class OrderService {
     //Xác nhận đơn hàng
     fun confirmOrder(order:OrderModel,onResult: (Boolean) -> Unit){
         order.id?.let { it ->
-            db.collection("orders").document(it).set(order)
+            db.collection("orders")
+               .document(it).set(order)
                 .addOnSuccessListener {
                     onResult(true)
                 }.addOnFailureListener {

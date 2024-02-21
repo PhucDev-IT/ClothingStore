@@ -25,10 +25,10 @@ class PurchaseHistoryViewModel:ViewModel() {
 
     //Lấy đơn hàng đang chờ xác nhận
     fun getOrderWaitingConfirm(callBack:(List<OrderModel>)->Unit){
-        orderService.getOrderWaitingConfirm {list->
-            _mListOrder.value = list
-            callBack(list)
-        }
+//        orderService.getOrderWaitingConfirm {list->
+//            _mListOrder.value = list
+//            callBack(list)
+//        }
     }
 
     fun getOrderDelivery(callBack:(List<OrderModel>)->Unit){

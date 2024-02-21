@@ -8,6 +8,7 @@ import com.example.clothingstoreapp.Model.UserManager
 import com.google.firebase.Firebase
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.firestore
 import com.google.firebase.firestore.toObject
@@ -22,8 +23,7 @@ class OrderService {
 
     fun addOrder(order: OrderModel, onResult: (Boolean) -> Unit) {
 
-        db.collection("orders").document(ProgressOrder.WaitConfirmOrder.name)
-            .collection("itemOrders").add(order).addOnSuccessListener {
+        db.collection("orders").add(order).addOnSuccessListener {
 
                 onResult(true)
 
@@ -35,7 +35,7 @@ class OrderService {
 
 
     fun getInformationOrderByID(status: String, idOrder: String, onResult: (OrderModel?) -> Unit) {
-        db.collection("orders").document(status).collection("itemOrders")
+        db.collection("orders")
             .document(idOrder)
             .addSnapshotListener { snapshot, e ->
                 if (e != null) {
@@ -81,9 +81,10 @@ class OrderService {
 
     //Lấy đơn hàng đang chờ xác nhận
     fun getOrderWaitingConfirm(onLoadData: (List<OrderModel>) -> Unit) {
+        lastIdOrder = null
         val query = db.collection("orders")
-            .document(ProgressOrder.WaitConfirmOrder.name).collection("itemOrders")
             .whereEqualTo("user.userId", uid!!)
+            .whereEqualTo("currentStatus",ProgressOrder.WaitConfirmOrder.name)
             .orderBy("orderDate", Query.Direction.ASCENDING)
             .limit(maxSize)
         getDataToService(query, onLoadData)
@@ -92,21 +93,23 @@ class OrderService {
 
 
     //Lấy hóa đơn đang vận chuyển
-    fun getOrderTransporting(onLoadData: (List<OrderModel>) -> Unit) {
-
+    fun getOrderShipping(onLoadData: (List<OrderModel>) -> Unit) {
+        lastIdOrder = null
         val query = db.collection("orders")
-            .document(ProgressOrder.Shipping.name).collection("itemOrders")
             .whereEqualTo("user.userId", uid!!)
+            .whereIn("currentStatus", listOf(ProgressOrder.PackagingOrder.name, ProgressOrder.Shipping.name))
             .orderBy("orderDate", Query.Direction.ASCENDING)
             .limit(maxSize)
         getDataToService(query, onLoadData)
-
     }
 
+
+    //Đơn hàng đã  mua
     fun getOrderDelivered(onLoadData: (List<OrderModel>) -> Unit) {
+        lastIdOrder = null
         val query = db.collection("orders")
-            .document(ProgressOrder.DeliveredOrder.name).collection("itemOrders")
             .whereEqualTo("user.userId", uid!!)
+            .whereArrayContains("statusOrder","")
             .orderBy("orderDate", Query.Direction.ASCENDING)
             .limit(maxSize)
         getDataToService(query, onLoadData)
@@ -120,12 +123,24 @@ class OrderService {
         getDataToService(query, onLoadData)
     }
 
+    fun getNextPage(status:String,onLoadData: (List<OrderModel>) -> Unit) {
+        if (lastIdOrder == null) return
+
+        db.collection("orders")
+            .document(status).collection("itemOrders")
+            .whereEqualTo("currentStatus",ProgressOrder.WaitConfirmOrder.name)
+            .orderBy(FieldPath.documentId())
+            .startAfter(lastIdOrder!!.id) // Sử dụng trường currentStatus để phân trang
+            .limit(maxSize)
+            .get()
+
+    }
 
     private fun getDataToService(db: Query, onLoadData: (List<OrderModel>) -> Unit) {
         db.get()
             .addOnSuccessListener { documents ->
                 val list = mutableListOf<OrderModel>()
-
+                lastIdOrder = documents.documents[documents.size() - 1]
                 for (document in documents) {
                     val order: OrderModel = document.toObject(OrderModel::class.java)
                     order.id = document.id

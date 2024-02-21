@@ -71,7 +71,7 @@ class ChoGiaoHangFragment : Fragment() {
     fun loadNextPage(){
         isLoading.set(true) // Gán giá trị true cho biến isLoading
 
-        orderService.getNextPage(ProgressOrder.TransportingOrder.name){
+        orderService.getNextPage{
             if(it.isEmpty()){
                 isLastPage.set(true)
                 isLoading.set(true)
