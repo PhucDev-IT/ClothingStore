@@ -7,6 +7,7 @@ import com.example.clothingstoreapp.Model.Product
 import com.example.clothingstoreapp.Model.ProductIsLiked
 import com.google.android.gms.tasks.Task
 import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.FirebaseFirestore
 import java.util.Locale
 import java.util.concurrent.atomic.AtomicInteger
@@ -18,7 +19,9 @@ class ProductService(private val db: FirebaseFirestore) {
 
     //Lấy tất cả sản phẩm
     fun selectAllFirstPage(onDataLoader: (List<Product>) -> Unit) {
-        db.collection("products").limit(maxSize)
+        db.collection("products")
+            .orderBy(FieldPath.documentId())
+            .limit(maxSize)
             .get()
             .addOnSuccessListener { result ->
                 val list = mutableListOf<Product>()
@@ -28,8 +31,6 @@ class ProductService(private val db: FirebaseFirestore) {
                     product.id = document.id
                     list.add(product)
                 }
-
-                // Kiểm tra xem có tài liệu trong kết quả không
                 if (!result.isEmpty) {
                     lastDocument = result.documents[result.size() - 1] // Lấy tài liệu cuối cùng
 
@@ -69,7 +70,9 @@ class ProductService(private val db: FirebaseFirestore) {
 
     //Lấy sản phẩm theo giới tính
     fun selectByTags(value: String, onDataLoader: (List<Product>) -> Unit) {
-        db.collection("products").whereArrayContains("tags", value.toUpperCase(Locale.ROOT)).limit(maxSize)
+        db.collection("products").whereArrayContains("tags", value.toUpperCase(Locale.ROOT))
+            .orderBy(FieldPath.documentId())
+            .limit(maxSize)
             .get()
             .addOnSuccessListener { result ->
                 val list = mutableListOf<Product>()

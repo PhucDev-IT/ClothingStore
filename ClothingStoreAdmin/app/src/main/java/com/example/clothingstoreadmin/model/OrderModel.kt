@@ -48,8 +48,8 @@ class OrderModel:Serializable {
             _carts = value
         }
 
-    private var _orderDate: Date? = null
-    var orderDate: Date?
+    private var _orderDate: Long = Date().time
+    var orderDate: Long
         get() = _orderDate
         set(value) {
             _orderDate = value

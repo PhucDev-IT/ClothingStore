@@ -35,7 +35,7 @@ class PayOrderFragment : Fragment() {
     private val binding get() = _binding
     private lateinit var navController: NavController
     private val sharedViewModel: PayOrderViewModel by activityViewModels()
-    private val phiVanChuyen: Double = 16000.0
+    private val feeShipDefault: Double = 16000.0
     private var freeShip: Double = 0.0
     private var voucherDiscount: Double = 0.0
     private var tongTienHang: Double = 0.0
@@ -93,13 +93,13 @@ class PayOrderFragment : Fragment() {
             } else {
 
                 when (voucher.typeVoucher) {
-                    TypeVoucher.FREESHIP.name -> freeShip = phiVanChuyen
+                    TypeVoucher.FREESHIP.name -> freeShip = feeShipDefault
 
                     TypeVoucher.DISCOUNTMONEY.name -> voucherDiscount = (voucher.discount ?: 0.0)
 
                     TypeVoucher.DISCOUNTPERCENT.name -> {
                         val percent = (voucher.discount ?: 1.0).div(100)
-                        voucherDiscount = (tongTienHang + phiVanChuyen).times(percent)
+                        voucherDiscount = (tongTienHang + feeShipDefault).times(percent)
                     }
                 }
 
@@ -110,7 +110,7 @@ class PayOrderFragment : Fragment() {
                 binding.tvVoucherGiamGia.text =
                     "- " + FormatCurrency.numberFormat.format(voucherDiscount)
                 binding.tvTongTienThanhToan.text =
-                    FormatCurrency.numberFormat.format(tongTienHang + phiVanChuyen - freeShip - voucherDiscount)
+                    FormatCurrency.numberFormat.format(tongTienHang + feeShipDefault - freeShip - voucherDiscount)
                 binding.tvTotalMoney.text = binding.tvTongTienThanhToan.text
             }
         }
@@ -168,16 +168,16 @@ class PayOrderFragment : Fragment() {
         tongTienHang = 0.0
         sharedViewModel.mListCart.observe(viewLifecycleOwner) { list ->
             for (item in list) {
-                tongTienHang += (item.quantity?.times(item.product?.price!!)!!)
+                tongTienHang += (item.quantity.times(item.product?.price!!))
             }
 
             binding.tvSumMoneyProduct.text = FormatCurrency.numberFormat.format(tongTienHang)
-            binding.tvTongPhiVanChuyen.text = FormatCurrency.numberFormat.format(phiVanChuyen)
+            binding.tvTongPhiVanChuyen.text = FormatCurrency.numberFormat.format(feeShipDefault)
             binding.tvGiamGiaVanChuyen.text = "- " + FormatCurrency.numberFormat.format(freeShip)
             binding.tvVoucherGiamGia.text =
                 "- " + FormatCurrency.numberFormat.format(voucherDiscount)
             binding.tvTongTienThanhToan.text =
-                FormatCurrency.numberFormat.format(tongTienHang + phiVanChuyen - freeShip - voucherDiscount)
+                FormatCurrency.numberFormat.format(tongTienHang + feeShipDefault - freeShip - voucherDiscount)
             binding.tvTotalMoney.text = binding.tvTongTienThanhToan.text
 
         }
@@ -189,7 +189,7 @@ class PayOrderFragment : Fragment() {
         if (sharedViewModel.getDeliveryAddress() == null) {
             Toast.makeText(context, "Thiếu thông tin nhận hàng", Toast.LENGTH_SHORT).show()
         } else {
-            customDialog.dialogBasic("Đang xử lý...")
+            customDialog.dialogLoadingBasic("Đang xử lý...")
             val orderSevice = OrderService()
 
             val user = UserOrder(UserManager.getInstance().getUserID()!!,UserManager.getInstance().getUserCurrent()?.tokenFCM)
@@ -198,14 +198,14 @@ class PayOrderFragment : Fragment() {
 
             order.deliveryAddress = sharedViewModel.getDeliveryAddress()
             order.carts = sharedViewModel.getListCart()
-            order.orderDate = Date()
+            order.orderDate = Date().time
             order.voucher = sharedViewModel.voucher.value
             order.paymentMethod = sharedViewModel.paymentMethod.value
             order.user = user
             order.orderStatus = mutableMapOf(ProgressOrder.WaitConfirmOrder.name to Date())
-            order.totalMoney = tongTienHang + phiVanChuyen - freeShip - voucherDiscount
+            order.totalMoney = tongTienHang + feeShipDefault - freeShip - voucherDiscount
             order.currentStatus = ProgressOrder.WaitConfirmOrder.name
-            order.feeShip = freeShip
+            order.feeShip = feeShipDefault - freeShip
 
             orderSevice.addOrder(order) { b ->
                 if (b) {

@@ -61,11 +61,11 @@
                         <TextView
                             android:gravity="right"
                             android:layout_weight="1"
-                            android:id="@+id/tvPrice"
+                            android:id="@+id/tvTotalProduct"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="50.000đ"
-                            android:textColor="@color/red"
+                            android:text="x1 mặt hàng"
+                            android:textColor="@color/placeholdercolor"
                             android:fontFamily="@font/inter_medium"/>
                     </LinearLayout>
                     <TextView

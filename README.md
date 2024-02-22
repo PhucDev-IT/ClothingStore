@@ -5,9 +5,9 @@
 ---
 
 ## Mô tả:
-- Phần mềm sử dụng API của firebase và các thư viện khác bên ngoài
+- Phần mềm sử dụng Firebase của google và các thư viện khác bên ngoài
 - Các chức năng được xây dựng tương tự với các nền tảng thương mại điện tử khác
-- Xem sản phẩm, Thêm giỏ hàng, Mua hàng (Sử dụng voucher),Chat, Xem lịch sử mua hàng, Quản lý thông tin cá nhân...
+- Xem sản phẩm, Thêm giỏ hàng, Mua hàng (Sử dụng voucher),Chat, Quản lý mua hàng, Quản lý thông tin cá nhân...
 
 ---
 
@@ -91,6 +91,7 @@ Link: [thiết kế giao diện](https://www.figma.com/file/aCTPI43xRXgEkn1yYFiO
 ***
 >View này sẽ hiển thị tất cả các mã giảm giá mà người dùng chưa sử dụng để áp dụng vào hóa đơn của mình
 >=> Lấy tất cả voucher sau đó truy vấn collection "orders" kiểm tra nếu order đã sử dụng mã voucher với người dùng này thì sẽ không được thêm vào list, sau đó sẽ được kết quả là tất cả voucher mà người dùng chưa sử dụng để đảm bảo mỗi người chỉ được sử dụng một mã giảm giá duy nhất
+>Người dùng có thể tìm kiếm voucher theo mã hoặc bấm sử dụng với các voucher đã hiển thị 
 
 ![example](ImageDemo/use_coupon.jpg)
 
@@ -100,9 +101,15 @@ Link: [thiết kế giao diện](https://www.figma.com/file/aCTPI43xRXgEkn1yYFiO
 
 ***
 
+>Sử dụng skeleton để tạo hiệu ứng animations loading trong lúc lấy dữ liệu, đảm bảo trải nghiệm người dùng không bị quá cứng
+
 ![example](ImageDemo/animation_loading_skeleton.jpg)
 
 ***
+
+# 4. Orders
+
+>Phân trang lấy các hóa đơn tương ứng với từng trạng thái
 
 ![example](ImageDemo/waiting_confirm.jpg)
 
@@ -110,11 +117,33 @@ Link: [thiết kế giao diện](https://www.figma.com/file/aCTPI43xRXgEkn1yYFiO
 >Track order sẽ sử dụng thời gian thực để đảm bảo dữ liệu được cập nhật chính xác nhất
 >Ví dụ: khi người dùng vào track order cùng lúc đó admin cũng đang chuẩn bị xác nhận đơn hàng, sau khi xác nhận thì bên client sẽ được cập nhật luôn và nút hủy đơn hàng sẽ không còn hiển thị nữa.
 
-![example](ImageDemo/track_order.jpg)
+![example](ImageDemo/order_detail1.jpg)
 
 ***
 
+![example](ImageDemo/order_details2.jpg)
 
+***
+
+>Khi người dùng muốn hủy đơn hàng (trước khi admin xác nhận) thì cần phải xác nhận và chọn lý do hủy
+
+![example](ImageDemo/confirm_cancelOrder.jpg)
+
+***
+
+5. Notification
+>Thông báo các khuyến mãi, thông báo tình trạng hóa đơn cho người dùng
+
+![example](ImageDemo/notification.jpg)
+
+***
+
+6. Chat
+>Sử dụng realtime firestore để lắng nghe các thay đổi và cập nhật lên recyclerview
+
+![example](ImageDemo/form_chat.jpg)
+
+***
 
 # Xây dựng app:
 *Nguyễn Văn Phúc*

@@ -7,10 +7,9 @@ import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.viewpager2.widget.ViewPager2
 import com.example.clothingstoreapp.Adapter.RvPurchasedHistoryAdapter
-import com.example.clothingstoreapp.Adapter.ViewPagerPurchasedAdapter
 import com.example.clothingstoreapp.Interface.ClickObjectInterface
+import com.example.clothingstoreapp.MainActivity
 import com.example.clothingstoreapp.Model.OrderModel
 import com.example.clothingstoreapp.Model.PaginationScrollListener
 import com.example.clothingstoreapp.Model.ProgressOrder
@@ -24,10 +23,11 @@ class PurchasedHistoryScreen : AppCompatActivity() {
 
     private lateinit var binding: ActivityPurchasedHistoryScreenBinding
     private lateinit var adapter: RvPurchasedHistoryAdapter
-    private var  isLoading: AtomicBoolean = AtomicBoolean(true)
+    private var isLoading: AtomicBoolean = AtomicBoolean(true)
     private var isLastPage: AtomicBoolean = AtomicBoolean(false)
     private lateinit var orderService: OrderService
-    private var currentTab:Int = 0
+    private var currentTab: Int = 0
+    private var allowBackPress: Boolean = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,19 +35,22 @@ class PurchasedHistoryScreen : AppCompatActivity() {
         setContentView(binding.root)
 
         orderService = OrderService()
+
+        allowBackPress = intent.getBooleanExtra("allowOnBackPress", true)
+
         initView()
         handleClick()
         initUI()
 
     }
 
-    private fun initView(){
+    private fun initView() {
         //--------------------- SET UP TAB LAYOUT ---------------------------------
         binding.tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab?) {
                 tab?.let {
-                     currentTab = it.position
-                     getFirsData(it.position)
+                    currentTab = it.position
+                    getFirsData(it.position)
                 }
             }
 
@@ -72,22 +75,29 @@ class PurchasedHistoryScreen : AppCompatActivity() {
         }
 
         //----------------- Set up recycler view-------------------
-        adapter = RvPurchasedHistoryAdapter(emptyList(),object : ClickObjectInterface<OrderModel> {
+        adapter = RvPurchasedHistoryAdapter(object : ClickObjectInterface<OrderModel> {
             override fun onClickListener(t: OrderModel) {
-                val intent = Intent(this@PurchasedHistoryScreen,TrackOrderScreen::class.java)
-                intent.putExtra("id",t.id)
+                val intent = Intent(this@PurchasedHistoryScreen, TrackOrderScreen::class.java)
+                intent.putExtra("id", t.id)
                 intent.putExtra("status", ProgressOrder.WaitConfirmOrder.name)
                 startActivity(intent)
             }
         })
 
-        val linearLayoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL,false)
+        val linearLayoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         binding.rvOrders.adapter = adapter
         binding.rvOrders.layoutManager = linearLayoutManager
 
-        binding.rvOrders.addOnScrollListener(object : PaginationScrollListener(linearLayoutManager){
+        binding.rvOrders.addOnScrollListener(object :
+            PaginationScrollListener(linearLayoutManager) {
             override fun loadMoreItem() {
-
+                isLoading.set(true)
+                when(currentTab){
+                    0 -> orderService.getNextPage(ProgressOrder.WaitConfirmOrder.name){loadNextPage(it)}
+                    1 -> orderService.getNextPage(ProgressOrder.PackagingOrder.name){loadNextPage(it)}
+                    2 -> orderService.getNextPage(ProgressOrder.DeliveredOrder.name){loadNextPage(it)}
+                    3 -> orderService.getNextPage(ProgressOrder.OrderCanceled.name){loadNextPage(it)}
+                }
             }
 
             override fun isLoading(): Boolean {
@@ -98,57 +108,57 @@ class PurchasedHistoryScreen : AppCompatActivity() {
                 return isLastPage.get()
             }
         })
-
-        getFirsData(currentTab)
     }
 
     private fun initUI() {
-        val tab = intent.getStringExtra("key_tab")
+        val tab = intent.getIntExtra("key_tab", 0)
+        currentTab = tab
 
-        getFirsData(0)
+        binding.tabLayout.getTabAt(currentTab)?.select()
+
+        getFirsData(tab)
     }
 
     //---------------- XỬ LÝ LOGIC CHO TỪNG TAB------------------------------------------
 
-    private fun getFirsData(tab:Int){
+    private fun getFirsData(tab: Int) {
 
+        isLastPage.set(false)
         isLoading.set(true)
 
         binding.shimmerLayout.startLayoutAnimation()
-        binding.shimmerLayout.visibility =  View.VISIBLE
+        binding.shimmerLayout.visibility = View.VISIBLE
         binding.rvOrders.visibility = View.GONE
         binding.lnChuaCoDonHang.visibility = View.GONE
 
-        when(tab){
-            0 -> orderService.getOrderWaitingConfirm{setDataToView(it)}
-            1 -> orderService.getOrderShipping{setDataToView(it)}
-            2 -> orderService.getOrderDelivered{setDataToView(it)}
+        when (tab) {
+            0 -> orderService.getOrderWaitingConfirm { setDataToView(it) }
+            1 -> orderService.getOrderShipping { setDataToView(it) }
+            2 -> orderService.getOrderDelivered { setDataToView(it) }
+            3 -> orderService.getCancelOrder { setDataToView(it) }
         }
 
 
     }
 
-//    fun loadNextPage(){
-//        isLoading.set(true) // Gán giá trị true cho biến isLoading
-//
-//        orderService.getNextPage(){
-//            if(it.isEmpty()){
-//                isLastPage.set(true)
-//                isLoading.set(true)
-//
-//                Toast.makeText(this,"Hết rồi", Toast.LENGTH_SHORT).show()
-//            }else{
-//                Toast.makeText(this,"Load tiếp ${it.size}", Toast.LENGTH_SHORT).show()
-//                adapter.updateData(it)
-//            }
-//            isLoading.set(false)
-//        }
-//    }
+    fun loadNextPage(orders: List<OrderModel>) {
+        if (orders.isEmpty()) {
+            isLastPage.set(true)
+            isLoading.set(true)
+
+            Toast.makeText(this, "Hết rồi", Toast.LENGTH_SHORT).show()
+        } else {
+            Toast.makeText(this, "Load tiếp ${orders.size}", Toast.LENGTH_SHORT).show()
+            adapter.updateData(orders)
+        }
+        isLoading.set(false)
+
+    }
 
 
-    private fun handleClick(){
+    private fun handleClick() {
         binding.swipeRefresh.setOnRefreshListener {
-            getFirsData(0)
+            getFirsData(currentTab)
         }
 
         binding.btnBack.setOnClickListener {
@@ -157,22 +167,32 @@ class PurchasedHistoryScreen : AppCompatActivity() {
     }
 
 
+    private fun setDataToView(order: List<OrderModel>) {
 
-    private fun setDataToView(order:List<OrderModel>){
-        isLoading.set(false)
-
-        if(order.isEmpty()){
+        if (order.isEmpty()) {
             isLoading.set(true)
             isLastPage.set(true)
             binding.lnChuaCoDonHang.visibility = View.VISIBLE
-        }else{
+        } else {
             adapter.setData(order)
             binding.rvOrders.visibility = View.VISIBLE
+            isLoading.set(false)
         }
 
         binding.shimmerLayout.stopShimmer()
         binding.shimmerLayout.visibility = View.GONE
-        binding.swipeRefresh.isRefreshing  = false
+        binding.swipeRefresh.isRefreshing = false
+    }
+
+    @Deprecated("Deprecated in Java")
+    override fun onBackPressed() {
+        if (allowBackPress) {
+            super.onBackPressed()
+        } else {
+            val intent = Intent(this, MainActivity::class.java)
+            startActivity(intent)
+        }
+
     }
 
 }

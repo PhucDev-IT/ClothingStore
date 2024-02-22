@@ -48,15 +48,15 @@ class OrderModel:Serializable {
             _carts = value
         }
 
-    private var _orderDate: Date? = null
-    var orderDate: Date?
+    private var _orderDate: Long = Date().time
+    var orderDate: Long
         get() = _orderDate
         set(value) {
             _orderDate = value
         }
 
-    private var _orderStatus: MutableMap<String,Date>? = null
-    var orderStatus: MutableMap<String,Date>?
+    private var _orderStatus: MutableMap<String,Date> = mutableMapOf()
+    var orderStatus: MutableMap<String,Date>
         get() = _orderStatus
         set(value) {
             _orderStatus = value
@@ -83,8 +83,8 @@ class OrderModel:Serializable {
             _totalMoney = value
         }
 
-    private var _feeShip: Double? = null
-    var feeShip: Double?
+    private var _feeShip: Double = 0.0
+    var feeShip: Double
         get() = _feeShip
         set(value) {
             _feeShip = value
@@ -95,6 +95,13 @@ class OrderModel:Serializable {
         get() = _currentStatus
         set(value) {
             _currentStatus = value
+        }
+
+    private var _reasonCancel: String? = null
+    var reasonCancel: String?
+        get() = _reasonCancel
+        set(value) {
+            _reasonCancel = value
         }
 
 }

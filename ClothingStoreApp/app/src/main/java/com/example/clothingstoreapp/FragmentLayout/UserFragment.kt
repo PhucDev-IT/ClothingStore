@@ -11,6 +11,7 @@ import com.example.clothingstoreapp.Activity.MyVoucherScreen
 import com.example.clothingstoreapp.Activity.ProductsIsLikedScreen
 import com.example.clothingstoreapp.Activity.PurchasedHistoryScreen
 import com.example.clothingstoreapp.Activity.SettingsActivity
+import com.example.clothingstoreapp.Adapter.CustomDialog
 import com.example.clothingstoreapp.Model.ProgressOrder
 import com.example.clothingstoreapp.R
 import com.example.clothingstoreapp.databinding.FragmentUserBinding
@@ -21,7 +22,7 @@ import com.google.firebase.auth.auth
 class UserFragment : Fragment(), View.OnClickListener {
     private lateinit var _binding: FragmentUserBinding
     private val binding get() = _binding
-
+    private lateinit var customDialog: CustomDialog
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -29,7 +30,7 @@ class UserFragment : Fragment(), View.OnClickListener {
     ): View {
         _binding = FragmentUserBinding.inflate(inflater, container, false)
         handleClick()
-
+        customDialog = context?.let { CustomDialog(it) }!!
         initView()
         return binding.root
     }
@@ -61,7 +62,7 @@ class UserFragment : Fragment(), View.OnClickListener {
 
             R.id.lnLichSuMuaHang -> {
                 intent = Intent(context, PurchasedHistoryScreen::class.java)
-                intent.putExtra("key_tab","Purchase")
+                intent.putExtra("key_tab", 2)
             }
 
             R.id.lnMyCoupon -> {
@@ -74,20 +75,29 @@ class UserFragment : Fragment(), View.OnClickListener {
 
             }
 
-            R.id.lnDangXuLy ->{
+            R.id.lnDangXuLy -> {
                 intent = Intent(context, PurchasedHistoryScreen::class.java)
-                intent.putExtra("key_tab","Processing")
+                intent.putExtra("key_tab", 0)
             }
 
-            R.id.lnPreview->{
+            R.id.lnPreview -> {
                 intent = Intent(context, PurchasedHistoryScreen::class.java)
-                intent.putExtra("key_tab","isPreview")
+                intent.putExtra("key_tab", 4)
             }
 
             R.id.btnLogout -> {
-                Firebase.auth.signOut()
-                intent = Intent(context, LoginScreen::class.java)
-                requireActivity().finishAffinity()
+                customDialog.dialogBasic(
+                    "ĐĂNG XUẤT",
+                    "Bạn có chắc chắc muốn đăng xuất khỏi ứng dụng?"
+                ) { b ->
+                    if (b) {
+                        Firebase.auth.signOut()
+                        intent = Intent(context, LoginScreen::class.java)
+                        requireActivity().finish()
+                        startActivity(intent!!)
+                    }
+                }
+
             }
 
         }

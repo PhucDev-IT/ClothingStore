@@ -101,7 +101,7 @@ class SignUpScreen : AppCompatActivity() {
         }else if(!binding.ckbAgree.isChecked){
             binding.ckbAgree.error = "Vui lòng chấp nhận điều khoản của chúng tôi"
         }else{
-            customDialog.dialogBasic("Đang xử lý....")
+            customDialog.dialogLoadingBasic("Đang xử lý....")
             checkIsExistsEmail(name, email, password)
         }
     }
@@ -182,7 +182,7 @@ class SignUpScreen : AppCompatActivity() {
 
         // Result returned from launching the Intent from GoogleSignInClient.getSignInIntent(...);
         if (requestCode == RC_SIGN_IN) {
-            customDialog.dialogBasic("Đang xử lý...")
+            customDialog.dialogLoadingBasic("Đang xử lý...")
             val task = GoogleSignIn.getSignedInAccountFromIntent(data)
             handleSignInResult(task)
         }

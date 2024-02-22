@@ -258,7 +258,7 @@ class ProductDetailsScreen : AppCompatActivity() {
         if(selectQuantity > product.quantity!!){
             Toast.makeText(this,"Số lượng còn lại không đủ",Toast.LENGTH_SHORT).show()
         }else{
-            customDialog.dialogBasic("Đang xử lý...")
+            customDialog.dialogLoadingBasic("Đang xử lý...")
 
             val idUerCurrent: String? = UserManager.getInstance().getUserID()
 

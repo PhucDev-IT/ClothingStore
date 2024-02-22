@@ -13,19 +13,25 @@ import com.example.clothingstoreapp.Model.FormatCurrency
 import com.example.clothingstoreapp.Model.OrderModel
 import com.example.clothingstoreapp.R
 
-class RvPurchasedHistoryAdapter(private var list: List<OrderModel>, private val onClick:ClickObjectInterface<OrderModel>):RecyclerView.Adapter<RvPurchasedHistoryAdapter.viewHolder>() {
+class RvPurchasedHistoryAdapter( private val onClick:ClickObjectInterface<OrderModel>):RecyclerView.Adapter<RvPurchasedHistoryAdapter.viewHolder>() {
+    private var list: MutableList<OrderModel> = mutableListOf()
 
     @SuppressLint("NotifyDataSetChanged")
     fun setData(list:List<OrderModel>){
-        this.list  = list
+        this.list.clear()
+        this.list.addAll(list)
         notifyDataSetChanged()
     }
 
+    fun updateData(list:List<OrderModel>){
+        this.list.addAll(list)
+        notifyItemChanged((this.list.size - list.size)-1)
+    }
 
     class viewHolder(itemView:View):RecyclerView.ViewHolder(itemView){
         var imgProduct:ImageView
         var nameProduct:TextView
-        var tvPrice:TextView
+        var tvTotalProduct:TextView
         var tvMore:TextView
         var tvDateOrder:TextView
         var tvQuantity:TextView
@@ -34,7 +40,7 @@ class RvPurchasedHistoryAdapter(private var list: List<OrderModel>, private val 
         init {
             imgProduct = itemView.findViewById(R.id.imgProduct)
             nameProduct = itemView.findViewById(R.id.nameProduct)
-            tvPrice = itemView.findViewById(R.id.tvPrice)
+            tvTotalProduct = itemView.findViewById(R.id.tvTotalProduct)
             tvMore = itemView.findViewById(R.id.tvMore)
             tvDateOrder = itemView.findViewById(R.id.tvDateOrder)
             tvQuantity = itemView.findViewById(R.id.tvQuantity)
@@ -50,15 +56,16 @@ class RvPurchasedHistoryAdapter(private var list: List<OrderModel>, private val 
         return viewHolder(view)
     }
 
-    @SuppressLint("CheckResult", "StringFormatMatches")
+    @SuppressLint("CheckResult", "StringFormatMatches", "SetTextI18n")
     override fun onBindViewHolder(holder: viewHolder, position: Int) {
         holder.itemView.apply {
             Glide.with(context).load(list[position].carts?.get(0)?.product?.imgPreview).into(holder.imgProduct)
             holder.nameProduct.text = list[position].carts?.get(0)?.product?.name
             holder.tvTotalMoney.text = FormatCurrency.numberFormat.format(list[position].totalMoney)
-            holder.tvDateOrder.text = list[position].orderDate?.let {
+            holder.tvDateOrder.text = list[position].orderDate.let {
                 FormatCurrency.dateFormat.format(it)
             }
+            holder.tvTotalProduct.text = "${list[position].carts?.size} mặt hàng"
             holder.tvQuantity.text = resources.getString(R.string.str_quantity,
                 list[position].carts?.get(0)?.quantity ?: 1
             )

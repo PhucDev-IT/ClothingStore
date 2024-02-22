@@ -16,9 +16,9 @@ import com.google.firebase.firestore.toObject
 class OrderService {
 
     private val uid: String? = UserManager.getInstance().getUserID()
-    var lastIdOrder:DocumentSnapshot? = null
+    private var lastIdOrder:DocumentSnapshot? = null
     private val db = Firebase.firestore
-    private val maxSize: Long = 10
+    private val maxSize: Long = 5
 
 
     fun addOrder(order: OrderModel, onResult: (Boolean) -> Unit) {
@@ -57,25 +57,18 @@ class OrderService {
     }
 
 
+    //Hủy đơn hàng
+
     fun cancelOrder(order: OrderModel, onResult: (Boolean) -> Unit) {
-        val orderDocument = db.collection("order").document(order.id!!)
-        val canceledOrdersCollection = db.collection("orders").document(uid!!)
-            .collection("canceled")
-
-        db.runTransaction { transaction ->
-            // Xóa đơn hàng từ collection "order"
-            transaction.delete(orderDocument)
-
-            // Thêm đơn hàng vào collection "canceled" trong "orders"
-            transaction.set(canceledOrdersCollection.document(order.id!!), order)
-
-            // Trả về kết quả
-            true
-        }.addOnSuccessListener {
-            onResult(true)
-        }.addOnFailureListener { e ->
-            Log.e(TAG, "Có lỗi khi hủy đơn hàng: ${e.message}")
-            onResult(false)
+        order.id?.let { it ->
+            db.collection("orders")
+                .document(it).set(order)
+                .addOnSuccessListener {
+                    onResult(true)
+                }.addOnFailureListener {
+                    Log.e(TAG, "Có lỗi: ${it.message}")
+                    onResult(false)
+                }
         }
     }
 
@@ -85,7 +78,8 @@ class OrderService {
         val query = db.collection("orders")
             .whereEqualTo("user.userId", uid!!)
             .whereEqualTo("currentStatus",ProgressOrder.WaitConfirmOrder.name)
-            .orderBy("orderDate", Query.Direction.ASCENDING)
+            //.orderBy("orderDate", Query.Direction.DESCENDING)
+             .orderBy(FieldPath.documentId())
             .limit(maxSize)
         getDataToService(query, onLoadData)
     }
@@ -98,7 +92,8 @@ class OrderService {
         val query = db.collection("orders")
             .whereEqualTo("user.userId", uid!!)
             .whereIn("currentStatus", listOf(ProgressOrder.PackagingOrder.name, ProgressOrder.Shipping.name))
-            .orderBy("orderDate", Query.Direction.ASCENDING)
+           // .orderBy("orderDate", Query.Direction.DESCENDING)
+            .orderBy(FieldPath.documentId())
             .limit(maxSize)
         getDataToService(query, onLoadData)
     }
@@ -110,7 +105,8 @@ class OrderService {
         val query = db.collection("orders")
             .whereEqualTo("user.userId", uid!!)
             .whereArrayContains("statusOrder","")
-            .orderBy("orderDate", Query.Direction.ASCENDING)
+           // .orderBy("orderDate", Query.Direction.DESCENDING)
+            .orderBy(FieldPath.documentId())
             .limit(maxSize)
         getDataToService(query, onLoadData)
     }
@@ -118,7 +114,10 @@ class OrderService {
     //Lấy đơn hàng đã hủy
     fun getCancelOrder(onLoadData: (List<OrderModel>) -> Unit) {
         val query = db.collection("orders")
-            .document(ProgressOrder.DeliveredOrder.name).collection(uid!!)
+            .whereEqualTo("user.userId", uid!!)
+            .whereEqualTo("currentStatus",ProgressOrder.OrderCanceled.name)
+           // .orderBy("orderDate", Query.Direction.DESCENDING)
+            .orderBy(FieldPath.documentId())
             .limit(maxSize)
         getDataToService(query, onLoadData)
     }
@@ -126,28 +125,38 @@ class OrderService {
     fun getNextPage(status:String,onLoadData: (List<OrderModel>) -> Unit) {
         if (lastIdOrder == null) return
 
-        db.collection("orders")
-            .document(status).collection("itemOrders")
-            .whereEqualTo("currentStatus",ProgressOrder.WaitConfirmOrder.name)
+        val query =  db.collection("orders")
+            .whereEqualTo("user.userId", uid!!)
+            .whereEqualTo("currentStatus",status)
+            //.orderBy("orderDate", Query.Direction.DESCENDING)
             .orderBy(FieldPath.documentId())
             .startAfter(lastIdOrder!!.id) // Sử dụng trường currentStatus để phân trang
             .limit(maxSize)
-            .get()
-
+        getDataToService(query, onLoadData)
     }
 
+
+
+
     private fun getDataToService(db: Query, onLoadData: (List<OrderModel>) -> Unit) {
+        Log.w(TAG,"before last id: ${lastIdOrder?.id}")
         db.get()
             .addOnSuccessListener { documents ->
-                val list = mutableListOf<OrderModel>()
-                lastIdOrder = documents.documents[documents.size() - 1]
-                for (document in documents) {
-                    val order: OrderModel = document.toObject(OrderModel::class.java)
-                    order.id = document.id
-                    list.add(order)
-                    Log.w(TAG, "VALUES: ${order.id}")
+                if (!documents.isEmpty) {
+                    val list = mutableListOf<OrderModel>()
+                    lastIdOrder = documents.documents[documents.size() - 1]
+                    Log.w(TAG,"after last id: $lastIdOrder")
+                    for (document in documents) {
+                        val order: OrderModel = document.toObject(OrderModel::class.java)
+                        order.id = document.id
+                        list.add(order)
+                        Log.w(TAG, "VALUES: ${order.id}")
+                    }
+                    onLoadData(list)
                 }
-                onLoadData(list)
+                else {
+                    onLoadData(emptyList())
+                }
             }
             .addOnFailureListener {
                 Log.e(TAG, "Có lỗi: ${it.message}")

@@ -102,7 +102,7 @@ class LoginScreen : AppCompatActivity() {
             Toast.makeText(this,"Tài khoản hoặc mật khẩu không được để trống",Toast.LENGTH_SHORT).show();
         }else{
 
-            customDialog.dialogBasic("Đợi một xíu ...")
+            customDialog.dialogLoadingBasic("Đợi một xíu ...")
              auth.signInWithEmailAndPassword(userName,password)
                 .addOnCompleteListener{task->
                     if(task.isSuccessful){
@@ -143,7 +143,7 @@ class LoginScreen : AppCompatActivity() {
 
         // Result returned from launching the Intent from GoogleSignInClient.getSignInIntent(...);
         if (requestCode == RC_SIGN_IN) {
-            customDialog.dialogBasic("Đang xử lý...")
+            customDialog.dialogLoadingBasic("Đang xử lý...")
             val task = GoogleSignIn.getSignedInAccountFromIntent(data)
             handleSignInResult(task)
         }

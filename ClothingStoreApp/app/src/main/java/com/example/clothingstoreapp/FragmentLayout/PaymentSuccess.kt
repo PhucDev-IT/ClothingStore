@@ -44,6 +44,7 @@ class PaymentSuccess : Fragment() {
 
         binding.btnViewOrder.setOnClickListener {
             val intent = Intent(context,PurchasedHistoryScreen::class.java)
+            intent.putExtra("allowOnBackPress",false)
             startActivity(intent)
             requireActivity().finishAffinity()
         }
