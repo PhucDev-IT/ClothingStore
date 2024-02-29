@@ -18,6 +18,7 @@
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@drawable/pikachu"
         android:label="@string/app_name"
+        android:usesCleartextTraffic="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.ClothingStoreApp"
@@ -35,9 +36,7 @@
         <activity
             android:name=".Activity.MyVoucherScreen"
             android:exported="false" />
-        <activity
-            android:name=".Activity.MainLayout_User"
-            android:exported="false" />
+
         <activity
             android:name=".Activity.TrackOrderScreen"
             android:exported="false" />

@@ -22,6 +22,7 @@ import com.example.clothingstoreapp.databinding.ActivityProductDetailsScreenBind
 import android.media.MediaPlayer
 import android.util.Log
 import com.example.clothingstoreapp.Adapter.CustomDialog
+import com.example.clothingstoreapp.Model.CustomProduct
 import com.example.clothingstoreapp.Model.ItemCart
 import com.example.clothingstoreapp.Model.ProductIsLiked
 import com.example.clothingstoreapp.Model.UserManager
@@ -44,7 +45,7 @@ class ProductDetailsScreen : AppCompatActivity() {
     private lateinit var db:FirebaseFirestore
     private lateinit var cartService:CartService
     private lateinit var customDialog: CustomDialog
-    private lateinit var cart:ItemCart
+    private lateinit var productToCart:CustomProduct
     private var isOpenPreview = true
     private lateinit var adapter: RvImagePreviewAdapter
 
@@ -63,7 +64,8 @@ class ProductDetailsScreen : AppCompatActivity() {
     private fun initView(){
          product = intent.getSerializableExtra("product") as Product
 
-        cart = ItemCart(product.id!!,selectQuantity)
+        productToCart = CustomProduct(product.id!!,selectQuantity,product.name!!,
+            product.img_preview?.get(0)!!,product.price!!)
 
         Glide.with(this).load(product.img_preview?.get(0)).into(binding.imgProduct)
         binding.tvNameProduct.text = product.name
@@ -119,7 +121,7 @@ class ProductDetailsScreen : AppCompatActivity() {
             radioButton.text = value
             radioButton.setOnCheckedChangeListener { buttonView, ischecked ->
                 if (ischecked) {
-                    cart.classify = buttonView.text.toString()
+                    productToCart.classify = buttonView.text.toString()
                 }
             }
             binding.rdoGroupClassifies.addView(radioButton)
@@ -144,7 +146,7 @@ class ProductDetailsScreen : AppCompatActivity() {
                 if (ischecked) {
                     binding.tvSelectedColor.text = buttonView.text
                     binding.tvSelectedColor.setTextColor(Color.parseColor(value))
-                    cart.color = buttonView.text.toString()
+                    productToCart.color = buttonView.text.toString()
                 }
             }
             binding.rdoGroupColors.addView(radioButton)
@@ -250,7 +252,7 @@ class ProductDetailsScreen : AppCompatActivity() {
             FormatCurrency.numberFormat.format(product.price?.times(selectQuantity) ?: 0)
         ))
 
-        cart.quantity = selectQuantity
+        productToCart.quantity = selectQuantity
     }
 
     //Thêm vào giỏ hàng
@@ -267,7 +269,7 @@ class ProductDetailsScreen : AppCompatActivity() {
                 customDialog.closeDialog()
             }else{
 
-                cartService.addToCart(idUerCurrent,cart){b->
+                cartService.addToCart(idUerCurrent,productToCart){b->
                     if(b){
                         Toast.makeText(this,"Thêm thành công",Toast.LENGTH_SHORT).show()
                         customDialog.closeDialog()

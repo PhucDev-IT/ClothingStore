@@ -45,20 +45,30 @@ class MyAddressFragment : Fragment() {
     }
 
     private fun initView(){
-        val list = UserManager.getInstance().getUserCurrent()?.listAddress
-
-        val adapter = list?.let {
-            RvMyAddressAdapter(it,object : ClickObjectInterface<AddressModel>{
-                override fun onClickListener(t: AddressModel) {
-                    Toast.makeText(context,"Bạn chọn: ${t.tinhThanhPho}",Toast.LENGTH_SHORT).show()
-                }
-            })
-        }
-
+        val user = UserManager.getInstance().getUserCurrent()
+        val adapter = RvMyAddressAdapter(emptyList(),object : ClickObjectInterface<AddressModel>{
+            override fun onClickListener(t: AddressModel) {
+                Toast.makeText(context,"Bạn chọn: ${t.province?.ProvinceName}",Toast.LENGTH_SHORT).show()
+            }
+        })
         val linearLayoutManager = LinearLayoutManager(context,LinearLayoutManager.VERTICAL,false)
 
         binding.rvAddress.adapter = adapter
         binding.rvAddress.layoutManager = linearLayoutManager
+
+        if(user!=null && user.listAddress==null){
+           addressService.fetchAddress {list->
+               if(list!=null){
+                   UserManager.getInstance().setUser(user)
+                   adapter.setData(list)
+               }
+           }
+        }else{
+            user?.listAddress?.let { adapter.setData(it) }
+        }
+
+
+
 
 
         val navController = findNavController()
@@ -80,6 +90,10 @@ class MyAddressFragment : Fragment() {
     private fun handleClick(){
         binding.lnAddNewAddress.setOnClickListener {
             navController.navigate(R.id.action_myAddressFragment_to_add_AddressFragment)
+        }
+
+        binding.btnBack.setOnClickListener {
+            requireActivity().onBackPressed()
         }
     }
 

@@ -41,11 +41,20 @@
         android:id="@+id/optionAddressFragment"
         android:name="com.example.clothingstoreapp.FragmentLayout.OptionAddressFragment"
         android:label="fragment_option_address"
-        tools:layout="@layout/fragment_option_address" />
+        tools:layout="@layout/fragment_option_address" >
+        <action
+            android:id="@+id/action_optionAddressFragment_to_add_AddressFragment2"
+            app:destination="@id/add_AddressFragment2" />
+    </fragment>
     <fragment
         android:id="@+id/paymentSuccess"
         android:name="com.example.clothingstoreapp.FragmentLayout.PaymentSuccess"
         android:label="fragment_payment_success"
         tools:layout="@layout/fragment_payment_success"
         />
+    <fragment
+        android:id="@+id/add_AddressFragment2"
+        android:name="com.example.clothingstoreapp.FragmentLayout.Add_AddressFragment"
+        android:label="fragment_add__address"
+        tools:layout="@layout/fragment_add__address" />
 </navigation>

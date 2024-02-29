@@ -96,36 +96,61 @@
             android:fontFamily="@font/inter_bold"
             android:textSize="17sp"
             android:layout_margin="10dp"/>
-        <AutoCompleteTextView
-            android:id="@+id/atvTinhThanhPho"
-            android:layout_marginTop="1dp"
+<!--        <AutoCompleteTextView-->
+<!--            android:id="@+id/atvTinhThanhPho"-->
+<!--            android:layout_marginTop="1dp"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:padding= "13dp"-->
+<!--            android:textSize="15sp"-->
+<!--            android:inputType="text"-->
+<!--            android:background="@color/white"-->
+<!--            android:hint="Tỉnh / Thành phố" />-->
+<!--        <AutoCompleteTextView-->
+<!--            android:id="@+id/autoDistric"-->
+<!--            android:layout_marginTop="1dp"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:padding= "13dp"-->
+<!--            android:textSize="15sp"-->
+<!--            android:inputType="text"-->
+<!--            android:background="@color/white"-->
+<!--            android:hint="Quận / Huyện" />-->
+<!--        <AutoCompleteTextView-->
+<!--            android:id="@+id/autoWard"-->
+<!--            android:layout_marginTop="1dp"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:padding= "13dp"-->
+<!--            android:textSize="15sp"-->
+<!--            android:inputType="text"-->
+<!--            android:background="@color/white"-->
+<!--            android:hint="Phường / Xã" />-->
+
+        <LinearLayout
+            android:id="@+id/lnSelectAddress"
+            android:padding="10dp"
+            android:background="@color/white"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding= "13dp"
-            android:textSize="15sp"
-            android:inputType="text"
-            android:background="@color/white"
-            android:hint="Tỉnh / Thành phố" />
-        <AutoCompleteTextView
-            android:id="@+id/autoDistric"
-            android:layout_marginTop="1dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding= "13dp"
-            android:textSize="15sp"
-            android:inputType="text"
-            android:background="@color/white"
-            android:hint="Quận / Huyện" />
-        <AutoCompleteTextView
-            android:id="@+id/autoWard"
-            android:layout_marginTop="1dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding= "13dp"
-            android:textSize="15sp"
-            android:inputType="text"
-            android:background="@color/white"
-            android:hint="Phường / Xã" />
+            android:orientation="horizontal">
+            <TextView
+                android:id="@+id/tvInformationAddress"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@color/white"
+                android:hint="Tỉnh/Thành phố, Quận/Huyện, Phường/Xã"
+                android:textSize="15sp"
+                android:autofillHints=""
+                android:inputType="none" />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/baseline_navigate_next_24"
+                android:contentDescription="TODO" />
+        </LinearLayout>
 
         <EditText
             android:layout_marginTop="1dp"

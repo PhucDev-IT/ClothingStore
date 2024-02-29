@@ -2,8 +2,10 @@ package com.example.clothingstoreapp.FragmentLayout
 
 
 import android.annotation.SuppressLint
+import android.content.ContentValues
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,21 +15,30 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.clothingstoreapp.API.ApiGHN
 import com.example.clothingstoreapp.Adapter.CustomDialog
 import com.example.clothingstoreapp.Adapter.RvCheckoutAdapter
 import com.example.clothingstoreapp.Model.FormatCurrency
 import com.example.clothingstoreapp.Model.OrderModel
 import com.example.clothingstoreapp.Model.ProgressOrder
+import com.example.clothingstoreapp.Model.ShippingFeeResponse
+import com.example.clothingstoreapp.Model.ShippingMethod
+import com.example.clothingstoreapp.Model.ShippingMethodJson
 import com.example.clothingstoreapp.Model.TypeVoucher
 import com.example.clothingstoreapp.Model.UserManager
 import com.example.clothingstoreapp.Model.UserOrder
 import com.example.clothingstoreapp.R
+import com.example.clothingstoreapp.Service.AddressService
 
 import com.example.clothingstoreapp.Service.OrderService
 import com.example.clothingstoreapp.ViewModel.PayOrderViewModel
 import com.example.clothingstoreapp.databinding.FragmentPayOrderBinding
-
+import okhttp3.ResponseBody
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import java.util.Date
+
 
 
 class PayOrderFragment : Fragment() {
@@ -41,7 +52,7 @@ class PayOrderFragment : Fragment() {
     private var tongTienHang: Double = 0.0
     private val user = UserManager.getInstance().getUserCurrent()
     private lateinit var customDialog: CustomDialog
-
+    private lateinit var apiGHN: ApiGHN
     private var amount = "10000"
     private val fee = "0"
     var environment = 0 //developer default
@@ -58,6 +69,7 @@ class PayOrderFragment : Fragment() {
     ): View {
         _binding = FragmentPayOrderBinding.inflate(inflater, container, false)
         customDialog = context?.let { CustomDialog(it) }!!
+        apiGHN = ApiGHN.create()
         calculateOrder()
         initView()
         handleClick()
@@ -78,6 +90,7 @@ class PayOrderFragment : Fragment() {
 
     @SuppressLint("SetTextI18n")
     private fun initView() {
+        getInformationAddress()
 
         sharedViewModel.mListCart.observe(viewLifecycleOwner) { list ->
             val adapter = RvCheckoutAdapter(list)
@@ -115,29 +128,9 @@ class PayOrderFragment : Fragment() {
             }
         }
 
-        if (user?.defaultAddress != null) {
 
-            sharedViewModel.setDeliveryAddress(user.defaultAddress!!)
 
-        }
 
-        sharedViewModel.deliveryAddress.observe(viewLifecycleOwner) { value ->
-            if (value != null) {
-                binding.lnShowInformationUser.visibility = View.VISIBLE
-                binding.lnNotAddress.visibility = View.GONE
-
-                binding.tvTypeAddress.text = value.typeAddress
-                binding.tvFullName.text = value.fullName
-                binding.tvNumberPhone.text = value.numberPhone
-                binding.tvDetailsAddress.text = value.addressDetails
-                binding.tvTypeAddress.text = value.typeAddress
-                binding.tvInforAddress.text =
-                    "${value.phuongXa}, ${value.quanHuyen}, ${value.tinhThanhPho}"
-            } else {
-                binding.lnShowInformationUser.visibility = View.GONE
-                binding.lnNotAddress.visibility = View.VISIBLE
-            }
-        }
 
     }
 
@@ -163,12 +156,45 @@ class PayOrderFragment : Fragment() {
         }
     }
 
+
+    //Lấy thông tin địa chỉ
+    @SuppressLint("SetTextI18n")
+    fun getInformationAddress(){
+        AddressService().getAddressDefault{addressModel ->
+            sharedViewModel.setDeliveryAddress(addressModel)
+            sharedViewModel.deliveryAddress.observe(viewLifecycleOwner) { value ->
+                if (value != null) {
+
+                  //getTransportUnit()
+
+                    calculateFeeShip(100039){total->
+                        Toast.makeText(context,"Tiền: $total",Toast.LENGTH_SHORT).show()
+                    }
+
+                    binding.lnShowInformationUser.visibility = View.VISIBLE
+                    binding.lnNotAddress.visibility = View.GONE
+
+                    binding.tvTypeAddress.text = value.typeAddress
+                    binding.tvFullName.text = value.fullName
+                    binding.tvNumberPhone.text = value.numberPhone
+                    binding.tvDetailsAddress.text = value.addressDetails
+                    binding.tvTypeAddress.text = value.typeAddress
+                    binding.tvInforAddress.text =
+                        "${value.ward?.WardName}, ${value.district?.districtName}, ${value.province?.ProvinceName}"
+                } else {
+                    binding.lnShowInformationUser.visibility = View.GONE
+                    binding.lnNotAddress.visibility = View.VISIBLE
+                }
+            }
+        }
+    }
+
     @SuppressLint("SetTextI18n")
     private fun calculateOrder() {
         tongTienHang = 0.0
         sharedViewModel.mListCart.observe(viewLifecycleOwner) { list ->
             for (item in list) {
-                tongTienHang += (item.quantity.times(item.product?.price!!))
+                tongTienHang += (item.product?.quantity!!.times(item.product?.price!!))
             }
 
             binding.tvSumMoneyProduct.text = FormatCurrency.numberFormat.format(tongTienHang)
@@ -306,4 +332,118 @@ class PayOrderFragment : Fragment() {
 //            Toast.makeText(context,"Có lỗi xảy ra",Toast.LENGTH_SHORT).show()
 //        }
 //    }
+
+
+    //Lấy đơn vị vận chuyển và tính fee ship
+    private fun getTransportUnit(){
+
+        sharedViewModel.selectTransportUnit.observe(viewLifecycleOwner){unit->
+            if(unit == null){
+                binding.lnShowTransportUnit.visibility = View.GONE
+                binding.lnKhongCoDonViVanChuyen.visibility = View.VISIBLE
+            }else{
+                binding.lnKhongCoDonViVanChuyen.visibility = View.GONE
+                binding.lnShowTransportUnit.visibility = View.VISIBLE
+                binding.tvNameTransportUnit.text = unit.shortName
+                binding.tvPriceTransport.text = FormatCurrency.numberFormat.format(sharedViewModel.feeShip.value)
+            }
+        }
+
+
+        sharedViewModel.deliveryAddress.value?.district?.let { it ->
+
+            val call = it.districtID?.let { it1 -> apiGHN.getTransportUnit(
+               // 1616,it1, 4914423
+            ) }
+
+            call?.enqueue(object : Callback<ResponseBody> {
+                override fun onResponse(
+                    call: Call<ResponseBody>,
+                    response: Response<ResponseBody>
+                ) {
+
+                    if (response.isSuccessful) {
+                        val responseData = response.body()
+                        if (responseData != null) {
+                            // Log responseData để kiểm tra dữ liệu nhận được từ phản hồi
+                            Log.d("ResponseData", responseData.toString())
+
+                            // Tiếp tục xử lý dữ liệu nhận được
+                        } else {
+                            Log.e("ResponseData", "Response data is null")
+                        }
+                    } else {
+                        Log.e("ResponseCode", "Error code: ${response.code()}")
+                    }
+                    if (response.isSuccessful) {
+                        Toast.makeText(context,"Hellol",Toast.LENGTH_SHORT).show()
+//                        val list = response.body()
+//                        list.data?.let { it->
+//                            val units:MutableMap<ShippingMethod,Int> = mutableMapOf()
+//                            it.map {shippingMethod ->
+//                                calculateFeeShip(shippingMethod.serviceId!!){fee->
+//                                    units[shippingMethod] = fee
+//                                }
+//                            }
+//                            sharedViewModel.setTransportUnit(units)
+//                            units.keys.firstOrNull()
+//                                ?.let { select ->
+//                                    sharedViewModel.setSelectTransportUnit(select)
+//
+//                                }
+//
+//                            sharedViewModel.setFeeShip(units.values.firstOrNull())
+
+                    //    }
+                    } else {
+                        response.errorBody()?.string()?.let { it1 -> Log.v("Error code 400", it1) };
+                        println("Error get unit: ${response.code()}")
+                        Toast.makeText(context,"Error get unit: ${response.code()}", Toast.LENGTH_SHORT).show()
+                    }
+                }
+
+                override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                    t.message?.let { Log.e(ContentValues.TAG, it) }
+                    Toast.makeText(context, "Có lỗi", Toast.LENGTH_SHORT).show()
+                }
+            })
+
+        }
+    }
+
+    //Tính phí vận chuyển
+    private fun calculateFeeShip(service_id:Int,callback: (Int)->Unit){
+
+
+        val call = apiGHN.calculateFeeShip(
+            service_id,100000,"800206",1616
+           ,sharedViewModel.deliveryAddress.value?.district!!.districtID!!,1000,
+            10,200,15,2
+        )
+
+        call.enqueue(object : Callback<ShippingFeeResponse>{
+            override fun onResponse(
+                call: Call<ShippingFeeResponse>,
+                response: Response<ShippingFeeResponse>
+            ) {
+                if (response.isSuccessful) {
+                    val result = response.body()
+                    callback(result?.data?.total?:0)
+
+                } else {
+                    response.errorBody()?.string()?.let { it1 -> Log.v("Error code 400", it1) };
+                    println("Error fee ship: ${response.code()}")
+                    Toast.makeText(context,"Error fee ship: ${response.code()}", Toast.LENGTH_SHORT).show()
+                    callback(0)
+                }
+            }
+
+            override fun onFailure(call: Call<ShippingFeeResponse>, t: Throwable) {
+                t.message?.let { Log.e(ContentValues.TAG, it) }
+                callback(0)
+
+            }
+        })
+
+    }
 }

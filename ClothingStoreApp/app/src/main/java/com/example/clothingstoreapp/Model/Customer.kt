@@ -31,13 +31,6 @@ class Customer:Serializable {
             _listAddress = value
         }
 
-    private var _defaultAddress: AddressModel? = null
-    var defaultAddress: AddressModel?
-        get() = _defaultAddress
-        set(value) {
-            _defaultAddress = value
-        }
-
     private var _avatar: String? = null
     var avatar: String?
         get() = _avatar
@@ -54,7 +47,7 @@ class Customer:Serializable {
 
 
     override fun toString(): String {
-        return "Customer(_id=$_id, _fullName=$_fullName, _email=$_email, _listAddress=$_listAddress, _defaultAddress=$_defaultAddress)"
+        return "Customer(_id=$_id, _fullName=$_fullName, _email=$_email, _listAddress=$_listAddress"
     }
 
 

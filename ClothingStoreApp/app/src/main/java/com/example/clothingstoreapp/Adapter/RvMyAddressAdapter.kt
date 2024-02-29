@@ -11,7 +11,14 @@ import com.example.clothingstoreapp.Interface.ClickObjectInterface
 import com.example.clothingstoreapp.Model.AddressModel
 import com.example.clothingstoreapp.R
 
-class RvMyAddressAdapter(private val list: List<AddressModel>,private val onClick:ClickObjectInterface<AddressModel>):RecyclerView.Adapter<RvMyAddressAdapter.viewHolder>() {
+class RvMyAddressAdapter(private var list: List<AddressModel>,private val onClick:ClickObjectInterface<AddressModel>):RecyclerView.Adapter<RvMyAddressAdapter.viewHolder>() {
+
+    @SuppressLint("NotifyDataSetChanged")
+    fun setData(lst:List<AddressModel>){
+        this.list = lst
+        notifyDataSetChanged()
+    }
+
     class viewHolder(itemView:View):RecyclerView.ViewHolder(itemView){
         var tvTypeAddress:TextView
         var tvFullName:TextView
@@ -45,7 +52,7 @@ class RvMyAddressAdapter(private val list: List<AddressModel>,private val onClic
             holder.tvNumberPhone.text = list[position].numberPhone
             holder.tvDetailsAddress.text = list[position].addressDetails
 
-            holder.tvInforAddress.text = "${list[position].tinhThanhPho}, ${list[position].quanHuyen}, ${list[position].phuongXa}"
+            holder.tvInforAddress.text = "${list[position].province?.ProvinceName}, ${list[position].district?.districtName}, ${list[position].ward?.WardName}"
 
             holder.itemView.setOnClickListener {
                 onClick.onClickListener(list[position])

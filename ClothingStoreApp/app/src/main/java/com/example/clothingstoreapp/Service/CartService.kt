@@ -18,29 +18,27 @@ class CartService(private val db: FirebaseFirestore) {
 
     fun addToCart(
         idUser: String,
-        cart: ItemCart,
+        product: CustomProduct,
         resultData: (b: Boolean) -> Unit
     ) {
         val cartData = hashMapOf<String, Any>(
-            "idProduct" to cart.idProduct!!,
-            "quantity" to cart.quantity,
-            "classify" to cart.classify!!,
-            "color" to cart.color!!
+            "idProduct" to product.id!!,
+            "product" to product
         )
 
 
         db.collection("carts")
             .document(idUser)
             .collection("cartItems")
-            .whereEqualTo("idProduct", cart.idProduct)
+            .whereEqualTo("idProduct", product.id)
             .get()
             .addOnSuccessListener { documents ->
                 if (!documents.isEmpty) {
                     var isUpdated = false
                     for (document in documents) {
                         val value = document.toObject(ItemCart::class.java)
-                        if (value.color == cart.color && value.classify == cart.classify) {
-                            val quantity = value.quantity + cart.quantity
+                        if (value.product?.color == product.color && value.product?.classify == product.classify) {
+                            val quantity = value.product?.quantity?.plus(product.quantity!!)
                             db.collection("carts")
                                 .document(idUser)
                                 .collection("cartItems")
@@ -107,12 +105,12 @@ class CartService(private val db: FirebaseFirestore) {
                             val cart = document.toObject(ItemCart::class.java)
                             cart.idCart = document.id
                             val product = documentRef.toObject(Product::class.java)
-                            product?.id = documentRef.id
 
-                            cart.product = CustomProduct(
-                                product?.id!!, product?.name!!, product.img_preview!![0],
-                                product.price!!
-                            )
+                            cart.product?.name = product?.name
+                            cart.product?.imgPreview = product?.img_preview?.get(0)
+                            cart.product?.price = product?.price
+
+                            Log.w(TAG,"$product")
 
                             list.add(cart)
                         }

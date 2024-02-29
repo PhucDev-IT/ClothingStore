@@ -76,7 +76,7 @@ class MyCartScreen : AppCompatActivity() {
             override fun onClickListener(t: ItemCart) {
                 for(item in selectedCart){
                     if(item.idCart == t.idCart){
-                        item.quantity = t.quantity
+                        item.product?.quantity = t.product?.quantity
                         break
                     }
                 }
@@ -105,7 +105,7 @@ class MyCartScreen : AppCompatActivity() {
     private fun caculatorMoney(){
         var sum:Double = 0.0
         for(item in selectedCart){
-            sum += (item.quantity?.times(item.product?.price!!)!!)
+            sum += (item.product?.quantity?.times(item.product?.price!!)!!)
         }
         binding.tvSumMoney.text = FormatCurrency.numberFormat.format(sum)
     }

@@ -4,7 +4,7 @@
 
 ---
 
-## Mô tả:
+## Mô tả chung:
 - Phần mềm sử dụng Firebase của google và các thư viện khác bên ngoài
 - Các chức năng được xây dựng tương tự với các nền tảng thương mại điện tử khác
 - Xem sản phẩm, Thêm giỏ hàng, Mua hàng (Sử dụng voucher),Chat, Quản lý mua hàng, Quản lý thông tin cá nhân...
@@ -14,7 +14,7 @@
 ## Design: 
 Link: [thiết kế giao diện](https://www.figma.com/file/aCTPI43xRXgEkn1yYFiOiM/Clothing-Store-App%2FFashion-E-Commerce-App-%7C-App%C2%A0UI%C2%A0Kit-(Community)?type=design&node-id=0-1&mode=design)
 
-##Giao diện Demo đã xây dựng
+## Giao diện Demo đã xây dựng
 
 #### 1.Splash Screen
 

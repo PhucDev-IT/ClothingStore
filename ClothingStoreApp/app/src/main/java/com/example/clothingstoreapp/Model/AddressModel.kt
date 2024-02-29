@@ -5,6 +5,13 @@ import java.io.Serializable
 
 class AddressModel : Serializable {
 
+    private var _id: String? = null
+    var id: String?
+        get() = _id
+        set(value) {
+            _id = value
+        }
+
     private var _fullName: String? = null
     var fullName: String?
         get() = _fullName
@@ -19,25 +26,25 @@ class AddressModel : Serializable {
             _numberPhone = value
         }
 
-    private var _tinhThanhPho: String? = null
-    var tinhThanhPho: String?
-        get() = _tinhThanhPho
+    private var _province: Province? = null
+    var province: Province?
+        get() = _province
         set(value) {
-            _tinhThanhPho = value
+            _province = value
         }
 
-    private var _quanHuyen: String? = null
-    var quanHuyen: String?
-        get() = _quanHuyen
+    private var _district: District? = null
+    var district: District?
+        get() = _district
         set(value) {
-            _quanHuyen = value
+            _district = value
         }
 
-    private var _phuongXa: String? = null
-    var phuongXa: String?
-        get() = _phuongXa
+    private var _ward: Ward? = null
+    var ward: Ward?
+        get() = _ward
         set(value) {
-            _phuongXa = value
+            _ward = value
         }
 
     private var _addressDetails: String? = null
@@ -54,28 +61,35 @@ class AddressModel : Serializable {
             _typeAddress = value
         }
 
+    private var _isDefault: Boolean = false
+    var isDefault: Boolean
+        get() = _isDefault
+        set(value) {
+            _isDefault = value
+        }
+
     constructor()
 
     constructor(
         fullName: String?,
         numberPhone: String?,
-        tinhThanhPho: String?,
-        quanHuyen: String?,
-        phuongXa: String?,
+        tinhThanhPho: Province?,
+        quanHuyen: District?,
+        phuongXa: Ward?,
         addressDetails: String?,
         type:String
     ) {
         this._fullName = fullName
         this._numberPhone = numberPhone
-        this._tinhThanhPho = tinhThanhPho
-        this._quanHuyen = quanHuyen
-        this._phuongXa = phuongXa
+        this._province = tinhThanhPho
+        this._district = quanHuyen
+        this._ward = phuongXa
         this._addressDetails = addressDetails
         this._typeAddress = type
     }
 
     override fun toString(): String {
-        return "Address(_fullName=$_fullName, _numberPhone=$_numberPhone, _tinhThanhPho=$_tinhThanhPho, _quanHuyen=$_quanHuyen, _phuongXa=$_phuongXa, _addressDetails=$_addressDetails)"
+        return "AddressModel(_id=$_id, _fullName=$_fullName, _numberPhone=$_numberPhone, _province=$_province, _district=$_district, _ward=$_ward, _addressDetails=$_addressDetails, _typeAddress=$_typeAddress, _isDefault=$_isDefault)"
     }
 
 

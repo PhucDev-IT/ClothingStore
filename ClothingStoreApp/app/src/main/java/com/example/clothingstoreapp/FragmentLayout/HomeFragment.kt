@@ -1,8 +1,6 @@
 package com.example.clothingstoreapp.FragmentLayout
 
 import android.Manifest
-import android.app.Activity
-import android.content.ContentValues.TAG
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Address
@@ -10,7 +8,6 @@ import android.location.Geocoder
 import android.location.Location
 import android.os.Bundle
 import android.os.CountDownTimer
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -18,7 +15,6 @@ import android.view.ViewGroup
 import android.widget.RadioButton
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.denzcoskun.imageslider.constants.ScaleTypes
@@ -62,6 +58,7 @@ class HomeFragment : Fragment(), View.OnClickListener {
         initViewProduct()
         initCategory()
         handleClick()
+
         return binding.root
     }
 

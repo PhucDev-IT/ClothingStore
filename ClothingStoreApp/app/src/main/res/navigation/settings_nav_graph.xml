@@ -27,5 +27,14 @@
         android:id="@+id/add_AddressFragment"
         android:name="com.example.clothingstoreapp.FragmentLayout.Add_AddressFragment"
         android:label="fragment_add__address"
-        tools:layout="@layout/fragment_add__address" />
+        tools:layout="@layout/fragment_add__address" >
+        <action
+            android:id="@+id/action_add_AddressFragment_to_selectNewAddressFragment"
+            app:destination="@id/selectNewAddressFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/selectNewAddressFragment"
+        android:name="com.example.clothingstoreapp.FragmentLayout.SelectNewAddressFragment"
+        android:label="fragment_select_new_address"
+        tools:layout="@layout/fragment_select_new_address" />
 </navigation>

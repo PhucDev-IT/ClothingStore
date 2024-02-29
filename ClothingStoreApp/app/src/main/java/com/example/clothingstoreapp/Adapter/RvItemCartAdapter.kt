@@ -60,9 +60,9 @@ class RvItemCartAdapter(private var list:List<ItemCart>, private val onClick:Cli
             holder.nameProduct.text = list[position].product?.name ?: "ERROR!"
             holder.tvPrice.text = FormatCurrency.numberFormat.format(list[position].product?.price)
 
-            holder.tvSize.text = resources.getString(R.string.size_cart, list[position].classify)
-            holder.tvQuantity.text = list[position].quantity.toString()
-            holder.tvClassify.text = resources.getString(R.string.str_classify, list[position].color)
+            holder.tvSize.text = resources.getString(R.string.size_cart, list[position].product?.classify)
+            holder.tvQuantity.text = list[position].product?.quantity.toString()
+            holder.tvClassify.text = resources.getString(R.string.str_classify, list[position].product?.color)
 
             holder.checkbox.setOnClickListener {
                 if(holder.checkbox.isChecked){
@@ -87,7 +87,7 @@ class RvItemCartAdapter(private var list:List<ItemCart>, private val onClick:Cli
     }
 
     private fun upDownQuantity(view: ImageButton, holder: viewHolder, position: Int){
-        var quantity = list[position].quantity?:1
+        var quantity = list[position].product?.quantity?:1
 
         if(view.id == R.id.btnUp){
             quantity += 1
@@ -97,7 +97,7 @@ class RvItemCartAdapter(private var list:List<ItemCart>, private val onClick:Cli
 
         holder.tvQuantity.text = quantity.toString()
 
-        list[position].quantity = quantity
+        list[position].product?.quantity = quantity
 
         onClick.onClickListener(list[position])
     }

@@ -89,7 +89,8 @@ class TrackOrderScreen : AppCompatActivity() {
                 binding.tvFullName.text = order.deliveryAddress?.fullName
                 binding.tvNumberPhone.text = order.deliveryAddress?.numberPhone
                 binding.tvDetailsAddress.text = order.deliveryAddress?.addressDetails
-                binding.tvInForAddress.text = "${order.deliveryAddress?.phuongXa}, ${order.deliveryAddress?.quanHuyen}, ${order.deliveryAddress?.tinhThanhPho}"
+                binding.tvInForAddress.text = "${order.deliveryAddress?.province?.ProvinceName}, " +
+                        "${order.deliveryAddress?.district?.districtName}, ${order.deliveryAddress?.ward?.WardName}"
                 binding.tvIdOrder.text = order.id?.take(8)?.toUpperCase(Locale.ROOT)
 
 
@@ -100,7 +101,7 @@ class TrackOrderScreen : AppCompatActivity() {
                         ProgressOrder.WaitConfirmOrder.name -> {
                             binding.imgCircleDaDatHang.setColorFilter(color, PorterDuff.Mode.SRC_IN)
                             binding.tvTimeOrderDate.text = FormatCurrency.dateTimeFormat.format(value)
-                            binding.btnCancelOrder.visibility = View.VISIBLE
+
 
                         }
 
@@ -176,10 +177,11 @@ class TrackOrderScreen : AppCompatActivity() {
 
         btnConfirm.setOnClickListener {
 
-            customLoading.dialogLoadingBasic("Đang xử lý")
+
             val checkedRadioButtonId = radioGroup.checkedRadioButtonId
 
             if (checkedRadioButtonId != -1) {
+                customLoading.dialogLoadingBasic("Đang xử lý")
                 val radioButton = radioGroup.findViewById<RadioButton>(checkedRadioButtonId)
                 val selectedText = radioButton.text.toString()
 
@@ -203,5 +205,6 @@ class TrackOrderScreen : AppCompatActivity() {
             }
         }
         dialog.show()
+
     }
 }

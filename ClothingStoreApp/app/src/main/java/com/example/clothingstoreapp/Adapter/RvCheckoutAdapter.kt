@@ -50,9 +50,9 @@ class RvCheckoutAdapter(private val list: List<ItemCart>?): RecyclerView.Adapter
                holder.nameProduct.text = list[position].product?.name ?: "ERROR!"
                holder.tvPrice.text = FormatCurrency.numberFormat.format(list[position].product?.price)
 
-               holder.tvSize.text = resources.getString(R.string.size_cart, list[position].classify)
-               holder.tvQuantity.text = "x${list[position].quantity}"
-               holder.tvClassify.text = resources.getString(R.string.str_classify, list[position].color)
+               holder.tvSize.text = resources.getString(R.string.size_cart, list[position].product?.classify)
+               holder.tvQuantity.text = "x${list[position].product?.quantity}"
+               holder.tvClassify.text = resources.getString(R.string.str_classify, list[position].product?.color)
            }
         }
     }

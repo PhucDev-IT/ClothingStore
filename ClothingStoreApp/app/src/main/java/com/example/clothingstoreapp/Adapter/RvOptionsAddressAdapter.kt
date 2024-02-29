@@ -44,7 +44,7 @@ class RvOptionsAddressAdapter(private val list: List<AddressModel>, private val 
             holder.tvNumberPhone.text = list[position].numberPhone
             holder.tvDetailsAddress.text = list[position].addressDetails
 
-            holder.tvInforAddress.text = "${list[position].tinhThanhPho}, ${list[position].quanHuyen}, ${list[position].phuongXa}"
+            holder.tvInforAddress.text = "${list[position].province?.ProvinceName}, ${list[position].district?.districtName}, ${list[position].ward?.WardName}"
 
             holder.rdoButton.setOnClickListener {
                 onClick.onClickListener(list[position])

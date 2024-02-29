@@ -643,7 +643,7 @@
                 android:text="Hủy đơn hàng"
                 android:textColor="@color/primarykeyColor"
                 android:textSize="17sp"
-                android:visibility="gone" />
+               />
 
         </LinearLayout>
     </ScrollView>

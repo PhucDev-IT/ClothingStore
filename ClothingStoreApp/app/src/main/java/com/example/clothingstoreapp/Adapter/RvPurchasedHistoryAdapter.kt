@@ -67,7 +67,7 @@ class RvPurchasedHistoryAdapter( private val onClick:ClickObjectInterface<OrderM
             }
             holder.tvTotalProduct.text = "${list[position].carts?.size} mặt hàng"
             holder.tvQuantity.text = resources.getString(R.string.str_quantity,
-                list[position].carts?.get(0)?.quantity ?: 1
+                list[position].carts?.get(0)?.product?.quantity ?: 1
             )
             holder.tvMore.setOnClickListener{
                 onClick.onClickListener(list[position])

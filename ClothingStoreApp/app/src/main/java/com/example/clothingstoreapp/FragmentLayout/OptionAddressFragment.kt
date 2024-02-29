@@ -28,6 +28,7 @@ class OptionAddressFragment : Fragment() {
     private val binding get() = _binding
     private lateinit var navController: NavController
     private val sharedViewModel: PayOrderViewModel by activityViewModels()
+    private val addressService = AddressService()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -48,27 +49,35 @@ class OptionAddressFragment : Fragment() {
     }
 
     private fun initView(){
-        val list = UserManager.getInstance().getUserCurrent()?.listAddress
-
-        val adapter = list?.let {
-            RvOptionsAddressAdapter(it,object : ClickObjectInterface<AddressModel> {
-                override fun onClickListener(t: AddressModel) {
-                   sharedViewModel.setDeliveryAddress(t)
-                }
-            })
-        }
-
-        val linearLayoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL,false)
+        val user = UserManager.getInstance().getUserCurrent()
+        val adapter = RvMyAddressAdapter(emptyList(),object : ClickObjectInterface<AddressModel>{
+            override fun onClickListener(t: AddressModel) {
+                Toast.makeText(context,"Bạn chọn: ${t.province?.ProvinceName}",Toast.LENGTH_SHORT).show()
+            }
+        })
+        val linearLayoutManager = LinearLayoutManager(context,LinearLayoutManager.VERTICAL,false)
 
         binding.rvAddress.adapter = adapter
         binding.rvAddress.layoutManager = linearLayoutManager
+
+        if(user!=null && user.listAddress==null){
+            addressService.fetchAddress {list->
+                if(list!=null){
+                    UserManager.getInstance().setUser(user)
+                    adapter.setData(list)
+                }
+            }
+        }else{
+            user?.listAddress?.let { adapter.setData(it) }
+        }
+
 
 
     }
 
     private fun handleClick(){
         binding.lnAddNewAddress.setOnClickListener {
-            navController.navigate(R.id.action_myAddressFragment_to_add_AddressFragment)
+            navController.navigate(R.id.action_optionAddressFragment_to_add_AddressFragment2)
         }
 
         binding.btnBack.setOnClickListener {
