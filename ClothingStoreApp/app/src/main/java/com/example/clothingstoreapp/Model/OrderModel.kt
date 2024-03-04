@@ -41,11 +41,11 @@ class OrderModel:Serializable {
             _deliveryAddress = value
         }
 
-    private var _carts: List<ItemCart>? = null
-    var carts: List<ItemCart>?
-        get() = _carts
+    private var _products: List<CustomProduct>? = null
+    var products: List<CustomProduct>?
+        get() = _products
         set(value) {
-            _carts = value
+            _products = value
         }
 
     private var _orderDate: Long = Date().time

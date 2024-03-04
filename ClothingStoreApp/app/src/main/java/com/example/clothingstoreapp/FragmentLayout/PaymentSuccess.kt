@@ -74,11 +74,11 @@ class PaymentSuccess : Fragment() {
         val user = UserManager.getInstance().getUserCurrent()
 
         val notification = Notification()
-        notification.title = "Đơn haàng mới!"
-        notification.content = "\"${user?.fullName}\" vừa đặt ${order?.carts?.size} sản phẩm với " +
+        notification.title = "Đơn hàng mới!"
+        notification.content = "\"${user?.fullName}\" vừa đặt ${order?.products?.size} sản phẩm với " +
                 "${FormatCurrency.numberFormat.format(order?.totalMoney)}. Xác nhận đơn hàng ngay."
         notification.timeSend = Date()
-        notification.img = order?.carts?.get(0)?.product?.imgPreview
+        notification.img = order?.products?.get(0)?.imgPreview
         notification.isRead = false
 
         notificationService.sendNotificationToAdmin(notification){b->

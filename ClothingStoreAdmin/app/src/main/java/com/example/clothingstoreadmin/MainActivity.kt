@@ -10,10 +10,10 @@ import androidx.core.view.GravityCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
 import com.example.clothingstoreadmin.activity.ChatScreen
-import com.example.clothingstoreadmin.fragmentlayout.CouponFragment
-import com.example.clothingstoreadmin.fragmentlayout.HomeFragment
-import com.example.clothingstoreadmin.fragmentlayout.ManagerProductFragment
-import com.example.clothingstoreadmin.fragmentlayout.OrderFragment
+import com.example.clothingstoreadmin.FragmentLayout.CouponFragment
+import com.example.clothingstoreadmin.FragmentLayout.HomeFragment
+import com.example.clothingstoreadmin.FragmentLayout.ManagerProductFragment
+import com.example.clothingstoreadmin.FragmentLayout.OrderFragment
 import com.example.clothingstoreadmin.databinding.ActivityMainBinding
 import com.example.clothingstoreadmin.model.UserManager
 import com.example.clothingstoreadmin.service.CustomerService

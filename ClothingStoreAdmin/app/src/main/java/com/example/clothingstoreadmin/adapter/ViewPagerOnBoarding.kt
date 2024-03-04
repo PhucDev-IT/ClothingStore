@@ -3,9 +3,9 @@ package com.example.clothingstoreadmin.adapter
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentStatePagerAdapter
-import com.example.clothingstoreadmin.fragmentlayout.OnBoardingOneFragment
-import com.example.clothingstoreadmin.fragmentlayout.OnBoardingTwoFragment
-import com.example.clothingstoreadmin.fragmentlayout.WelcomeScreenFragment
+import com.example.clothingstoreadmin.FragmentLayout.OnBoardingOneFragment
+import com.example.clothingstoreadmin.FragmentLayout.OnBoardingTwoFragment
+import com.example.clothingstoreadmin.FragmentLayout.WelcomeScreenFragment
 
 
 class ViewPagerOnBoarding(frm:FragmentManager, behavior: Int): FragmentStatePagerAdapter(frm,behavior) {

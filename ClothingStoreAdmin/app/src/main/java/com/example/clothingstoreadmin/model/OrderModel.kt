@@ -6,6 +6,7 @@ import java.io.Serializable
 import java.util.Date
 
 
+
 class UserOrder():Serializable{
     var userId: String?=null
     var tokenFCM:String?=null
@@ -41,11 +42,11 @@ class OrderModel:Serializable {
             _deliveryAddress = value
         }
 
-    private var _carts: List<ItemCart>? = null
-    var carts: List<ItemCart>?
-        get() = _carts
+    private var _products: List<CustomProduct>? = null
+    var products: List<CustomProduct>?
+        get() = _products
         set(value) {
-            _carts = value
+            _products = value
         }
 
     private var _orderDate: Long = Date().time
@@ -55,8 +56,8 @@ class OrderModel:Serializable {
             _orderDate = value
         }
 
-    private var _orderStatus: MutableMap<String,Date>? = null
-    var orderStatus: MutableMap<String,Date>?
+    private var _orderStatus: MutableMap<String,Date> = mutableMapOf()
+    var orderStatus: MutableMap<String,Date>
         get() = _orderStatus
         set(value) {
             _orderStatus = value
@@ -83,8 +84,8 @@ class OrderModel:Serializable {
             _totalMoney = value
         }
 
-    private var _feeShip: Double? = null
-    var feeShip: Double?
+    private var _feeShip: Double = 0.0
+    var feeShip: Double
         get() = _feeShip
         set(value) {
             _feeShip = value
@@ -96,4 +97,12 @@ class OrderModel:Serializable {
         set(value) {
             _currentStatus = value
         }
+
+    private var _reasonCancel: String? = null
+    var reasonCancel: String?
+        get() = _reasonCancel
+        set(value) {
+            _reasonCancel = value
+        }
+
 }

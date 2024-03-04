@@ -11,11 +11,12 @@ import android.widget.TextView
 import androidx.lifecycle.LiveData
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.example.clothingstoreapp.Model.CustomProduct
 import com.example.clothingstoreapp.Model.FormatCurrency
 import com.example.clothingstoreapp.Model.ItemCart
 import com.example.clothingstoreapp.R
 
-class RvCheckoutAdapter(private val list: List<ItemCart>?): RecyclerView.Adapter<RvCheckoutAdapter.viewHolder>() {
+class RvCheckoutAdapter(private val list: List<CustomProduct>?): RecyclerView.Adapter<RvCheckoutAdapter.viewHolder>() {
     class viewHolder(itemView:View) : RecyclerView.ViewHolder(itemView){
 
         var imgProduct: ImageView
@@ -46,13 +47,13 @@ class RvCheckoutAdapter(private val list: List<ItemCart>?): RecyclerView.Adapter
     override fun onBindViewHolder(holder: viewHolder, position: Int) {
         holder.itemView.apply {
            if(list != null){
-               Glide.with(context).load(list[position].product?.imgPreview).into(holder.imgProduct)
-               holder.nameProduct.text = list[position].product?.name ?: "ERROR!"
-               holder.tvPrice.text = FormatCurrency.numberFormat.format(list[position].product?.price)
+               Glide.with(context).load(list[position].imgPreview).into(holder.imgProduct)
+               holder.nameProduct.text = list[position].name ?: "ERROR!"
+               holder.tvPrice.text = FormatCurrency.numberFormat.format(list[position].price)
 
-               holder.tvSize.text = resources.getString(R.string.size_cart, list[position].product?.classify)
-               holder.tvQuantity.text = "x${list[position].product?.quantity}"
-               holder.tvClassify.text = resources.getString(R.string.str_classify, list[position].product?.color)
+               holder.tvSize.text = resources.getString(R.string.size_cart, list[position].classify)
+               holder.tvQuantity.text = "x${list[position].quantity}"
+               holder.tvClassify.text = resources.getString(R.string.str_classify, list[position].color)
            }
         }
     }

@@ -59,15 +59,15 @@ class RvPurchasedHistoryAdapter( private val onClick:ClickObjectInterface<OrderM
     @SuppressLint("CheckResult", "StringFormatMatches", "SetTextI18n")
     override fun onBindViewHolder(holder: viewHolder, position: Int) {
         holder.itemView.apply {
-            Glide.with(context).load(list[position].carts?.get(0)?.product?.imgPreview).into(holder.imgProduct)
-            holder.nameProduct.text = list[position].carts?.get(0)?.product?.name
+            Glide.with(context).load(list[position].products?.get(0)?.imgPreview).into(holder.imgProduct)
+            holder.nameProduct.text = list[position].products?.get(0)?.name
             holder.tvTotalMoney.text = FormatCurrency.numberFormat.format(list[position].totalMoney)
             holder.tvDateOrder.text = list[position].orderDate.let {
                 FormatCurrency.dateFormat.format(it)
             }
-            holder.tvTotalProduct.text = "${list[position].carts?.size} mặt hàng"
+            holder.tvTotalProduct.text = "${list[position].products?.size} mặt hàng"
             holder.tvQuantity.text = resources.getString(R.string.str_quantity,
-                list[position].carts?.get(0)?.product?.quantity ?: 1
+                list[position].products?.get(0)?.quantity ?: 1
             )
             holder.tvMore.setOnClickListener{
                 onClick.onClickListener(list[position])

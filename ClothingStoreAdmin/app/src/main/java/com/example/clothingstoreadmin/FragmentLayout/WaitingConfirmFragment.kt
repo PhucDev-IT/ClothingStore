@@ -1,4 +1,4 @@
-package com.example.clothingstoreadmin.fragmentlayout
+package com.example.clothingstoreadmin.FragmentLayout
 
 import android.content.Intent
 import android.os.Bundle
@@ -11,27 +11,26 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.clothingstoreadmin.Interface.ClickObjectInterface
 import com.example.clothingstoreadmin.activity.OrderDetailsScreen
 import com.example.clothingstoreadmin.adapter.RvOrderAdapter
-import com.example.clothingstoreadmin.databinding.FragmentChoGiaoHangBinding
+import com.example.clothingstoreadmin.databinding.FragmentWaitingConfirmBinding
 import com.example.clothingstoreadmin.model.OrderModel
 import com.example.clothingstoreadmin.model.PaginationScrollListener
 import com.example.clothingstoreadmin.model.ProgressOrder
 import com.example.clothingstoreadmin.service.OrderService
 import java.util.concurrent.atomic.AtomicBoolean
 
-
-class ChoGiaoHangFragment : Fragment() {
-    private lateinit var _binding: FragmentChoGiaoHangBinding
+class WaitingConfirmFragment : Fragment() {
+    private lateinit var _binding: FragmentWaitingConfirmBinding
     private val binding get() = _binding
     private lateinit var adapter: RvOrderAdapter
-    private var  isLoading:AtomicBoolean = AtomicBoolean(true)
-    private var isLastPage:AtomicBoolean = AtomicBoolean(false)
+    private var  isLoading: AtomicBoolean = AtomicBoolean(true)
+    private var isLastPage: AtomicBoolean = AtomicBoolean(false)
     private val orderService = OrderService()
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        _binding = FragmentChoGiaoHangBinding.inflate(inflater,container,false)
+        _binding = FragmentWaitingConfirmBinding.inflate(inflater,container,false)
         initView()
         handleClick()
         return binding.root
@@ -39,8 +38,8 @@ class ChoGiaoHangFragment : Fragment() {
     private fun initView(){
         adapter = RvOrderAdapter(object : ClickObjectInterface<OrderModel> {
             override fun onClickListener(t: OrderModel) {
-                val intent = Intent(context,OrderDetailsScreen::class.java)
-                intent.putExtra("order",t)
+                val intent = Intent(context, OrderDetailsScreen::class.java)
+                intent.putExtra("orderID", t.id)
                 startActivity(intent)
             }
         })
@@ -71,14 +70,14 @@ class ChoGiaoHangFragment : Fragment() {
     fun loadNextPage(){
         isLoading.set(true) // Gán giá trị true cho biến isLoading
 
-        orderService.getNextPage{
+        orderService.getNextPage(ProgressOrder.WaitConfirmOrder.name){
             if(it.isEmpty()){
                 isLastPage.set(true)
                 isLoading.set(true)
 
-                Toast.makeText(context,"Hết rồi",Toast.LENGTH_SHORT).show()
+                Toast.makeText(context,"Hết rồi", Toast.LENGTH_SHORT).show()
             }else{
-                Toast.makeText(context,"Load tiếp ${it.size}",Toast.LENGTH_SHORT).show()
+                Toast.makeText(context,"Load tiếp ${it.size}", Toast.LENGTH_SHORT).show()
                 adapter.updateData(it)
             }
             isLoading.set(false)
@@ -93,7 +92,7 @@ class ChoGiaoHangFragment : Fragment() {
         binding.rvOrders.visibility = View.GONE
         binding.lnChuaCoDonHang.visibility = View.GONE
 
-        orderService.getOrderWaitShipping {
+        orderService.getOrderByStatus(ProgressOrder.WaitConfirmOrder.name) {
             if(it.isEmpty()){
                 isLoading.set(true)
                 isLastPage.set(true)
@@ -119,5 +118,4 @@ class ChoGiaoHangFragment : Fragment() {
             getFirsData()
         }
     }
-
 }

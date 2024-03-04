@@ -39,7 +39,7 @@ interface ApiGHN {
             // Thêm header vào yêu cầu gốc
             val modifiedRequest: Request = originalRequest.newBuilder()
                 .header("token", "52a73b2a-d2d4-11ee-893f-b6ed573185af")
-                .header("ShopId", "4914423")
+                .header("shop_id", "4914423")
                 .build()
 
             // Tiếp tục xử lý yêu cầu mới với các interceptor khác hoặc thực hiện yêu cầu
@@ -116,10 +116,6 @@ interface ApiGHN {
     height: int - Chiều cao (cm)
      */
 
-    //    @Headers({
-//            "Token:52a73b2a-d2d4-11ee-893f-b6ed573185af",
-//        "ShopId: 4914423"
-//    })
 
     @GET("v2/shipping-order/fee")
     fun calculateFeeShip(

@@ -211,7 +211,7 @@ class AddNewVoucherScreen : AppCompatActivity() {
                 else -> voucher.title = "Miễn phí vận chuyển"
             }
 
-            customDialog.dialogBasic("Quá trình có thể mất vài phút dựa vào tốc độ mạng của bạn\nKhông đóng ứng dụng")
+            customDialog.dialogLoadingBasic("Quá trình có thể mất vài phút dựa vào tốc độ mạng của bạn\nKhông đóng ứng dụng")
             checkVoucher(voucher)
 
         }

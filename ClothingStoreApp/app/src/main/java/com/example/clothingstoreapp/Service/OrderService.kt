@@ -6,12 +6,10 @@ import com.example.clothingstoreapp.Model.OrderModel
 import com.example.clothingstoreapp.Model.ProgressOrder
 import com.example.clothingstoreapp.Model.UserManager
 import com.google.firebase.Firebase
-import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.firestore
-import com.google.firebase.firestore.toObject
 
 class OrderService {
 
@@ -23,13 +21,14 @@ class OrderService {
 
     fun addOrder(order: OrderModel, onResult: (Boolean) -> Unit) {
 
-        db.collection("orders").add(order).addOnSuccessListener {
-
+        val orderRef = db.collection("orders")
+            .add(order)
+            .addOnSuccessListener {
                 onResult(true)
-
-            }.addOnFailureListener {
-                Log.e(TAG, "Có lỗi: ${it.message}")
+            }
+            .addOnFailureListener{
                 onResult(false)
+                Log.e(TAG,"Lỗi: ${it.message}")
             }
     }
 
@@ -47,7 +46,7 @@ class OrderService {
                 if (snapshot != null && snapshot.exists()) {
                     val order = snapshot.toObject(OrderModel::class.java)
                     order?.id = snapshot.id
-                    Log.w(TAG, "Result = $order")
+
                     onResult(order)
                 } else {
                     Log.d(TAG, "Current data: null")

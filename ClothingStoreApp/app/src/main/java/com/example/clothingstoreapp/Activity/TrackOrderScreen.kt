@@ -61,7 +61,7 @@ class TrackOrderScreen : AppCompatActivity() {
         OrderService().getInformationOrderByID(status,id){order->
             if(order!=null){
                 orderM = order
-                adapter = RvCheckoutAdapter(order.carts)
+                adapter = RvCheckoutAdapter(order.products)
 
                 val linearLayoutManager = LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false)
                 binding.rvOrders.adapter = adapter
@@ -157,6 +157,8 @@ class TrackOrderScreen : AppCompatActivity() {
             openDialogCancelOrder()
         }
     }
+
+
 
     private fun openDialogCancelOrder(){
         val dialog:Dialog = Dialog(this)

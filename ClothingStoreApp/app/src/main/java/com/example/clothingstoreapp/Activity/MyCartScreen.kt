@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.clothingstoreapp.Adapter.RvItemCartAdapter
 import com.example.clothingstoreapp.Interface.CkbObjectInterface
 import com.example.clothingstoreapp.Interface.ClickObjectInterface
+import com.example.clothingstoreapp.Model.CustomProduct
 import com.example.clothingstoreapp.Model.FormatCurrency
 import com.example.clothingstoreapp.Model.ItemCart
 import com.example.clothingstoreapp.Model.UserManager
@@ -58,6 +59,7 @@ class MyCartScreen : AppCompatActivity() {
             }else{
 
                val intent = Intent(this,Checkout_Screen::class.java)
+
                 intent.putExtra("listCart",ArrayList(selectedCart))
                 startActivity(intent)
             }

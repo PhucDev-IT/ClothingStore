@@ -274,6 +274,71 @@
                     android:text="Trạng thái hóa đơn"
                     android:textSize="17sp"
                     android:fontFamily="@font/inter_bold"/>
+
+                <LinearLayout
+                    android:visibility="gone"
+                    android:id="@+id/lnCancelOrder"
+                    android:layout_width="match_parent"
+                    android:layout_height="80dp"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:layout_width="30dp"
+                        android:layout_height="match_parent"
+                        android:layout_marginStart="20dp"
+                        android:gravity="center"
+                        android:orientation="vertical">
+
+                        <ImageView
+                            android:id="@+id/imgCircleCancel"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:src="@drawable/baseline_remove_circle_24"
+                            app:tint="@color/primaryColor" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="10dp"
+                        android:layout_weight="0.5"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/inter_semi_bold"
+                            android:text="Đơn hàng đã bị hủy"
+                            android:textSize="16sp" />
+
+                        <TextView
+                            android:id="@+id/tvTimeCancel"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/inter_regular"
+                            android:text="Đang cập nhật..."
+                            android:textColor="@color/placeholderColor"
+                            android:textSize="15sp" />
+
+                        <TextView
+                            android:id="@+id/tvReasonCancel"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/inter_regular"
+                            android:text="Lý do: "
+                            android:textColor="@color/red"
+                            android:textSize="14sp" />
+
+                    </LinearLayout>
+
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:src="@drawable/baseline_close_24" />
+                </LinearLayout>
+
                 <LinearLayout
                     android:gravity="center"
                     android:layout_width="match_parent"

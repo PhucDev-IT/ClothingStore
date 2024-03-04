@@ -1,4 +1,4 @@
-package com.example.clothingstoreadmin.fragmentlayout
+package com.example.clothingstoreadmin.FragmentLayout
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment

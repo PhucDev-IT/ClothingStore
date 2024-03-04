@@ -59,14 +59,14 @@ class RvOrderAdapter( private val onClick: ClickObjectInterface<OrderModel>):Rec
     @SuppressLint("CheckResult", "StringFormatMatches")
     override fun onBindViewHolder(holder: viewHolder, position: Int) {
         holder.itemView.apply {
-            Glide.with(context).load(list[position].carts?.get(0)?.product?.imgPreview).into(holder.imgProduct)
-            holder.nameProduct.text = list[position].carts?.get(0)?.product?.name
+            Glide.with(context).load(list[position].products?.get(0)?.imgPreview).into(holder.imgProduct)
+            holder.nameProduct.text = list[position].products?.get(0)?.name
             holder.tvTotalMoney.text = FormatCurrency.numberFormat.format(list[position].totalMoney)
-            holder.tvDateOrder.text = list[position].orderDate?.let {
+            holder.tvDateOrder.text = list[position].orderDate.let {
                 FormatCurrency.dateFormat.format(it)
             }
             holder.tvQuantity.text = resources.getString(R.string.str_quantity,
-                list[position].carts?.get(0)?.quantity ?: 1
+                list[position].products?.get(0)?.quantity ?: 1
             )
             holder.tvMore.setOnClickListener{
                 onClick.onClickListener(list[position])

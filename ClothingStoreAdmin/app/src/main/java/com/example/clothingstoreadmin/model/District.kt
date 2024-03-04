@@ -1,14 +1,9 @@
-package com.example.clothingstoreapp.Model
+package com.example.clothingstoreadmin.model
 
 import com.google.gson.annotations.SerializedName
 import java.io.Serializable
 
-//API: https://online-gateway.ghn.vn/shiip/public-api/master-data/district?province_id=***
-class DistrictsJson: Serializable {
-    val data:List<District>?=null
-}
-
-class District: Serializable{
+class District: Serializable {
 
 
     @SerializedName("DistrictID")

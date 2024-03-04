@@ -25,19 +25,4 @@ data class WardJson(
              _wardCode = value
          }
 
-     @SerializedName("DistrictID")
-    private var _districtID: Int?=null
-     var DistrictID: Int?
-         get() = _districtID
-         set(value) {
-             _districtID = value
-         }
-
-     @SerializedName("NameExtension")
-    private var _nameExtension: List<String>?=null
-     var NameExtension: List<String>?
-         get() = _nameExtension
-         set(value) {
-             _nameExtension = value
-         }
 }

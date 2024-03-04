@@ -1,4 +1,4 @@
-package com.example.clothingstoreadmin.fragmentlayout
+package com.example.clothingstoreadmin.FragmentLayout
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -15,10 +15,10 @@ private const val ARG_PARAM2 = "param2"
 
 /**
  * A simple [Fragment] subclass.
- * Use the [OnBoardingOneFragment.newInstance] factory method to
+ * Use the [OnBoardingTwoFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class OnBoardingOneFragment : Fragment() {
+class OnBoardingTwoFragment : Fragment() {
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
@@ -36,7 +36,7 @@ class OnBoardingOneFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_on_broading_one, container, false)
+        return inflater.inflate(R.layout.fragment_on_boarding_two, container, false)
     }
 
     companion object {
@@ -46,12 +46,12 @@ class OnBoardingOneFragment : Fragment() {
          *
          * @param param1 Parameter 1.
          * @param param2 Parameter 2.
-         * @return A new instance of fragment OnBroadingOneFragment.
+         * @return A new instance of fragment OnBoardingTwoFragment.
          */
         // TODO: Rename and change types and number of parameters
         @JvmStatic
         fun newInstance(param1: String, param2: String) =
-            OnBoardingOneFragment().apply {
+            OnBoardingTwoFragment().apply {
                 arguments = Bundle().apply {
                     putString(ARG_PARAM1, param1)
                     putString(ARG_PARAM2, param2)

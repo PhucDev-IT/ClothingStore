@@ -6,6 +6,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.clothingstoreapp.Model.AddressModel
+import com.example.clothingstoreapp.Model.CustomProduct
 import com.example.clothingstoreapp.Model.ItemCart
 import com.example.clothingstoreapp.Model.OrderModel
 import com.example.clothingstoreapp.Model.ShippingMethod
@@ -14,8 +15,8 @@ import kotlin.math.log
 
 class PayOrderViewModel : ViewModel() {
 
-    private val _mListCart = MutableLiveData<List<ItemCart>>()
-    val mListCart:LiveData<List<ItemCart>> = _mListCart
+    private val _mCarts = MutableLiveData<List<ItemCart>>()
+    val mCarts:LiveData<List<ItemCart>> = _mCarts
 
     private val _voucher = MutableLiveData<Voucher?>(null)
     val voucher: LiveData<Voucher?> = _voucher
@@ -43,7 +44,7 @@ class PayOrderViewModel : ViewModel() {
     }
 
     fun setListCart(list:List<ItemCart>){
-        _mListCart.value = list
+        _mCarts.value = list
     }
 
     fun setOrder(o:OrderModel)
@@ -71,7 +72,7 @@ class PayOrderViewModel : ViewModel() {
     }
 
     fun getListCart(): List<ItemCart>? {
-        return mListCart.value
+        return _mCarts.value
     }
 
     fun getDeliveryAddress():AddressModel?{
