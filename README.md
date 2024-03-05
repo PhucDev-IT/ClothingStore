@@ -14,6 +14,7 @@
 ## Design: 
 Link: [thiết kế giao diện](https://www.figma.com/file/aCTPI43xRXgEkn1yYFiOiM/Clothing-Store-App%2FFashion-E-Commerce-App-%7C-App%C2%A0UI%C2%A0Kit-(Community)?type=design&node-id=0-1&mode=design)
 
+Demo: [video demo cơ bản app clothing store](https://drive.google.com/drive/u/0/folders/13maqqscSXbIU2neq34pLRcpyTMOOLZ1h)
 ## Giao diện Demo đã xây dựng
 
 #### 1.Splash Screen
