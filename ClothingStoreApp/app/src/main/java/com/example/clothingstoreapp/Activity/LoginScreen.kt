@@ -35,7 +35,7 @@ class LoginScreen : AppCompatActivity() {
     private lateinit var gso: GoogleSignInOptions
     private lateinit var mGoogleSignInClient: GoogleSignInClient
     private lateinit var mGoogleApiClient:GoogleApiClient
-
+    private var inputAccount:MutableMap<String,Int> = mutableMapOf()
     private val RC_SIGN_IN:Int = 9001
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -118,6 +118,7 @@ class LoginScreen : AppCompatActivity() {
                     }else{
                         Toast.makeText(this, "Tài khoản hoặc mật khẩu không chính xác", Toast.LENGTH_SHORT)
                             .show()
+
                         customDialog.closeDialog()
                     }
                 } .addOnFailureListener {

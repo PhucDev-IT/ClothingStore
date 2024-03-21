@@ -17,10 +17,10 @@ class Category:Serializable {
             _nameCategory = value;
         }
 
-    private var _url:String? = null
-    var url:String?
-        get() = _url
-        set(value) {
-            _url = value;
-        }
+    constructor()
+
+    constructor(id:String,name:String){
+        this.id = id
+        this._nameCategory = name
+    }
 }

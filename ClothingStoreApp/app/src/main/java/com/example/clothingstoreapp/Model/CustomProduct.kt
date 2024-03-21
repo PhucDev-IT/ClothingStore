@@ -1,5 +1,6 @@
 package com.example.clothingstoreapp.Model
 
+import android.net.Uri
 import java.io.Serializable
 
  class CustomProduct :Serializable{

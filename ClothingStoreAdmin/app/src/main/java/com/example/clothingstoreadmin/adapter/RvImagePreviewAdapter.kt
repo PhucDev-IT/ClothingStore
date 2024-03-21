@@ -1,6 +1,7 @@
 package com.example.clothingstoreadmin.adapter
 
 import android.annotation.SuppressLint
+import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -32,12 +33,12 @@ class RvImagePreviewAdapter(private var list: List<String>, private val onClick:
             Glide.with(context).load(list[position]).into(imgPreview)
 
             holder.itemView.setOnClickListener {
-                onClick.onClickListener(list[position])
+                list[position].let { it1 -> onClick.onClickListener(it1) }
             }
         }
     }
 
     override fun getItemCount(): Int {
-        return list.size
+        return list.size ?:0
     }
 }

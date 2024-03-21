@@ -152,12 +152,6 @@ class PayOrderFragment : Fragment() {
             sharedViewModel.deliveryAddress.observe(viewLifecycleOwner) { value ->
                 if (value != null) {
 
-                    //getTransportUnit()
-
-                    calculateFeeShip(100039) { total ->
-                        Toast.makeText(context, "Tiền: $total", Toast.LENGTH_SHORT).show()
-                    }
-
                     binding.lnShowInformationUser.visibility = View.VISIBLE
                     binding.lnNotAddress.visibility = View.GONE
 
@@ -256,7 +250,6 @@ class PayOrderFragment : Fragment() {
                     FormatCurrency.numberFormat.format(sharedViewModel.feeShip.value)
             }
         }
-
 
         sharedViewModel.deliveryAddress.value?.district?.let { it ->
 

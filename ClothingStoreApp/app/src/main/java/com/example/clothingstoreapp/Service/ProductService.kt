@@ -4,6 +4,7 @@ import android.content.ContentValues
 import android.util.Log
 import androidx.compose.ui.text.toUpperCase
 import com.example.clothingstoreapp.Model.Product
+import com.example.clothingstoreapp.Model.ProductDetails
 import com.example.clothingstoreapp.Model.ProductIsLiked
 import com.google.android.gms.tasks.Task
 import com.google.firebase.firestore.DocumentSnapshot
@@ -19,7 +20,7 @@ class ProductService(private val db: FirebaseFirestore) {
 
     //Lấy tất cả sản phẩm
     fun selectAllFirstPage(onDataLoader: (List<Product>) -> Unit) {
-        db.collection("products")
+        db.collection("Products")
             .orderBy(FieldPath.documentId())
             .limit(maxSize)
             .get()
@@ -187,6 +188,23 @@ class ProductService(private val db: FirebaseFirestore) {
             }.addOnFailureListener {
                 Log.e(ContentValues.TAG,"Có lỗi: ${it.message}")
                 callBack(emptyList())
+            }
+    }
+
+    fun getProductDetails(idProduct:String,onDataLoader: (List<ProductDetails>) -> Unit){
+        db.collection("ProductDetails").whereEqualTo("productId",idProduct).get()
+            .addOnSuccessListener {documents->
+                val list = mutableListOf<ProductDetails>()
+                for(item in documents){
+                    val product = item.toObject(ProductDetails::class.java)
+                    product.id = item.id
+                    list.add(product)
+                }
+                onDataLoader(list)
+            }
+            .addOnFailureListener {
+                Log.e(ContentValues.TAG, "Lỗi: .", it)
+                onDataLoader(emptyList())
             }
     }
 }

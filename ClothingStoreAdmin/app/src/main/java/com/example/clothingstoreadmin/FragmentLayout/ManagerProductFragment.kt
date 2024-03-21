@@ -17,6 +17,7 @@ import com.example.clothingstoreadmin.activity.AddNewProduct
 import com.example.clothingstoreadmin.activity.ProductDetailsScreen
 import com.example.clothingstoreadmin.adapter.RvProductAdapter
 import com.example.clothingstoreadmin.databinding.FragmentManagerProductBinding
+import com.example.clothingstoreadmin.model.Category
 import com.example.clothingstoreadmin.model.Product
 import com.example.clothingstoreapp.Service.CategoryService
 import com.example.clothingstoreapp.Service.ProductService
@@ -105,11 +106,15 @@ class ManagerProductFragment : Fragment() {
     //Lấy danh sách danh mục
     private fun getCategory() {
         var index = 0
+        val categories:MutableList<Category> = mutableListOf()
+        categories.add(Category("0","Tất cả"))
         categoryService.getAllCategory { list ->
+            categories.addAll(list)
+
             val inflater = LayoutInflater.from(context)
             val radioButtonLayout = R.layout.custom_viewholder_radio
 
-            for (value in list) {
+            for (value in categories) {
                 val radioButton =
                     inflater.inflate(
                         radioButtonLayout,
@@ -136,10 +141,17 @@ class ManagerProductFragment : Fragment() {
     private fun findProductByCategory(id:String){
         binding.lnResultSearch.visibility = View.GONE
         binding.progressLoading.visibility = View.VISIBLE
-        productService.selectProductByCategory(id){list->
-            adapter.setData(list)
 
-            binding.progressLoading.visibility = View.GONE
+        if(id == "0"){
+            productService.selectAllFirstPage(){list->
+                adapter.setData(list)
+                binding.progressLoading.visibility = View.GONE
+            }
+        }else {
+            productService.selectProductByCategory(id) { list ->
+                adapter.setData(list)
+                binding.progressLoading.visibility = View.GONE
+            }
         }
     }
 }

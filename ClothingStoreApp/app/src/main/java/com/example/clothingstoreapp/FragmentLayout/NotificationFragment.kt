@@ -54,7 +54,7 @@ class NotificationFragment : Fragment() {
         notificationService.getAllNotification { list->
             if(list.isNotEmpty()){
                 binding.lnNotificationAll.visibility = View.VISIBLE
-                adapterAll = RvNotificationAdapter(emptyList())
+                adapterAll = RvNotificationAdapter(list)
 
                 binding.rvNotificationAll.adapter = adapterAll
                 binding.rvNotificationAll.layoutManager = linearLayoutManager

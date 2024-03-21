@@ -37,7 +37,7 @@ class NotificationService() {
 
     fun getAllNotification(callBack: (List<Notification>) -> Unit){
         db.collection("notifications")
-            .orderBy("timeSend",Query.Direction.DESCENDING).limit(15).get()
+            .orderBy("timeSend",Query.Direction.DESCENDING).limit(5).get()
             .addOnSuccessListener { task->
                 val list = mutableListOf<Notification>()
                 for (item in task){

@@ -78,7 +78,7 @@ class PaymentSuccess : Fragment() {
         notification.content = "\"${user?.fullName}\" vừa đặt ${order?.products?.size} sản phẩm với " +
                 "${FormatCurrency.numberFormat.format(order?.totalMoney)}. Xác nhận đơn hàng ngay."
         notification.timeSend = Date()
-        notification.img = order?.products?.get(0)?.imgPreview
+        notification.img = order?.products?.get(0)?.imgPreview.toString()
         notification.isRead = false
 
         notificationService.sendNotificationToAdmin(notification){b->

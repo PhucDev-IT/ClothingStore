@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:background="@color/white"
     android:orientation="vertical"
-    tools:context=".activity.AddNewProduct">
+    tools:context=".activity.EditProductScreen">
 
     <androidx.appcompat.widget.Toolbar
         android:layout_width="match_parent"
@@ -194,36 +194,36 @@
                 android:baselineAligned="false"
                 android:orientation="horizontal">
 
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:layout_weight="1"
-                        android:id="@+id/textLayoutReduce"
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_weight="1"
+                    android:id="@+id/textLayoutReduce"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColorHint="#757573">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/edtPrice"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:textColorHint="#757573">
+                        android:hint="Đơn giá"
+                        android:inputType="number"
+                        android:maxLength="8"
+                        android:text="20000" />
+                </com.google.android.material.textfield.TextInputLayout>
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_weight="1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColorHint="#757573">
 
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/edtPrice"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:hint="Đơn giá"
-                            android:inputType="number"
-                            android:maxLength="8"
-                            android:text="20000" />
-                    </com.google.android.material.textfield.TextInputLayout>
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:layout_weight="1"
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/edtSale"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:textColorHint="#757573">
-
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/edtSale"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:hint="Sale (0 - 100%)"
-                            android:inputType="number"
-                            android:maxLength="2" />
-                    </com.google.android.material.textfield.TextInputLayout>
+                        android:hint="Sale (0 - 100%)"
+                        android:inputType="number"
+                        android:maxLength="2" />
+                </com.google.android.material.textfield.TextInputLayout>
 
             </LinearLayout>
 

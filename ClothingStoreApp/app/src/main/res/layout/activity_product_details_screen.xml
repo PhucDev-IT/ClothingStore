@@ -199,13 +199,25 @@
                     android:layout_marginTop="10dp"
                     android:orientation="vertical">
 
-                    <TextView
+                    <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:fontFamily="@font/inter_medium"
-                        android:text="Chọn Size"
-                        android:textSize="16sp"
-                        android:textStyle="bold" />
+                        android:orientation="horizontal">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/inter_medium"
+                            android:text="Chọn size"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tvQuantity"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="10dp"
+                            android:text="[0]"/>
+                    </LinearLayout>
 
                     <HorizontalScrollView
                         android:layout_width="match_parent"
@@ -215,7 +227,7 @@
                         tools:ignore="RtlSymmetry">
 
                         <RadioGroup
-                            android:id="@+id/rdoGroupClassifies"
+                            android:id="@+id/rdoGroupSize"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:orientation="horizontal" />
@@ -237,12 +249,12 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:fontFamily="@font/inter_medium"
-                            android:text="Chọn màu: "
+                            android:text="Phân loại: "
                             android:textSize="16sp"
                             android:textStyle="bold" />
 
                         <TextView
-                            android:id="@+id/tvSelectedColor"
+                            android:id="@+id/tvSelectClassify"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:fontFamily="@font/inter_medium"
@@ -258,7 +270,7 @@
                         tools:ignore="RtlSymmetry">
 
                         <RadioGroup
-                            android:id="@+id/rdoGroupColors"
+                            android:id="@+id/rdoGroupClassifies"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:orientation="horizontal" />

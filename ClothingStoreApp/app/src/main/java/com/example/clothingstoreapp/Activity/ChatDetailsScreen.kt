@@ -3,7 +3,9 @@ package com.example.clothingstoreapp.Activity
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -29,6 +31,7 @@ class ChatDetailsScreen : AppCompatActivity() {
     private val PICK_IMAGES_REQUEST = 81
 
 
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityChatDetailsScreenBinding.inflate(layoutInflater)
@@ -58,6 +61,7 @@ class ChatDetailsScreen : AppCompatActivity() {
         })
     }
 
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private fun handleClick() {
         binding.btnSend.setOnClickListener {
             sendMessageToUser()
@@ -67,6 +71,9 @@ class ChatDetailsScreen : AppCompatActivity() {
             openFileChooseImage()
         }
 
+        binding.btnBack.setOnClickListener {
+            onBackPressed()
+        }
     }
 
 

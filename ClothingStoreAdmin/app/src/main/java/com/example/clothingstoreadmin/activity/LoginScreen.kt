@@ -37,6 +37,8 @@ class LoginScreen : AppCompatActivity() {
     private val customerService = CustomerService()
     private val RC_SIGN_IN:Int = 9001
 
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityLoginScreenBinding.inflate(layoutInflater)

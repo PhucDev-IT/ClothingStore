@@ -20,13 +20,16 @@ import com.example.clothingstoreapp.Model.Product
 import com.example.clothingstoreapp.R
 import com.example.clothingstoreapp.databinding.ActivityProductDetailsScreenBinding
 import android.media.MediaPlayer
+import android.net.Uri
 import android.util.Log
 import com.example.clothingstoreapp.Adapter.CustomDialog
 import com.example.clothingstoreapp.Model.CustomProduct
 import com.example.clothingstoreapp.Model.ItemCart
+import com.example.clothingstoreapp.Model.ProductDetails
 import com.example.clothingstoreapp.Model.ProductIsLiked
 import com.example.clothingstoreapp.Model.UserManager
 import com.example.clothingstoreapp.Service.CartService
+import com.example.clothingstoreapp.Service.ProductService
 import com.example.clothingstoreapp.database.ProductDatabase
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.FirebaseFirestore
@@ -48,6 +51,8 @@ class ProductDetailsScreen : AppCompatActivity() {
     private lateinit var productToCart:CustomProduct
     private var isOpenPreview = true
     private lateinit var adapter: RvImagePreviewAdapter
+    private lateinit var productDetails :List<ProductDetails>
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,23 +63,35 @@ class ProductDetailsScreen : AppCompatActivity() {
         cartService = CartService(db)
         customDialog = CustomDialog(this)
         initView()
+
         handleEventClick()
+    }
+
+    private fun callProductDetails(id:String){
+        val db = Firebase.firestore
+
+        ProductService(db).getProductDetails(id){ list->
+
+            if(list.isNotEmpty())
+                initClassify(list)
+        }
     }
 
     private fun initView(){
          product = intent.getSerializableExtra("product") as Product
 
-        productToCart = CustomProduct(product.id!!,selectQuantity,product.name!!,
-            product.img_preview?.get(0)!!,product.price!!)
+        product.id?.let { callProductDetails(it) }
+//        productToCart = CustomProduct(product.id!!,selectQuantity,product.name!!,
+//            product.images?.get(0)!!,product.price!!)
 
-        Glide.with(this).load(product.img_preview?.get(0)).into(binding.imgProduct)
+        Glide.with(this).load(product.images?.get(0)).into(binding.imgProduct)
         binding.tvNameProduct.text = product.name
         binding.tvPrice.text = FormatCurrency.numberFormat.format(product.price)
         binding.tvDescription.text = product.description
         binding.tvNumberBuyProduct.text = selectQuantity.toString()
         binding.tvRateEvaluate.text = product.rateEvaluate.toString()
 
-         product.img_preview?.let {
+         product.images?.let {
             adapter = RvImagePreviewAdapter(it,object : ClickObjectInterface<String>{
             override fun onClickListener(t: String) {
                 Glide.with(applicationContext).load(t).into(binding.imgProduct)
@@ -85,8 +102,7 @@ class ProductDetailsScreen : AppCompatActivity() {
         binding.rvPreviewImage.adapter = adapter
         binding.rvPreviewImage.layoutManager = linearLayoutManager
 
-        initClassify()
-        initColors()
+
         binding.btnAddToCart.text = (resources.getString(
             R.string.default_btn_add_to_cart,
             FormatCurrency.numberFormat.format(product.price)
@@ -108,20 +124,23 @@ class ProductDetailsScreen : AppCompatActivity() {
             }
         }
     }
-
-    private fun initClassify() {
+    private fun initClassify(listClassify:List<ProductDetails>) {
 
         var index = 0
         val inflater = LayoutInflater.from(this)
-        val radioButtonLayout = R.layout.viewholder_category_two
-        product.classifies?.forEach { value ->
+        val radioButtonLayout = R.layout.viewholder_classify_product
+
+
+        listClassify.forEach { product ->
             val radioButton =
                 inflater.inflate(radioButtonLayout, binding.rdoGroupClassifies, false) as RadioButton
 
-            radioButton.text = value
+            radioButton.text = product.nameClassify
             radioButton.setOnCheckedChangeListener { buttonView, ischecked ->
                 if (ischecked) {
-                    productToCart.classify = buttonView.text.toString()
+                    binding.tvSelectClassify.text = product.nameClassify
+                    val sizes = listClassify.filter { it.nameClassify == product.nameClassify }
+                    initSizes(sizes)
                 }
             }
             binding.rdoGroupClassifies.addView(radioButton)
@@ -132,24 +151,23 @@ class ProductDetailsScreen : AppCompatActivity() {
         }
     }
 
-    private fun initColors() {
-
+    private fun initSizes(list:List<ProductDetails>) {
+        binding.rdoGroupSize.removeAllViews()
         var index = 0
         val inflater = LayoutInflater.from(this)
-        val radioButtonLayout = R.layout.viewholder_category_two
-        product.colors?.forEach { (key,value) ->
-            val radioButton =
-                inflater.inflate(radioButtonLayout, binding.rdoGroupColors, false) as RadioButton
+        val radioButtonLayout = R.layout.viewholder_classify_product
+        list.forEach { size ->
 
-            radioButton.text = key
+            val radioButton =
+                inflater.inflate(radioButtonLayout, binding.rdoGroupSize, false) as RadioButton
+
+            radioButton.text = size.size
             radioButton.setOnCheckedChangeListener { buttonView, ischecked ->
                 if (ischecked) {
-                    binding.tvSelectedColor.text = buttonView.text
-                    binding.tvSelectedColor.setTextColor(Color.parseColor(value))
-                    productToCart.color = buttonView.text.toString()
+                    binding.tvQuantity.text = size.quantity.toString()
                 }
             }
-            binding.rdoGroupColors.addView(radioButton)
+            binding.rdoGroupSize.addView(radioButton)
             if (index == 0) {
                 radioButton.isChecked = true
             }
@@ -161,10 +179,10 @@ class ProductDetailsScreen : AppCompatActivity() {
 
         binding.btnControlPreview.setOnClickListener {
             if(isOpenPreview){
-                adapter.setData(listOf(product.img_preview?.get(0) ?: ""))
+                adapter.setData(listOf(product.images?.get(0)!!))
                 isOpenPreview = false
             }else{
-                product.img_preview?.let { it1 -> adapter.setData(it1) }
+                product.images?.let { it1 -> adapter.setData(it1) }
                 isOpenPreview = true
                 binding.btnControlPreview.setImageResource(R.drawable.baseline_keyboard_double_arrow_right_24)
             }
@@ -218,7 +236,7 @@ class ProductDetailsScreen : AppCompatActivity() {
            try {
                val productIsLiked = ProductIsLiked()
                productIsLiked.idProduct = product.id.toString()
-               productIsLiked.idCategory = product.idCategory
+              // productIsLiked.idCategory = product.idCategory
                ProductDatabase.getInstance(application).productDao().insert(productIsLiked)
                binding.btnIsLike.setImageResource(R.drawable.icons8_heart_full_30)
            }catch (e:Exception){
@@ -233,7 +251,7 @@ class ProductDetailsScreen : AppCompatActivity() {
             try {
                 val productIsLiked = ProductIsLiked()
                 productIsLiked.idProduct = product.id.toString()
-                productIsLiked.idCategory = product.idCategory
+               // productIsLiked.idCategory = product.idCategory
                 ProductDatabase.getInstance(application).productDao().delete(productIsLiked)
                 binding.btnIsLike.setImageResource(R.drawable.icons8_heart_empty_30)
             }catch (e:Exception){
@@ -257,7 +275,7 @@ class ProductDetailsScreen : AppCompatActivity() {
 
     //Thêm vào giỏ hàng
     private fun addToCart(){
-        if(selectQuantity > product.quantity!!){
+        if(selectQuantity > binding.tvQuantity.text.toString().toInt()){
             Toast.makeText(this,"Số lượng còn lại không đủ",Toast.LENGTH_SHORT).show()
         }else{
             customDialog.dialogLoadingBasic("Đang xử lý...")

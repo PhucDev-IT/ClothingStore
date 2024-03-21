@@ -39,7 +39,7 @@ interface ApiGHN {
             // Thêm header vào yêu cầu gốc
             val modifiedRequest: Request = originalRequest.newBuilder()
                 .header("token", "52a73b2a-d2d4-11ee-893f-b6ed573185af")
-                .header("shop_id", "4914423")
+                .header("ShopID", "4914423")
                 .build()
 
             // Tiếp tục xử lý yêu cầu mới với các interceptor khác hoặc thực hiện yêu cầu
@@ -93,7 +93,7 @@ interface ApiGHN {
      */
 
 
-    @GET("v2/shipping-order/available-services?shop_id=4914423&to_district=1616&from_district=1616")
+    @GET("v2/shipping-order/available-services?shop_id=4914423&to_district=1616&from_district=1615")
     fun getTransportUnit(
 //        @Query("from_district") from_district: Int,
 //        @Query("to_district") to_district: Int,

@@ -107,7 +107,7 @@ class CartService(private val db: FirebaseFirestore) {
                             val product = documentRef.toObject(Product::class.java)
 
                             cart.product?.name = product?.name
-                            cart.product?.imgPreview = product?.img_preview?.get(0)
+                            cart.product?.imgPreview = product?.images?.get(0)
                             cart.product?.price = product?.price
 
                             Log.w(TAG,"$product")

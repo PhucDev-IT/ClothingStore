@@ -165,6 +165,7 @@
             </LinearLayout>
 
             <LinearLayout
+                android:visibility="gone"
                 android:padding="10dp"
                 android:background="@drawable/bg_radius_outline_white"
                 android:layout_marginVertical="5dp"

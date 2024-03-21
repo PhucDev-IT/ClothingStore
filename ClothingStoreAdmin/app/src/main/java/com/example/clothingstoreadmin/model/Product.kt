@@ -1,6 +1,7 @@
 package com.example.clothingstoreadmin.model
 
 
+import android.net.Uri
 import java.io.Serializable
 import java.util.Date
 
@@ -30,6 +31,12 @@ class Product : Serializable{
             _price = value
         }
 
+    private var _sale: Double = 0.0
+    var sale: Double
+        get() = _sale
+        set(value) {
+            _sale = value
+        }
 
     private var _description: String? = null
     var description: String?
@@ -38,34 +45,15 @@ class Product : Serializable{
             _description = value
         }
 
-    private var _quantity: Int? = null
-    var quantity: Int?
-        get() = _quantity
-        set(value) {
-            _quantity = value
-        }
 
 
-    private var _classifies: List<String>? = null
-    var classifies: List<String>?
-        get() = _classifies
+    private var _images: List<String>? = null
+    var images: List<String>?
+        get() = _images
         set(value) {
-            _classifies = value
+            _images = value
         }
 
-    private var _img_preview: List<String>? = null
-    var img_preview: List<String>?
-        get() = _img_preview
-        set(value) {
-            _img_preview = value
-        }
-
-    private var _colors: Map<String,String>? = null
-    var colors: Map<String,String>?
-        get() = _colors
-        set(value) {
-            _colors = value
-        }
 
     private var _tags: List<String>? = null
     var tags: List<String>?
@@ -74,8 +62,8 @@ class Product : Serializable{
             _tags = value
         }
 
-    private var _createdTime: Date? = null
-    var createdTime: Date?
+    private var _createdTime: Date = Date()
+    var createdTime: Date
         get() = _createdTime
         set(value) {
             _createdTime = value
@@ -88,8 +76,8 @@ class Product : Serializable{
             _rateEvaluate = value
         }
 
-    private var _idCategory: String? = null
-    var idCategory: String?
+    private var _idCategory: List<String>? = null
+    var idCategory: List<String>?
         get() = _idCategory
         set(value) {
             _idCategory = value

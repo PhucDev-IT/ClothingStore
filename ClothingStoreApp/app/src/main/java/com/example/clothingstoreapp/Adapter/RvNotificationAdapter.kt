@@ -16,7 +16,7 @@ import com.example.clothingstoreapp.Model.Notification
 import com.example.clothingstoreapp.R
 import com.google.android.material.imageview.ShapeableImageView
 
-class RvNotificationAdapter(private val list:List<Notification>):RecyclerView.Adapter<RvNotificationAdapter.viewHolder>() {
+class RvNotificationAdapter(private var list:List<Notification>):RecyclerView.Adapter<RvNotificationAdapter.viewHolder>() {
 
 
 
@@ -51,14 +51,16 @@ class RvNotificationAdapter(private val list:List<Notification>):RecyclerView.Ad
                 )
             }
 
-            if(list[position].isRead == false){
+            if(!list[position].isRead){
                 val color = ContextCompat.getColor(context, R.color.fourColor)
                 ViewCompat.setBackgroundTintList(holder.lnMainNotification, ColorStateList.valueOf(color))
             }
 
             holder.itemView.setOnClickListener {
-                list[position].isRead = true
-                notifyItemChanged(position)
+                if(!list[position].isRead){
+                    list[position].isRead = true
+                    notifyItemChanged(position)
+                }
             }
 
         }
@@ -68,5 +70,4 @@ class RvNotificationAdapter(private val list:List<Notification>):RecyclerView.Ad
         return list.size
     }
 
-    //Câập nhật item đã đọc
 }

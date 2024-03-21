@@ -45,7 +45,7 @@ class RvProductAdapter(private var list:List<Product>, private val onClick: Clic
 
     override fun onBindViewHolder(holder: viewHolder, position: Int) {
         holder.itemView.apply {
-            Glide.with(context).load(list[position].img_preview?.get(0)).into(holder.imageView)
+            Glide.with(context).load(list[position].images?.get(0)).into(holder.imageView)
             holder.tvName.text = list[position].name
 
             holder.tvPrice.text = FormatCurrency.numberFormat.format(list[position].price)

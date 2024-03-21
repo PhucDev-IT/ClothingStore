@@ -39,8 +39,8 @@ class Notification {
         set(value) {
             _time = value
         }
-    private var _isRead: Boolean? = null
-    var isRead: Boolean?
+    private var _isRead: Boolean = false
+    var isRead: Boolean
         get() = _isRead
         set(value) {
             _isRead = value

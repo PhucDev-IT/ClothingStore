@@ -183,35 +183,9 @@
                <LinearLayout
                    android:layout_width="match_parent"
                    android:layout_height="wrap_content"
-                   android:orientation="vertical"
-                   android:layout_marginTop="10dp">
-                   <TextView
-                       android:layout_width="wrap_content"
-                       android:layout_height="wrap_content"
-                       android:textSize="16sp"
-                       android:textStyle="bold"
-                       android:fontFamily="@font/inter_medium"
-                       android:text="Chọn Size"/>
+                   android:layout_marginTop="10dp"
+                   android:orientation="vertical">
 
-                   <HorizontalScrollView
-                       android:layout_marginTop="10dp"
-                       android:paddingStart="10dp"
-                       android:layout_width="match_parent"
-                       android:layout_height="wrap_content"
-                       tools:ignore="RtlSymmetry">
-                       <RadioGroup
-                           android:id="@+id/rdoGroupClassifies"
-                           android:orientation="horizontal"
-                           android:layout_width="wrap_content"
-                           android:layout_height="wrap_content"/>
-                   </HorizontalScrollView>
-               </LinearLayout>
-
-               <LinearLayout
-                   android:layout_width="match_parent"
-                   android:layout_height="wrap_content"
-                   android:orientation="vertical"
-                   android:layout_marginTop="10dp">
                    <LinearLayout
                        android:layout_width="wrap_content"
                        android:layout_height="wrap_content"
@@ -219,30 +193,74 @@
                        <TextView
                            android:layout_width="wrap_content"
                            android:layout_height="wrap_content"
-                           android:textSize="16sp"
-                           android:textStyle="bold"
                            android:fontFamily="@font/inter_medium"
-                           android:text="Chọn màu: "/>
+                           android:text="Chọn size"
+                           android:textSize="16sp"
+                           android:textStyle="bold" />
+
                        <TextView
-                           android:id="@+id/tvSelectedColor"
+                           android:id="@+id/tvQuantity"
                            android:layout_width="wrap_content"
                            android:layout_height="wrap_content"
-                           android:textSize="16sp"
-                           android:fontFamily="@font/inter_medium"
-                           android:text="Red"/>
+                           android:layout_marginStart="10dp"
+                           android:text="[0]"/>
                    </LinearLayout>
 
                    <HorizontalScrollView
-                       android:layout_marginTop="10dp"
-                       android:paddingStart="10dp"
                        android:layout_width="match_parent"
                        android:layout_height="wrap_content"
+                       android:layout_marginTop="10dp"
+                       android:paddingStart="10dp"
                        tools:ignore="RtlSymmetry">
+
                        <RadioGroup
-                           android:id="@+id/rdoGroupColors"
-                           android:orientation="horizontal"
+                           android:id="@+id/rdoGroupSize"
                            android:layout_width="wrap_content"
-                           android:layout_height="wrap_content"/>
+                           android:layout_height="wrap_content"
+                           android:orientation="horizontal" />
+                   </HorizontalScrollView>
+               </LinearLayout>
+
+               <LinearLayout
+                   android:layout_width="match_parent"
+                   android:layout_height="wrap_content"
+                   android:layout_marginTop="10dp"
+                   android:orientation="vertical">
+
+                   <LinearLayout
+                       android:layout_width="wrap_content"
+                       android:layout_height="wrap_content"
+                       android:orientation="horizontal">
+
+                       <TextView
+                           android:layout_width="wrap_content"
+                           android:layout_height="wrap_content"
+                           android:fontFamily="@font/inter_medium"
+                           android:text="Phân loại: "
+                           android:textSize="16sp"
+                           android:textStyle="bold" />
+
+                       <TextView
+                           android:id="@+id/tvSelectClassify"
+                           android:layout_width="wrap_content"
+                           android:layout_height="wrap_content"
+                           android:fontFamily="@font/inter_medium"
+                           android:text="Red"
+                           android:textSize="16sp" />
+                   </LinearLayout>
+
+                   <HorizontalScrollView
+                       android:layout_width="match_parent"
+                       android:layout_height="wrap_content"
+                       android:layout_marginTop="10dp"
+                       android:paddingStart="10dp"
+                       tools:ignore="RtlSymmetry">
+
+                       <RadioGroup
+                           android:id="@+id/rdoGroupClassifies"
+                           android:layout_width="wrap_content"
+                           android:layout_height="wrap_content"
+                           android:orientation="horizontal" />
                    </HorizontalScrollView>
                </LinearLayout>
            </LinearLayout>
