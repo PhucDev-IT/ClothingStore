@@ -1,16 +1,12 @@
 package com.example.clothingstoreapp.Activity
 
 import android.content.ContentValues.TAG
-import android.content.Context
 import android.content.Intent
-import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.widget.LinearLayout
 import android.widget.RadioButton
 import android.widget.Toast
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.example.clothingstoreapp.Adapter.RvImagePreviewAdapter
@@ -20,10 +16,8 @@ import com.example.clothingstoreapp.Model.Product
 import com.example.clothingstoreapp.R
 import com.example.clothingstoreapp.databinding.ActivityProductDetailsScreenBinding
 import android.media.MediaPlayer
-import android.net.Uri
 import android.util.Log
 import com.example.clothingstoreapp.Adapter.CustomDialog
-import com.example.clothingstoreapp.Model.CustomProduct
 import com.example.clothingstoreapp.Model.ItemCart
 import com.example.clothingstoreapp.Model.ProductDetails
 import com.example.clothingstoreapp.Model.ProductIsLiked
@@ -39,19 +33,21 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class ProductDetailsScreen : AppCompatActivity() {
-    private lateinit var binding:ActivityProductDetailsScreenBinding
+    private lateinit var binding: ActivityProductDetailsScreenBinding
     private lateinit var product: Product
-    private var selectQuantity:Int = 1
-    private var isLikeProduct:Boolean = false
+    private var selectQuantity: Int = 1
+    private var isLikeProduct: Boolean = false
+
     // Tạo một biến MediaPlayer
     private var mediaPlayer: MediaPlayer? = null
-    private lateinit var db:FirebaseFirestore
-    private lateinit var cartService:CartService
+    private lateinit var db: FirebaseFirestore
+    private lateinit var cartService: CartService
     private lateinit var customDialog: CustomDialog
-    private lateinit var productToCart:CustomProduct
+
     private var isOpenPreview = true
     private lateinit var adapter: RvImagePreviewAdapter
-    private lateinit var productDetails :List<ProductDetails>
+
+    private var cart = ItemCart()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -67,22 +63,25 @@ class ProductDetailsScreen : AppCompatActivity() {
         handleEventClick()
     }
 
-    private fun callProductDetails(id:String){
+    private fun callProductDetails(id: String) {
         val db = Firebase.firestore
 
-        ProductService(db).getProductDetails(id){ list->
+        ProductService(db).getProductDetails(id) { list ->
 
-            if(list.isNotEmpty())
+            if (list.isNotEmpty())
                 initClassify(list)
         }
     }
 
-    private fun initView(){
-         product = intent.getSerializableExtra("product") as Product
+    private fun initView() {
+        product = intent.getSerializableExtra("product") as Product
 
         product.id?.let { callProductDetails(it) }
-//        productToCart = CustomProduct(product.id!!,selectQuantity,product.name!!,
-//            product.images?.get(0)!!,product.price!!)
+
+        cart = ItemCart(
+            product.id!!, selectQuantity
+        )
+
 
         Glide.with(this).load(product.images?.get(0)).into(binding.imgProduct)
         binding.tvNameProduct.text = product.name
@@ -91,14 +90,15 @@ class ProductDetailsScreen : AppCompatActivity() {
         binding.tvNumberBuyProduct.text = selectQuantity.toString()
         binding.tvRateEvaluate.text = product.rateEvaluate.toString()
 
-         product.images?.let {
-            adapter = RvImagePreviewAdapter(it,object : ClickObjectInterface<String>{
-            override fun onClickListener(t: String) {
-                Glide.with(applicationContext).load(t).into(binding.imgProduct)
-            }
-        }) }
+        product.images?.let {
+            adapter = RvImagePreviewAdapter(it, object : ClickObjectInterface<String> {
+                override fun onClickListener(t: String) {
+                    Glide.with(applicationContext).load(t).into(binding.imgProduct)
+                }
+            })
+        }
 
-        val linearLayoutManager = LinearLayoutManager(this,LinearLayoutManager.HORIZONTAL,false)
+        val linearLayoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         binding.rvPreviewImage.adapter = adapter
         binding.rvPreviewImage.layoutManager = linearLayoutManager
 
@@ -113,18 +113,19 @@ class ProductDetailsScreen : AppCompatActivity() {
     }
 
     //Check sản phâẩm códduwocjc yêu thích không
-    private fun checkProductIsLike(){
+    private fun checkProductIsLike() {
         product.id?.let {
-            if(ProductDatabase.getInstance(this).productDao().findByID(it)>0){
+            if (ProductDatabase.getInstance(this).productDao().findByID(it) > 0) {
                 isLikeProduct = true
                 binding.btnIsLike.setImageResource(R.drawable.icons8_heart_full_30)
-            }else{
+            } else {
                 isLikeProduct = false
                 binding.btnIsLike.setImageResource(R.drawable.icons8_heart_empty_30)
             }
         }
     }
-    private fun initClassify(listClassify:List<ProductDetails>) {
+
+    private fun initClassify(listClassify: List<ProductDetails>) {
 
         var index = 0
         val inflater = LayoutInflater.from(this)
@@ -133,11 +134,16 @@ class ProductDetailsScreen : AppCompatActivity() {
 
         listClassify.forEach { product ->
             val radioButton =
-                inflater.inflate(radioButtonLayout, binding.rdoGroupClassifies, false) as RadioButton
+                inflater.inflate(
+                    radioButtonLayout,
+                    binding.rdoGroupClassifies,
+                    false
+                ) as RadioButton
 
             radioButton.text = product.nameClassify
             radioButton.setOnCheckedChangeListener { buttonView, ischecked ->
                 if (ischecked) {
+                    cart
                     binding.tvSelectClassify.text = product.nameClassify
                     val sizes = listClassify.filter { it.nameClassify == product.nameClassify }
                     initSizes(sizes)
@@ -151,7 +157,7 @@ class ProductDetailsScreen : AppCompatActivity() {
         }
     }
 
-    private fun initSizes(list:List<ProductDetails>) {
+    private fun initSizes(list: List<ProductDetails>) {
         binding.rdoGroupSize.removeAllViews()
         var index = 0
         val inflater = LayoutInflater.from(this)
@@ -165,6 +171,9 @@ class ProductDetailsScreen : AppCompatActivity() {
             radioButton.setOnCheckedChangeListener { buttonView, ischecked ->
                 if (ischecked) {
                     binding.tvQuantity.text = size.quantity.toString()
+                    selectQuantity = 1
+                    upDownQuantity()
+                    cart.classifyId = size.id
                 }
             }
             binding.rdoGroupSize.addView(radioButton)
@@ -175,13 +184,13 @@ class ProductDetailsScreen : AppCompatActivity() {
         }
     }
 
-    private fun handleEventClick(){
+    private fun handleEventClick() {
 
         binding.btnControlPreview.setOnClickListener {
-            if(isOpenPreview){
+            if (isOpenPreview) {
                 adapter.setData(listOf(product.images?.get(0)!!))
                 isOpenPreview = false
-            }else{
+            } else {
                 product.images?.let { it1 -> adapter.setData(it1) }
                 isOpenPreview = true
                 binding.btnControlPreview.setImageResource(R.drawable.baseline_keyboard_double_arrow_right_24)
@@ -189,7 +198,7 @@ class ProductDetailsScreen : AppCompatActivity() {
         }
 
         binding.btnChat.setOnClickListener {
-            val intent = Intent(this,ChatDetailsScreen::class.java)
+            val intent = Intent(this, ChatDetailsScreen::class.java)
             startActivity(intent)
         }
 
@@ -198,12 +207,15 @@ class ProductDetailsScreen : AppCompatActivity() {
         }
 
         binding.btnUp.setOnClickListener {
-            selectQuantity++
-            upDownQuantity()
+            if (selectQuantity < binding.tvQuantity.text.toString().toInt()) {
+                selectQuantity++
+                upDownQuantity()
+            }
+
         }
 
         binding.btnMinus.setOnClickListener {
-            if(selectQuantity>1){
+            if (selectQuantity > 1) {
                 selectQuantity--
                 upDownQuantity()
             }
@@ -219,10 +231,10 @@ class ProductDetailsScreen : AppCompatActivity() {
             // Tạo mới MediaPlayer và phát âm thanh từ tập tin raw
             mediaPlayer = MediaPlayer.create(this, R.raw.interface_124464)
             mediaPlayer?.start()
-            isLikeProduct = if(!isLikeProduct){
+            isLikeProduct = if (!isLikeProduct) {
                 saveProductLiked()
                 true
-            }else{
+            } else {
                 isNotLikedProduct()
                 false
             }
@@ -231,78 +243,78 @@ class ProductDetailsScreen : AppCompatActivity() {
     }
 
     //Lưu sản phẩm vào database khi người dùng ấn tym
-    private fun saveProductLiked(){
-        CoroutineScope(Dispatchers.IO).launch {
-           try {
-               val productIsLiked = ProductIsLiked()
-               productIsLiked.idProduct = product.id.toString()
-              // productIsLiked.idCategory = product.idCategory
-               ProductDatabase.getInstance(application).productDao().insert(productIsLiked)
-               binding.btnIsLike.setImageResource(R.drawable.icons8_heart_full_30)
-           }catch (e:Exception){
-               Log.e(TAG,"Có lỗi: $e")
-           }
-        }
-    }
-
-    //Hủy tym
-    private fun isNotLikedProduct(){
+    private fun saveProductLiked() {
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val productIsLiked = ProductIsLiked()
                 productIsLiked.idProduct = product.id.toString()
-               // productIsLiked.idCategory = product.idCategory
+                // productIsLiked.idCategory = product.idCategory
+                ProductDatabase.getInstance(application).productDao().insert(productIsLiked)
+                binding.btnIsLike.setImageResource(R.drawable.icons8_heart_full_30)
+            } catch (e: Exception) {
+                Log.e(TAG, "Có lỗi: $e")
+            }
+        }
+    }
+
+    //Hủy tym
+    private fun isNotLikedProduct() {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val productIsLiked = ProductIsLiked()
+                productIsLiked.idProduct = product.id.toString()
+                // productIsLiked.idCategory = product.idCategory
                 ProductDatabase.getInstance(application).productDao().delete(productIsLiked)
                 binding.btnIsLike.setImageResource(R.drawable.icons8_heart_empty_30)
-            }catch (e:Exception){
-                Log.e(TAG,"Có lỗi: $e")
+            } catch (e: Exception) {
+                Log.e(TAG, "Có lỗi: $e")
             }
         }
     }
 
     //TĂNG GIẢM SỐ LƯƠNG
-    private fun upDownQuantity(){
+    private fun upDownQuantity() {
 
-         binding.tvNumberBuyProduct.text = selectQuantity.toString()
+        binding.tvNumberBuyProduct.text = selectQuantity.toString()
 
         binding.btnAddToCart.text = (resources.getString(
             R.string.default_btn_add_to_cart,
             FormatCurrency.numberFormat.format(product.price?.times(selectQuantity) ?: 0)
         ))
 
-        productToCart.quantity = selectQuantity
+        cart.quantity = selectQuantity
+
     }
 
     //Thêm vào giỏ hàng
-    private fun addToCart(){
-        if(selectQuantity > binding.tvQuantity.text.toString().toInt()){
-            Toast.makeText(this,"Số lượng còn lại không đủ",Toast.LENGTH_SHORT).show()
-        }else{
-            customDialog.dialogLoadingBasic("Đang xử lý...")
+    private fun addToCart() {
 
-            val idUerCurrent: String? = UserManager.getInstance().getUserID()
+        customDialog.dialogLoadingBasic("Đang xử lý...")
 
-            if(idUerCurrent == null){
-                Toast.makeText(this,"Có lỗi xảy ra khi lấy thông tin người dùng\nHãy đăng nhập lại!",Toast.LENGTH_SHORT).show()
-                customDialog.closeDialog()
-            }else{
+        val idUerCurrent: String? = UserManager.getInstance().getUserID()
 
-                cartService.addToCart(idUerCurrent,productToCart){b->
-                    if(b){
-                        Toast.makeText(this,"Thêm thành công",Toast.LENGTH_SHORT).show()
-                        customDialog.closeDialog()
-                    }else{
-                        Toast.makeText(this,"Có lỗi xảy ra !",Toast.LENGTH_SHORT).show()
-                    }
+        if (idUerCurrent == null) {
+            Toast.makeText(
+                this,
+                "Có lỗi xảy ra khi lấy thông tin người dùng\nHãy đăng nhập lại!",
+                Toast.LENGTH_SHORT
+            ).show()
+            customDialog.closeDialog()
+        } else {
+
+            cartService.addToCart(idUerCurrent, cart) { b ->
+                if (b) {
+                    Toast.makeText(this, "Thêm thành công", Toast.LENGTH_SHORT).show()
                     customDialog.closeDialog()
+                } else {
+                    Toast.makeText(this, "Có lỗi xảy ra !", Toast.LENGTH_SHORT).show()
                 }
-
+                customDialog.closeDialog()
             }
+
 
         }
     }
-
-
 
 
     @Deprecated("Deprecated in Java", ReplaceWith("onBackPressedDispatcher.onBackPressed()"))

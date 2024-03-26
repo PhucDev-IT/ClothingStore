@@ -1,6 +1,5 @@
 package com.example.clothingstoreapp.Model
 
-import com.google.type.DateTime
 import java.io.Serializable
 import java.util.Date
 
@@ -41,8 +40,8 @@ class OrderModel:Serializable {
             _deliveryAddress = value
         }
 
-    private var _products: List<CustomProduct>? = null
-    var products: List<CustomProduct>?
+    private var _products: List<ItemCart>? = null
+    var products: List<ItemCart>?
         get() = _products
         set(value) {
             _products = value
@@ -55,12 +54,6 @@ class OrderModel:Serializable {
             _orderDate = value
         }
 
-    private var _orderStatus: MutableMap<String,Date> = mutableMapOf()
-    var orderStatus: MutableMap<String,Date>
-        get() = _orderStatus
-        set(value) {
-            _orderStatus = value
-        }
 
     private var _voucher: Voucher? = null
     var voucher: Voucher?
@@ -97,11 +90,5 @@ class OrderModel:Serializable {
             _currentStatus = value
         }
 
-    private var _reasonCancel: String? = null
-    var reasonCancel: String?
-        get() = _reasonCancel
-        set(value) {
-            _reasonCancel = value
-        }
 
 }

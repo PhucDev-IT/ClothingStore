@@ -59,8 +59,8 @@ class RvPurchasedHistoryAdapter( private val onClick:ClickObjectInterface<OrderM
     @SuppressLint("CheckResult", "StringFormatMatches", "SetTextI18n")
     override fun onBindViewHolder(holder: viewHolder, position: Int) {
         holder.itemView.apply {
-            Glide.with(context).load(list[position].products?.get(0)?.imgPreview).into(holder.imgProduct)
-            holder.nameProduct.text = list[position].products?.get(0)?.name
+//            Glide.with(context).load(list[position].products?.get(0)?.image).into(holder.imgProduct)
+//            holder.nameProduct.text = list[position].products?.get(0)?.name
             holder.tvTotalMoney.text = FormatCurrency.numberFormat.format(list[position].totalMoney)
             holder.tvDateOrder.text = list[position].orderDate.let {
                 FormatCurrency.dateFormat.format(it)

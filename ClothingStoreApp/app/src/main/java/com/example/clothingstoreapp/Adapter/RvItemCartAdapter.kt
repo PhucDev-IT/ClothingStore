@@ -1,6 +1,7 @@
 package com.example.clothingstoreapp.Adapter
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -8,13 +9,13 @@ import android.widget.CheckBox
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.clothingstoreapp.Interface.CkbObjectInterface
 import com.example.clothingstoreapp.Interface.ClickObjectInterface
 import com.example.clothingstoreapp.Model.FormatCurrency
 import com.example.clothingstoreapp.Model.ItemCart
-import com.example.clothingstoreapp.Model.Product
 import com.example.clothingstoreapp.R
 
 class RvItemCartAdapter(private var list:List<ItemCart>, private val onClick:ClickObjectInterface<ItemCart>,
@@ -56,13 +57,17 @@ class RvItemCartAdapter(private var list:List<ItemCart>, private val onClick:Cli
 
     override fun onBindViewHolder(holder: viewHolder, position: Int) {
         holder.itemView.apply {
-            Glide.with(context).load(list[position].product?.imgPreview).into(holder.imgProduct)
-            holder.nameProduct.text = list[position].product?.name ?: "ERROR!"
-            holder.tvPrice.text = FormatCurrency.numberFormat.format(list[position].product?.price)
+            Glide.with(context).load(list[position].image).into(holder.imgProduct)
+            holder.nameProduct.text = list[position].name ?: "ERROR!"
+            holder.tvPrice.text = FormatCurrency.numberFormat.format(list[position].price)
 
-            holder.tvSize.text = resources.getString(R.string.size_cart, list[position].product?.classify)
-            holder.tvQuantity.text = list[position].product?.quantity.toString()
-            holder.tvClassify.text = resources.getString(R.string.str_classify, list[position].product?.color)
+            holder.tvSize.text = resources.getString(R.string.size_cart,
+                list[position].productDetail?.nameClassify ?: ""
+            )
+            holder.tvQuantity.text = list[position].quantity.toString()
+            holder.tvClassify.text = resources.getString(R.string.str_classify,
+                list[position].productDetail?.size ?: ""
+            )
 
             holder.checkbox.setOnClickListener {
                 if(holder.checkbox.isChecked){
@@ -73,11 +78,11 @@ class RvItemCartAdapter(private var list:List<ItemCart>, private val onClick:Cli
             }
 
             holder.btnUp.setOnClickListener {
-                upDownQuantity(holder.btnUp,holder,position)
+                upDownQuantity(holder.btnUp,holder,position,context)
             }
 
             holder.btnDown.setOnClickListener {
-                upDownQuantity(holder.btnDown,holder,position)
+                upDownQuantity(holder.btnDown,holder,position,context)
             }
         }
     }
@@ -86,18 +91,24 @@ class RvItemCartAdapter(private var list:List<ItemCart>, private val onClick:Cli
        return list.size
     }
 
-    private fun upDownQuantity(view: ImageButton, holder: viewHolder, position: Int){
-        var quantity = list[position].product?.quantity?:1
+    private fun upDownQuantity(view: ImageButton, holder: viewHolder, position: Int,context:Context){
+        var quantity = list[position].quantity?:1
 
         if(view.id == R.id.btnUp){
-            quantity += 1
+            if(quantity > 50){
+                Toast.makeText(context,"Đã đạt đến số lượng.",Toast.LENGTH_SHORT).show()
+            }else{
+                quantity += 1
+            }
+
         }else if(view.id == R.id.btnDown && quantity >1){
             quantity -=1
+
         }
 
         holder.tvQuantity.text = quantity.toString()
 
-        list[position].product?.quantity = quantity
+        list[position].quantity = quantity
 
         onClick.onClickListener(list[position])
     }

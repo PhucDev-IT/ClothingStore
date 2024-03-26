@@ -5,11 +5,15 @@ import android.util.Log
 import com.example.clothingstoreapp.Model.CustomProduct
 import com.example.clothingstoreapp.Model.ItemCart
 import com.example.clothingstoreapp.Model.Product
+import com.example.clothingstoreapp.Model.ProductDetails
 import com.google.android.gms.tasks.Task
 import com.google.android.gms.tasks.Tasks
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.toObject
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 
 class CartService(private val db: FirebaseFirestore) {
 
@@ -18,48 +22,45 @@ class CartService(private val db: FirebaseFirestore) {
 
     fun addToCart(
         idUser: String,
-        product: CustomProduct,
+        cart: ItemCart,
         resultData: (b: Boolean) -> Unit
     ) {
-        val cartData = hashMapOf<String, Any>(
-            "idProduct" to product.id!!,
-            "product" to product
-        )
 
 
         db.collection("carts")
             .document(idUser)
             .collection("cartItems")
-            .whereEqualTo("idProduct", product.id)
+            .whereEqualTo("productId", cart.productId)
+            .whereEqualTo("classifyId", cart.classifyId)
             .get()
             .addOnSuccessListener { documents ->
                 if (!documents.isEmpty) {
                     var isUpdated = false
                     for (document in documents) {
                         val value = document.toObject(ItemCart::class.java)
-                        if (value.product?.color == product.color && value.product?.classify == product.classify) {
-                            val quantity = value.product?.quantity?.plus(product.quantity!!)
-                            db.collection("carts")
-                                .document(idUser)
-                                .collection("cartItems")
-                                .document(document.id)
-                                .update("quantity", quantity)
-                                .addOnSuccessListener {
-                                    isUpdated = true
-                                    resultData(true)
-                                }
-                                .addOnFailureListener {
-                                    Log.e("Error", "Error adding document", it)
-                                    resultData(false)
-                                }
-                            break
-                        }
+                        value.id = document.id
+                        value.quantity += cart.quantity
+
+                        db.collection("carts")
+                            .document(idUser)
+                            .collection("cartItems")
+                            .document(document.id)
+                            .set(value)
+                            .addOnSuccessListener {
+                                isUpdated = true
+                                resultData(true)
+                            }
+                            .addOnFailureListener {
+                                Log.e("Error", "Error adding document", it)
+                                resultData(false)
+                            }
+                        break
                     }
                     if (!isUpdated) {
-                        addToCartData(idUser, cartData, resultData)
+                        addToCartData(idUser, cart, resultData)
                     }
                 } else {
-                    addToCartData(idUser, cartData, resultData)
+                    addToCartData(idUser, cart, resultData)
                 }
             }
             .addOnFailureListener { e ->
@@ -70,7 +71,7 @@ class CartService(private val db: FirebaseFirestore) {
 
     private fun addToCartData(
         idUser: String,
-        cartData: HashMap<String, Any>,
+        cartData: ItemCart,
         resultData: (b: Boolean) -> Unit
     ) {
         db.collection("carts")
@@ -87,74 +88,76 @@ class CartService(private val db: FirebaseFirestore) {
     }
 
 
-    fun selectData(idUser: String, onDataLoader: (List<ItemCart>) -> Unit) {
-        db.collection("carts").document(idUser).collection("cartItems")
-            .limit(maxSize)
-            .get()
-            .addOnSuccessListener { result ->
-                val cartTasks = mutableListOf<Task<DocumentSnapshot>>()
-                val list = mutableListOf<ItemCart>()
+    suspend fun selectData(idUser: String): List<ItemCart> = withContext(Dispatchers.IO) {
+        try {
+            val result = db.collection("carts").document(idUser).collection("cartItems")
+                .limit(maxSize)
+                .get()
+                .await()
 
-                for (document in result) {
-                    val idProduct = document.getString("idProduct")
-                    val cartTask = db.collection("products").document(idProduct!!).get()
-                    cartTasks.add(cartTask)
+            val cartTasks = result.documents.map { document ->
+                val idProduct = document.getString("productId") ?: return@map null
+                val idClassify = document.getString("classifyId")
 
-                    cartTask.addOnSuccessListener { documentRef ->
-                        if (documentRef.exists()) {
-                            val cart = document.toObject(ItemCart::class.java)
-                            cart.idCart = document.id
-                            val product = documentRef.toObject(Product::class.java)
+                val productTask = async {
+                    val productDoc = db.collection("Products").document(idProduct).get().await()
+                    if (productDoc.exists()) {
+                        val product = productDoc.toObject(Product::class.java)!!
+                        val cart = document.toObject(ItemCart::class.java)
 
-                            cart.product?.name = product?.name
-                            cart.product?.imgPreview = product?.images?.get(0)
-                            cart.product?.price = product?.price
+                        cart?.name = product.name
+                        cart?.image = product.images?.get(0)
+                        cart?.price = product.price
 
-                            Log.w(TAG,"$product")
 
-                            list.add(cart)
+                        idClassify?.let { classifyId ->
+                            val classifyDoc = db.collection("ProductDetails").document(classifyId).get().await()
+                            val item = classifyDoc.toObject(ProductDetails::class.java)
+                            cart?.productDetail = item
+
                         }
+                        cart
+                    } else {
+                        null
                     }
                 }
-
-                Tasks.whenAllSuccess<DocumentSnapshot>(cartTasks)
-                    .addOnSuccessListener {
-                        onDataLoader(list)
-                    }
-                    .addOnFailureListener { e ->
-                        onDataLoader(emptyList())
-                        Log.e("Error", "Error fetching documents", e)
-                    }
+                productTask
             }
-            .addOnFailureListener { e ->
-                onDataLoader(emptyList())
-                Log.e("Error", "Error fetching documents", e)
+
+            val carts = mutableListOf<ItemCart>()
+            cartTasks.mapNotNull { it?.await() }.forEach { cart ->
+                carts.add(cart)
             }
-    }
 
-    fun removeItemCart(list: List<ItemCart>, userID: String, onResult: (Boolean) -> Unit) {
-        val query = db.collection("carts").document(userID).collection("cartItems")
-
-        val tasks = mutableListOf<Task<Void>>()
-
-        for (item in list) {
-            item.idCart?.let {
-                val deleteTask = query.document(it).delete()
-                Log.w(TAG,"Id: ${item.idCart} - $deleteTask")
-                tasks.add(deleteTask)
-            }
+            carts
+        } catch (e: Exception) {
+            Log.e("Error", "Error fetching documents", e)
+            emptyList<ItemCart>()
         }
-
-        Tasks.whenAllComplete(tasks)
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    onResult(true) // Tất cả xóa thành công
-                } else {
-                    onResult(false) // Có lỗi xảy ra
-                    Log.e(TAG, task.exception.toString())
-                }
-            }
     }
+//    fun removeItemCart(list: List<ItemCart>, userID: String, onResult: (Boolean) -> Unit) {
+//        val query = db.collection("carts").document(userID).collection("cartItems")
+//
+//        val tasks = mutableListOf<Task<Void>>()
+//
+//        for (item in list) {
+//            item.idCart?.let {
+//                val deleteTask = query.document(it).delete()
+//                Log.w(TAG,"Id: ${item.idCart} - $deleteTask")
+//                tasks.add(deleteTask)
+//            }
+//        }
+//
+//        Tasks.whenAllComplete(tasks)
+//            .addOnCompleteListener { task ->
+//                if (task.isSuccessful) {
+//                    onResult(true) // Tất cả xóa thành công
+//                } else {
+//                    onResult(false) // Có lỗi xảy ra
+//                    Log.e(TAG, task.exception.toString())
+//                }
+//            }
+//    }
 
 
 }

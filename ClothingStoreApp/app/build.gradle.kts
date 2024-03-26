@@ -3,6 +3,7 @@ plugins {
     id("org.jetbrains.kotlin.android")
     id("com.google.gms.google-services")
     id("kotlin-kapt")
+    id ("kotlin-parcelize")
 }
 
 android {
@@ -138,6 +139,7 @@ dependencies {
     implementation("io.reactivex.rxjava3:rxkotlin:3.0.1")
     //Onboarding
     implementation("me.relex:circleindicator:2.1.6")
+
 
 
     // FirebaseUI for Cloud Firestore

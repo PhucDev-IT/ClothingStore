@@ -3,7 +3,6 @@ package com.example.clothingstoreapp.Activity
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.activity.viewModels
-import com.example.clothingstoreapp.Model.CustomProduct
 import com.example.clothingstoreapp.Model.ItemCart
 import com.example.clothingstoreapp.R
 import com.example.clothingstoreapp.ViewModel.PayOrderViewModel

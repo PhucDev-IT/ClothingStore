@@ -3,13 +3,8 @@ package com.example.clothingstoreadmin.model
 
 import java.io.Serializable
 
-class CustomProduct :Serializable{
-    private var _id: String? = null
-    var id: String?
-        get() = _id
-        set(value) {
-            _id = value
-        }
+open class CustomProduct() :Serializable {
+
 
     private var _name: String? = null
     var name: String?
@@ -19,6 +14,13 @@ class CustomProduct :Serializable{
         }
 
 
+    private var _image: String? = null
+    var image: String?
+        get() = _image
+        set(value) {
+            _image = value
+        }
+
     private var _price: Double? = null
     var price: Double?
         get() = _price
@@ -26,55 +28,22 @@ class CustomProduct :Serializable{
             _price = value
         }
 
-    private var _imgPreview: String? = null
-    var imgPreview: String?
-        get() = _imgPreview
+    private var _productDetail : ProductDetails?=null
+    var productDetail : ProductDetails?
+        get() = _productDetail
         set(value) {
-            _imgPreview = value
+            _productDetail = value
         }
 
-    private var _classify: String? = null
-    var classify: String?
-        get() = _classify
-        set(value) {
-            _classify = value
-        }
+    constructor(name: String?, image: String?, price: Double) : this() {
 
-    private var _color: String? = null
-    var color: String?
-        get() = _color
-        set(value) {
-            _color = value
-        }
-
-    private var _quantity: Int? = null
-    var quantity: Int?
-        get() = _quantity
-        set(value) {
-            _quantity = value
-        }
-    constructor()
-
-    constructor(id:String,quantity:Int,name:String,img:String,price: Double){
-        this._id = id
-        this._quantity = quantity
         this._name = name
-        this._imgPreview = img
+        this._image = image
         this._price = price
-    }
-
-    constructor(id:String,name:String,img:String,price:Double,classify:String,color:String,quantity:Int){
-        this._id = id
-        this._name = name
-        this._imgPreview = img
-        this._price = price
-        this._classify = classify
-        this._color = color
-        this._quantity = quantity
     }
 
     override fun toString(): String {
-        return "CustomProduct(_id=$_id, _name=$_name, _price=$_price, _imgPreview=$_imgPreview, _classify=$_classify, _color=$_color, _quantity=$_quantity)"
+        return "CustomProduct( _name=$_name, _image=$_image, _price=$_price, _productDetails=$_productDetail)"
     }
 
 

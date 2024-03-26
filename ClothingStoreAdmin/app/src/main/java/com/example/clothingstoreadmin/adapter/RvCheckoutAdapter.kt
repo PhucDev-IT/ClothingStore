@@ -17,7 +17,7 @@ import com.example.clothingstoreadmin.model.FormatCurrency
 import com.example.clothingstoreadmin.model.ItemCart
 
 
-class RvCheckoutAdapter(private val list: List<CustomProduct>?): RecyclerView.Adapter<RvCheckoutAdapter.viewHolder>() {
+class RvCheckoutAdapter(private val list: List<ItemCart>): RecyclerView.Adapter<RvCheckoutAdapter.viewHolder>() {
     class viewHolder(itemView:View) : RecyclerView.ViewHolder(itemView){
 
         var imgProduct: ImageView
@@ -44,18 +44,16 @@ class RvCheckoutAdapter(private val list: List<CustomProduct>?): RecyclerView.Ad
         return viewHolder(view)
     }
 
-    @SuppressLint("SetTextI18n")
+    @SuppressLint("SetTextI18n", "StringFormatMatches")
     override fun onBindViewHolder(holder: viewHolder, position: Int) {
         holder.itemView.apply {
-            if(list != null){
-                Glide.with(context).load(list[position].imgPreview).into(holder.imgProduct)
-                holder.nameProduct.text = list[position].name ?: "ERROR!"
-                holder.tvPrice.text = FormatCurrency.numberFormat.format(list[position].price)
+            Glide.with(context).load(list[position].image).into(holder.imgProduct)
+            holder.nameProduct.text = list[position].name ?: "ERROR!"
+            holder.tvPrice.text = FormatCurrency.numberFormat.format(list[position].price)
 
-                holder.tvSize.text = resources.getString(R.string.size_cart, list[position].classify)
-                holder.tvQuantity.text = "x${list[position].quantity}"
-                holder.tvClassify.text = resources.getString(R.string.str_classify, list[position].color)
-            }
+            holder.tvSize.text = resources.getString(R.string.size_cart, list[position].productDetail?.size)
+            holder.tvQuantity.text = "x${list[position].quantity}"
+            holder.tvClassify.text = resources.getString(R.string.str_classify, list[position].productDetail?.nameClassify)
         }
     }
 

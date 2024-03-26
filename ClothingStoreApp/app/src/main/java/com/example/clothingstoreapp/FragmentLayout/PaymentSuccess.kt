@@ -78,7 +78,7 @@ class PaymentSuccess : Fragment() {
         notification.content = "\"${user?.fullName}\" vừa đặt ${order?.products?.size} sản phẩm với " +
                 "${FormatCurrency.numberFormat.format(order?.totalMoney)}. Xác nhận đơn hàng ngay."
         notification.timeSend = Date()
-        notification.img = order?.products?.get(0)?.imgPreview.toString()
+       // notification.img = order?.products?.get(0)?.image.toString()
         notification.isRead = false
 
         notificationService.sendNotificationToAdmin(notification){b->
@@ -95,10 +95,10 @@ class PaymentSuccess : Fragment() {
     private fun removeCart(){
         sharedViewModel.getListCart()?.let {
             if (userID != null) {
-                CartService(db).removeItemCart(it,userID){b->
-                    if(b) Log.d(TAG,"Xóa thành công")
-                    else Log.e(TAG,"Có lỗi")
-                }
+//                CartService(db).removeItemCart(it,userID){b->
+//                    if(b) Log.d(TAG,"Xóa thành công")
+//                    else Log.e(TAG,"Có lỗi")
+//                }
             }
         }
     }

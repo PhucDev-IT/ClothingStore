@@ -30,6 +30,7 @@ import com.example.clothingstoreadmin.model.FormatCurrency
 import com.example.clothingstoreadmin.model.NotificationModel
 import com.example.clothingstoreadmin.model.OrderModel
 import com.example.clothingstoreadmin.model.ProgressOrder
+import com.example.clothingstoreadmin.model.TrackingOrder
 import com.example.clothingstoreadmin.model.TypeVoucher
 import com.example.clothingstoreadmin.service.NotificationService
 import com.example.clothingstoreadmin.service.OrderService
@@ -75,10 +76,60 @@ class OrderDetailsScreen : AppCompatActivity() {
     @SuppressLint("SetTextI18n", "ResourceAsColor")
     private fun initView(idOder:String){
 
+        orderService.getTrackingOrders(idOder){list->
+            list.map { tracking->
+                val color = ContextCompat.getColor(this, R.color.primaryColor)
+                when(tracking.name){
+
+                    ProgressOrder.WaitConfirmOrder.name -> {
+                        binding.imgCircleDaDatHang.setColorFilter(color, PorterDuff.Mode.SRC_IN)
+                        binding.tvTimeOrderDate.text = FormatCurrency.dateTimeFormat.format(tracking.time)
+
+
+                    }
+
+                    ProgressOrder.PackagingOrder.name ->{
+                        binding.imgCirclePackaging.setColorFilter(color, PorterDuff.Mode.SRC_IN)
+                        binding.tvTimePackagingOrder.text = FormatCurrency.dateTimeFormat.format(tracking.time)
+
+                        binding.lineBottomDaDatHang.setBackgroundColor(color)
+                        binding.lineTopPackaging.setBackgroundColor(color)
+                        binding.btnCancelOrder.visibility = View.GONE
+                    }
+
+                    ProgressOrder.Shipping.name ->{
+                        binding.imgCircleTransport.setColorFilter(color, PorterDuff.Mode.SRC_IN)
+                        binding.tvTimeTransport.text = FormatCurrency.dateTimeFormat.format(tracking.time)
+
+                        binding.lineTopTransport.setBackgroundColor(color)
+                        binding.lineBottomPackaging.setBackgroundColor(color)
+                        binding.btnCancelOrder.visibility = View.GONE
+                    }
+
+                    ProgressOrder.DeliveredOrder.name ->{
+                        binding.imgCircleDelivered.setColorFilter(color, PorterDuff.Mode.SRC_IN)
+                        binding.tvTimeDelivered.text = FormatCurrency.dateTimeFormat.format(tracking.time)
+
+                        binding.lineTopDelivered.setBackgroundColor(color)
+                        binding.lineBottomTransport.setBackgroundColor(color)
+                        binding.btnCancelOrder.visibility = View.GONE
+                    }
+                    ProgressOrder.OrderCanceled.name ->{
+
+                        binding.lnCancelOrder.visibility = View.VISIBLE
+                        binding.tvTimeCancel.text = FormatCurrency.dateTimeFormat.format(tracking.time)
+                        binding.tvReasonCancel.text = "Lý do: "+tracking.describe
+                        binding.btnCancelOrder.visibility = View.GONE
+                    }
+
+                }
+            }
+        }
+
         orderService.getInformationOrderByID(idOder){o->
             if(o!=null){
                 order = o
-                adapter = RvCheckoutAdapter(order.products)
+                adapter = RvCheckoutAdapter(order.products!!)
 
                 val linearLayoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL,false)
                 binding.rvOrders.adapter = adapter
@@ -109,49 +160,7 @@ class OrderDetailsScreen : AppCompatActivity() {
                 binding.tvInForAddress.text = "${order.deliveryAddress?.ward?.WardName}, ${order.deliveryAddress?.district?.districtName}, ${order.deliveryAddress?.province?.ProvinceName}"
                 binding.tvIdOrder.text = order.id?.take(8)?.toUpperCase(Locale.ROOT)
 
-                order.orderStatus.forEach { (key, value) ->
-                    val color = ContextCompat.getColor(this, R.color.primaryColor)
-                    binding.btnConfirmOrder.visibility = View.GONE
-                    when(key){
-                        ProgressOrder.WaitConfirmOrder.name -> {
-                            binding.imgCircleDaDatHang.setColorFilter(color, PorterDuff.Mode.SRC_IN)
-                            binding.tvTimeOrderDate.text = FormatCurrency.dateTimeFormat.format(value)
-                            binding.btnConfirmOrder.visibility = View.VISIBLE
-                        }
 
-                        ProgressOrder.PackagingOrder.name ->{
-                            binding.imgCirclePackaging.setColorFilter(color, PorterDuff.Mode.SRC_IN)
-                            binding.tvTimePackagingOrder.text = FormatCurrency.dateTimeFormat.format(value)
-
-                            binding.lineBottomDaDatHang.setBackgroundColor(color)
-                            binding.lineTopPackaging.setBackgroundColor(color)
-                        }
-
-                        ProgressOrder.Shipping.name ->{
-                            binding.imgCircleTransport.setColorFilter(color, PorterDuff.Mode.SRC_IN)
-                            binding.tvTimeTransport.text = FormatCurrency.dateTimeFormat.format(value)
-
-                            binding.lineTopTransport.setBackgroundColor(color)
-                            binding.lineBottomPackaging.setBackgroundColor(color)
-                        }
-
-                        ProgressOrder.DeliveredOrder.name ->{
-                            binding.imgCircleDelivered.setColorFilter(color, PorterDuff.Mode.SRC_IN)
-                            binding.tvTimeDelivered.text = FormatCurrency.dateTimeFormat.format(value)
-
-                            binding.lineTopDelivered.setBackgroundColor(color)
-                            binding.lineBottomTransport.setBackgroundColor(color)
-                        }
-
-                        ProgressOrder.OrderCanceled.name ->{
-
-                            binding.lnCancelOrder.visibility = View.VISIBLE
-                            binding.tvTimeCancel.text = FormatCurrency.dateTimeFormat.format(value)
-                            binding.tvReasonCancel.text = "Lý do: "+order.reasonCancel
-                            binding.btnCancelOrder.visibility = View.GONE
-                        }
-                    }
-                }
             }
         }
 
@@ -160,10 +169,11 @@ class OrderDetailsScreen : AppCompatActivity() {
     }
 
     private fun confirmOrder(){
-        order.orderStatus[ProgressOrder.PackagingOrder.name] = Date()
+
         order.currentStatus = ProgressOrder.PackagingOrder.name
         customLoading.dialogLoadingBasic("Chờ một xíu ...")
-        OrderService().confirmOrder(order){b->
+        val tracking = TrackingOrder(order.id,ProgressOrder.PackagingOrder.name,Date(),"Đơn hàng của bạn đã được xác nhận, chúng tôi sẽ sớm giao hàng cho bạn!")
+        OrderService().updateTrackOrder(order.id!!,ProgressOrder.PackagingOrder.name,tracking){b->
             if(b){
                 Toast.makeText(this,"Đơn hàng đã được xác nhận",Toast.LENGTH_SHORT).show()
                 onSendMess()
@@ -183,7 +193,7 @@ class OrderDetailsScreen : AppCompatActivity() {
         notification.title = "Đơn hàng của bạn đã được xác nhận"
         notification.content = "Đơn hàng \"${binding.tvIdOrder.text}\" đã được người bán chấp nhận, đơn hàng sẽ sớm vận chuyển đến bạn"
         notification.timeSend = Date()
-        notification.img = order.products?.get(0)?.imgPreview
+        notification.img = order.products?.get(0)?.image
         notification.isRead = false
 
         order.user?.userId?.let {
@@ -266,10 +276,10 @@ class OrderDetailsScreen : AppCompatActivity() {
                 val radioButton = radioGroup.findViewById<RadioButton>(checkedRadioButtonId)
                 val selectedText = radioButton.text.toString()
 
-                order.reasonCancel = selectedText
+                val tracking = TrackingOrder(order.id,ProgressOrder.OrderCanceled.name,Date(),selectedText)
                 order.currentStatus = ProgressOrder.OrderCanceled.name
-                order.orderStatus[ProgressOrder.OrderCanceled.name] = Date()
-                OrderService().cancelOrder(order){b->
+
+                orderService.updateTrackOrder(order.id!!,ProgressOrder.OrderCanceled.name,tracking){b->
                     if(b){
                         customLoading.closeDialog()
                         dialog.dismiss()

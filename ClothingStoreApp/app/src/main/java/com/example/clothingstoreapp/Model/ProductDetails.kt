@@ -3,8 +3,9 @@ package com.example.clothingstoreapp.Model
 import java.io.Serializable
 import java.util.Date
 
-class ProductDetails :Serializable{
+class ProductDetails : Serializable{
     var id: String? = null
+    var productId:String?=null
     var nameClassify: String? = null
     var size:String?=null
     var quantity:Int? = null

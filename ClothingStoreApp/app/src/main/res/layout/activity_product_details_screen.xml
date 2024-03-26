@@ -346,7 +346,7 @@
         android:layout_alignParentBottom="true"
         android:layout_marginEnd="30dp"
         android:layout_marginBottom="100dp"
-        android:backgroundTint="@color/primarykeyColor"
+        android:backgroundTint="@color/white"
         android:baselineAlignBottom="true"
         android:contentDescription="TODO"
         android:src="@drawable/baseline_chat_bubble_outline_24" />

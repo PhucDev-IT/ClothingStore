@@ -17,7 +17,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.clothingstoreapp.API.ApiGHN
 import com.example.clothingstoreapp.Adapter.CustomDialog
 import com.example.clothingstoreapp.Adapter.RvCheckoutAdapter
-import com.example.clothingstoreapp.Model.CustomProduct
 import com.example.clothingstoreapp.Model.FormatCurrency
 import com.example.clothingstoreapp.Model.OrderModel
 import com.example.clothingstoreapp.Model.ProgressOrder
@@ -42,6 +41,7 @@ class PayOrderFragment : Fragment() {
     private lateinit var _binding: FragmentPayOrderBinding
     private val binding get() = _binding
     private lateinit var navController: NavController
+
     private val sharedViewModel: PayOrderViewModel by activityViewModels()
     private val feeShipDefault: Double = 16000.0
     private var freeShip: Double = 0.0
@@ -80,14 +80,13 @@ class PayOrderFragment : Fragment() {
     private fun initView() {
         getInformationAddress()
 
-        sharedViewModel.mCarts.observe(viewLifecycleOwner) { list ->
-            val products = list.mapNotNull { it.product }
-            val adapter = RvCheckoutAdapter(products)
-            val linearLayoutManager =
-                LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
-            binding.rvProducts.adapter = adapter
-            binding.rvProducts.layoutManager = linearLayoutManager
-        }
+        val products = sharedViewModel.getListCart()
+
+        val adapter = products?.let { RvCheckoutAdapter(it) }
+        val linearLayoutManager =
+            LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
+        binding.rvProducts.adapter = adapter
+        binding.rvProducts.layoutManager = linearLayoutManager
 
 
         sharedViewModel.voucher.observe(viewLifecycleOwner) { voucher ->
@@ -175,7 +174,7 @@ class PayOrderFragment : Fragment() {
         tongTienHang = 0.0
         sharedViewModel.mCarts.observe(viewLifecycleOwner) { list ->
             for (item in list) {
-                tongTienHang += (item.product?.quantity!!.times(item.product?.price!!))
+                tongTienHang += (item.quantity.times(item.price!!))
             }
 
             binding.tvSumMoneyProduct.text = FormatCurrency.numberFormat.format(tongTienHang)
@@ -211,11 +210,10 @@ class PayOrderFragment : Fragment() {
             order.voucher = sharedViewModel.voucher.value
             order.paymentMethod = sharedViewModel.paymentMethod.value
             order.user = user
-            order.orderStatus = mutableMapOf(ProgressOrder.WaitConfirmOrder.name to Date())
             order.totalMoney = tongTienHang + feeShipDefault - freeShip - voucherDiscount
             order.currentStatus = ProgressOrder.WaitConfirmOrder.name
             order.feeShip = feeShipDefault - freeShip
-            order.products = sharedViewModel.getListCart()?.mapNotNull { it.product }
+            order.products = sharedViewModel.getListCart()
 
             orderSevice.addOrder(order) { b ->
                 if (b) {
@@ -232,136 +230,4 @@ class PayOrderFragment : Fragment() {
         }
     }
 
-
-
-
-    //Lấy đơn vị vận chuyển và tính fee ship
-    private fun getTransportUnit() {
-
-        sharedViewModel.selectTransportUnit.observe(viewLifecycleOwner) { unit ->
-            if (unit == null) {
-                binding.lnShowTransportUnit.visibility = View.GONE
-                binding.lnKhongCoDonViVanChuyen.visibility = View.VISIBLE
-            } else {
-                binding.lnKhongCoDonViVanChuyen.visibility = View.GONE
-                binding.lnShowTransportUnit.visibility = View.VISIBLE
-                binding.tvNameTransportUnit.text = unit.shortName
-                binding.tvPriceTransport.text =
-                    FormatCurrency.numberFormat.format(sharedViewModel.feeShip.value)
-            }
-        }
-
-        sharedViewModel.deliveryAddress.value?.district?.let { it ->
-
-            val call = it.districtID?.let { it1 ->
-                apiGHN.getTransportUnit(
-                    // 1616,it1, 4914423
-                )
-            }
-
-            call?.enqueue(object : Callback<ResponseBody> {
-                override fun onResponse(
-                    call: Call<ResponseBody>,
-                    response: Response<ResponseBody>
-                ) {
-
-                    if (response.isSuccessful) {
-                        val responseData = response.body()
-                        if (responseData != null) {
-                            // Log responseData để kiểm tra dữ liệu nhận được từ phản hồi
-                            Log.d("ResponseData", responseData.toString())
-
-                            // Tiếp tục xử lý dữ liệu nhận được
-                        } else {
-                            Log.e("ResponseData", "Response data is null")
-                        }
-                    } else {
-                        Log.e("ResponseCode", "Error code: ${response.code()}")
-                    }
-                    if (response.isSuccessful) {
-                        Toast.makeText(context, "Hellol", Toast.LENGTH_SHORT).show()
-//                        val list = response.body()
-//                        list.data?.let { it->
-//                            val units:MutableMap<ShippingMethod,Int> = mutableMapOf()
-//                            it.map {shippingMethod ->
-//                                calculateFeeShip(shippingMethod.serviceId!!){fee->
-//                                    units[shippingMethod] = fee
-//                                }
-//                            }
-//                            sharedViewModel.setTransportUnit(units)
-//                            units.keys.firstOrNull()
-//                                ?.let { select ->
-//                                    sharedViewModel.setSelectTransportUnit(select)
-//
-//                                }
-//
-//                            sharedViewModel.setFeeShip(units.values.firstOrNull())
-
-                        //    }
-                    } else {
-                        response.errorBody()?.string()?.let { it1 -> Log.v("Error code 400", it1) };
-                        println("Error get unit: ${response.code()}")
-                        Toast.makeText(
-                            context,
-                            "Error get unit: ${response.code()}",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                }
-
-                override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
-                    t.message?.let { Log.e(ContentValues.TAG, it) }
-                    Toast.makeText(context, "Có lỗi", Toast.LENGTH_SHORT).show()
-                }
-            })
-
-        }
-    }
-
-    //Tính phí vận chuyển
-    private fun calculateFeeShip(service_id: Int, callback: (Int) -> Unit) {
-
-
-        val call = apiGHN.calculateFeeShip(
-            service_id,
-            100000,
-            "800206",
-            1616,
-            sharedViewModel.deliveryAddress.value?.district!!.districtID!!,
-            1000,
-            10,
-            200,
-            15,
-            2
-        )
-
-        call.enqueue(object : Callback<ShippingFeeResponse> {
-            override fun onResponse(
-                call: Call<ShippingFeeResponse>,
-                response: Response<ShippingFeeResponse>
-            ) {
-                if (response.isSuccessful) {
-                    val result = response.body()
-                    callback(result?.data?.total ?: 0)
-
-                } else {
-                    response.errorBody()?.string()?.let { it1 -> Log.v("Error code 400", it1) };
-                    println("Error fee ship: ${response.code()}")
-                    Toast.makeText(
-                        context,
-                        "Error fee ship: ${response.code()}",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    callback(0)
-                }
-            }
-
-            override fun onFailure(call: Call<ShippingFeeResponse>, t: Throwable) {
-                t.message?.let { Log.e(ContentValues.TAG, it) }
-                callback(0)
-
-            }
-        })
-
-    }
 }

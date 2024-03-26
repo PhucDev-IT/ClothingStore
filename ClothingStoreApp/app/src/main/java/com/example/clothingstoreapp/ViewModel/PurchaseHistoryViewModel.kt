@@ -3,12 +3,8 @@ package com.example.clothingstoreapp.ViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.clothingstoreapp.Model.ItemCart
 import com.example.clothingstoreapp.Model.OrderModel
 import com.example.clothingstoreapp.Service.OrderService
-import com.google.firebase.Firebase
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.firestore
 
 class PurchaseHistoryViewModel:ViewModel() {
 
