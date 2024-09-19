@@ -1,0 +1,21 @@
+{
+  "name": "clothing_backend",
+  "version": "1.0.0",
+  "description": "build backend nodejs for clothing store",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "monster",
+  "license": "ISC",
+  "dependencies": {
+    "@sequelize/mysql": "^7.0.0-alpha.42",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.0",
+    "mysql2": "^3.11.3",
+    "nodemon": "^3.1.5",
+    "sequelize": "^6.37.3",
+    "uuid": "^10.0.0"
+  }
+}
