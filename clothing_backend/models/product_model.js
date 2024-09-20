@@ -30,4 +30,38 @@ const Product = sequelize.define('product', {
     timestamps: true //Tự động thêm các trường createdAt và updatedAt
 });
 
-export default Product;
+const ProductDetails = sequelize.define('product_details',{
+    id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true,
+    },
+    quantity:{
+        type: DataTypes.INTEGER,
+        allowNull: false,
+    },
+    color:{
+        type: DataTypes.STRING,
+        allowNull: false,
+    },
+    size:{
+        type: DataTypes.STRING,
+        allowNull: false,
+    },
+    price:{
+        type: DataTypes.FLOAT,
+        allowNull: false,
+    },
+    product_id:{
+        type: DataTypes.STRING,
+        allowNull: false,
+    },
+},  {
+    timestamps: true //Tự động thêm các trường createdAt và updatedAt
+    
+});
+
+// Product.hasMany(ProductDetails, {foreignKey:'product_id'});
+// ProductDetails.belongsTo(Product,{foreignKey:'product_detail_id'});
+
+export default {Product, ProductDetails};

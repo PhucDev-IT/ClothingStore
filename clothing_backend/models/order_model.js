@@ -1,7 +1,8 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../connection/mysql.js';
 import { v4 as uuidv4 } from 'uuid';
-import Product from './product_model.js';
+import ProductDetails from './product_model.js';
+import Voucher from './voucher_model.js'
 
 const Order = sequelize.define('order', {
     id: {
@@ -11,10 +12,36 @@ const Order = sequelize.define('order', {
     },
     order_date :{
         type: DataTypes.DATE,
-        allowNull: false
+        allowNull: false,
     },
 
-   // --- BỔ SUNG THÊM
+    total: {
+        type: DataTypes.FLOAT,
+        allowNull: false,
+    },
+    real_total: {
+        type: DataTypes.FLOAT,
+        allowNull: false,
+    },
+
+    status :{
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+    },
+    voucher_id:{
+        type: DataTypes.STRING,
+        allowNull: false,
+    },
+
+    address_id :{
+        type: DataTypes.INTEGER,
+        allowNull: false,
+    },
+    user_id:{
+        type: DataTypes.STRING,
+        allowNull: false,
+    },
+
 }, {
     timestamps: true //Tự động thêm các trường createdAt và updatedAt
 });
@@ -23,16 +50,38 @@ const Order = sequelize.define('order', {
 //---------------------------------------------------
 
 const OrderDetails = sequelize.define('order_details',{
-    //- Bổ sung
+    id: {
+        type: DataTypes.STRING,
+        primaryKey: true,       
+        // defaultValue: () => uuidv4(),   
+    },
+    order_id:{
+        type: DataTypes.STRING,
+        allowNull: false,
+    },
+    product_detail_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+    },
+    quantity:{
+        type: DataTypes.INTEGER,
+        allowNull: false,
+    },
+    price: {
+        type: DataTypes.FLOAT,
+        allowNull: false,
+    },
+
 })
 
 
-// Quan hệ 1 - n:  hasMany và belongsTo
+// Order.hasMany(OrderDetails, {foreignKey: 'order_id'});
+// OrderDetails.belongsTo(Order,{foreignKey: 'order_details_id'});
 
-Order.hasMany(OrderDetails, {foreignKey: 'order_id'});
-OrderDetails.belongsTo(Order,{foreignKey: 'order_details_id'});
+// Voucher.hasMany(Order, {foreignKey:'voucher_id'});
+// Order.belongsTo(Voucher, {foreignKey:'order_id'});
 
-//Quan hệ 1-1: user - account
+// OrderDetails.hasMany(ProductDetails, {foreignKey:'order_details_id'});
+// ProductDetails.belongsTo(OrderDetails,{foreignKey:'product_detail_id'});
 
-//Quan hệ n - n: 
-export default Category;
+export default {Order, OrderDetails};
