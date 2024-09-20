@@ -44,4 +44,5 @@ const Role = sequelize.define('role', {
 
 Permission.belongsToMany(Role, { through: 'role_has_permission', foreignKey: 'permission_id' });
 Role.belongsToMany(Permission, { through: 'role_has_permission', foreignKey: 'role_id' });
+
 export default { Permission, Role };

@@ -15,7 +15,11 @@
     "express": "^4.21.0",
     "mysql2": "^3.11.3",
     "nodemon": "^3.1.5",
+    "pino": "^9.4.0",
+    "pino-pretty": "^11.2.2",
     "sequelize": "^6.37.3",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1",
     "uuid": "^10.0.0"
   }
 }
