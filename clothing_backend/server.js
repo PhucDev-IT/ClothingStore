@@ -21,6 +21,7 @@ import swaggerDocs from './utils/swagger.js';
 import logger from './utils/logger.js';
 import authentication from './routers/authentication_router.js'
 import bodyParser from 'body-parser';
+import LogLogin from './models/log_login.js';
 
 
 //Application config
@@ -88,7 +89,7 @@ async function syncDatabase() {
         Voucher.belongsToMany(User, {through:'voucher_user',foreignKey:'voucher_id'});
     
 
-        await sequelize.sync({ force: false }); // Sử dụng { force: true } để xóa và tạo lại bảng
+        await sequelize.sync({ force: true }); // Sử dụng { force: true } để xóa và tạo lại bảng
 
         const rawProvince = await JSON.parse(fs.readFileSync(path.join(__dirname, '/static/tinh_tp.json'), 'utf-8'));
         const rawDistrict = await JSON.parse(fs.readFileSync(path.join(__dirname, '/static/quan_huyen.json'), 'utf-8'));

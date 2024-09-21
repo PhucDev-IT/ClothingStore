@@ -8,14 +8,5 @@ export function formatValidationError(errorDetails) {
     }));
 }
 
-// Hàm trả về response khi có lỗi
-export function sendErrorResponse(res, code, message, details = []) {
-    return res.status(code).json({
-        code: code,
-        message: message,
-        details: details
-    });
-}
-
 
  

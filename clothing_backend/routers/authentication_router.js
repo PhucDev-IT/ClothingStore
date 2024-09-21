@@ -4,15 +4,18 @@ import jwt from 'jsonwebtoken'; // Thay vì require
 import bcrypt from 'bcrypt'; // Thay vì require
 import Joi from 'joi';
 const router = express.Router(); // Sử dụng express.Router()
-import db from '../connection/mysql.js'
 import User from '../models/user_model.js';
-import { formatValidationError, sendErrorResponse } from '../utils/exception.js'
+import { formatValidationError } from '../utils/exception.js'
 
+import dotenv from 'dotenv';
+import Models from '../models/response/ResponseModel.js';
+import logger from '../utils/logger.js';
+import LoginResponse from '../models/response/LoginResponse.js';
+import LogLogin from '../models/log_login.js';
 
-const secret = "ABCDQWERTYUIIOO";
+dotenv.config();
 
 //docs: https://github.com/jquense/yup
-
 
 //Need to fcm_token, because we want to notice to all user registed
 // device_id: unique id of device, use to session login manager
@@ -72,41 +75,45 @@ export default function () {
         const { error } = await loginRequest.validate(req.body);
         if (error) {
             const formattedErrors = formatValidationError(error.details);
-            return res.status(400).json({
-                code: 400,
-                message: "Validation Error",
-                details: formattedErrors
-            });
+            return res.status(400).json(new Models.ResponseModel(false, new Models.ErrorResponseModel(1, "Validation Error", formattedErrors), null));
         }
         try {
-            const { email, password } = req.body;
+            const { email, password, device_id, fcm_token } = req.body;
             // Tìm người dùng dựa trên user_name
-            const user = await User.findOne({ where: { email, password } });
+            const user = await User.findOne({ where: { email } });
 
             if (!user) {
-                return sendErrorResponse(res, 401, "Tên người dùng hoặc mật khẩu không chính xác");
+                return res.status(401).json(new Models.ResponseModel(false, new Models.ErrorResponseModel(1, "Người dùng không tồn tại", null), null));
             }
             // So sánh mật khẩu đã nhập với chuỗi hash lấy từ cơ sở dữ liệu
             const passwordMatch = await bcrypt.compare(password, user.password);
             if (passwordMatch) {
 
-                res.json({
-                    message: 'Đăng nhập thành công',
-                    user: user,
+                LogLogin.create({
+                    device_id: device_id,
+                    fcm_token: fcm_token,
+                    time_login: new Date()
                 });
+
+                const token = jwt.sign({ email: user.email }, process.env.TOKEN_SECRET, { expiresIn: '5d' }); //exp:10 => 10s
+                var response = new LoginResponse(user, token)
+                return res.status(200).json(new Models.ResponseModel(true, null, response));
+
             } else {
-                return sendErrorResponse(res, 401, "Tên người dùng hoặc mật khẩu không chính xác");
+                return res.status(401).json(new Models.ResponseModel(false, new Models.ErrorResponseModel(1, "Tên người dùng hoặc mật khẩu không chính xác", null), null));
+
             }
 
         } catch (err) {
-            return sendErrorResponse(res, 500, "Lỗi hệ thống", [{ error_message: err.message }]);
+            return res.status(401).json(new Models.ResponseModel(false, new Models.ErrorResponseModel(1, "Lỗi hệ thống", err.message), null));
+
         }
 
     });
 
     //Step 1: you must validate data from request 
     //If information missing , you need to response with error
-    // permission user
+    //Step 2: Check user exist
     router.post('/register', async (req, res, next) => {
         const { error } = await registerRequest.validate(req.body);
         if (error) {
@@ -119,26 +126,45 @@ export default function () {
         }
         try {
             const { email, password, full_name, first_name, last_name, number_phone, avatar } = req.body;
+
+            var find_user = await User.findOne({ where: { email } });
+            if (find_user) {
+                return res.status(400).json(new Models.ResponseModel(false, new Models.ErrorResponseModel(1, "Người dùng đã tồn tại", null), null));
+            }
+
+            const hashedPassword = await hashPassword(password);
+
             const newUser = await User.create({
                 first_name: first_name,
                 last_name: last_name,
                 email: email,
-                password: password,
+                password: hashedPassword,
                 full_name: full_name,
                 number_phone: number_phone,
                 avatar: avatar
             });
-
-            res.json({
-                message: 'Đăng nhập thành công',
-                user: newUser,
-            });
+            return res.status(201).json(new Models.ResponseModel(true, null, newUser));
 
         } catch (err) {
-            return sendErrorResponse(res, 500, "Lỗi hệ thống", [{ error_message: err.message }]);
+            return res.status(500).json(new Models.ResponseModel(false, new Models.ErrorResponseModel(1, "Lỗi hệ thống", err.message), null));
         }
 
     });
+
+
+
+    // Hàm băm mật khẩu
+    async function hashPassword(password) {
+        try {
+            const salt = await bcrypt.genSalt();
+            const hash = await bcrypt.hash(password, salt);
+            logger.info("hash: " + hash)
+            return hash;
+        } catch (err) {
+            console.error('Error hashing password:', err);
+            throw err; // Rethrow the error to handle it outside
+        }
+    }
 
     return router;
 }
