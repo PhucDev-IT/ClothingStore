@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="text_size_medium">@dimen/_14sdp</dimen>
+    <dimen name="text_size_small">@dimen/_12sdp</dimen>
+    <dimen name="text_size_default">@dimen/_13sdp</dimen>
+
+    <dimen name="margin_tiny">4dp</dimen>
+    <dimen name="margin_small">8dp</dimen>
+    <dimen name="margin_medium_small">12dp</dimen>
+    <dimen name="margin_medium">22dp</dimen>
+
+    <dimen name="margin_none">0dp</dimen>
+    <dimen name="item_photo_width">112dp</dimen>
+    <dimen name="item_photo_height">112dp</dimen>
+</resources>
