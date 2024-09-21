@@ -32,7 +32,7 @@ const loginRequest = Joi.object({
     device_id: Joi.string().required().messages({
         "any.required": "device_id là bắt buộc",
         "string.base": "device_id phải là chuỗi ký tự"
-    }),
+    })
 });
 
 
@@ -51,8 +51,8 @@ const registerRequest = Joi.object({
     }),
     first_name: Joi.string().optional(),
     last_name: Joi.string().optional(),
-    avatar:  Joi.string().optional(),
-    number_phone:  Joi.string().optional()
+    avatar: Joi.string().optional(),
+    number_phone: Joi.string().optional()
 
 });
 
@@ -82,16 +82,22 @@ export default function () {
             const { email, password } = req.body;
             // Tìm người dùng dựa trên user_name
             const user = await User.findOne({ where: { email, password } });
-    
+
             if (!user) {
                 return sendErrorResponse(res, 401, "Tên người dùng hoặc mật khẩu không chính xác");
             }
-    
-            // Trả về thông tin nếu người dùng tồn tại
-            res.json({
-                message: 'Đăng nhập thành công',
-                user: user,
-            });
+            // So sánh mật khẩu đã nhập với chuỗi hash lấy từ cơ sở dữ liệu
+            const passwordMatch = await bcrypt.compare(password, user.password);
+            if (passwordMatch) {
+
+                res.json({
+                    message: 'Đăng nhập thành công',
+                    user: user,
+                });
+            } else {
+                return sendErrorResponse(res, 401, "Tên người dùng hoặc mật khẩu không chính xác");
+            }
+
         } catch (err) {
             return sendErrorResponse(res, 500, "Lỗi hệ thống", [{ error_message: err.message }]);
         }
@@ -111,24 +117,24 @@ export default function () {
                 details: formattedErrors
             });
         }
-        try{
-            const { email, password , full_name, first_name, last_name, number_phone,avatar} = req.body;
+        try {
+            const { email, password, full_name, first_name, last_name, number_phone, avatar } = req.body;
             const newUser = await User.create({
                 first_name: first_name,
                 last_name: last_name,
                 email: email,
                 password: password,
                 full_name: full_name,
-                number_phone:number_phone,
+                number_phone: number_phone,
                 avatar: avatar
-              });
-
-              res.json({
-                message: 'Đăng nhập thành công',
-                user:newUser,
             });
-            
-        }catch (err) {
+
+            res.json({
+                message: 'Đăng nhập thành công',
+                user: newUser,
+            });
+
+        } catch (err) {
             return sendErrorResponse(res, 500, "Lỗi hệ thống", [{ error_message: err.message }]);
         }
 
