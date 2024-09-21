@@ -27,7 +27,7 @@ const CartItem = sequelize.define('cart_item',{
         autoIncrement: true,
         primaryKey: true,
     },
-    product_detail_id: {
+    product_details_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
     },
@@ -40,6 +40,14 @@ const CartItem = sequelize.define('cart_item',{
         type: DataTypes.INTEGER,
         allowNull: false,
     },
+    color:{
+        type:DataTypes.STRING,
+        allowNull:false
+    },
+    size:{
+        type:DataTypes.STRING,
+        allowNull:false
+    }
 });
 
 // User.hasOne(Cart,{foreignKey:'user_id'});

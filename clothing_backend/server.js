@@ -19,6 +19,10 @@ import Notification from './models/notification_model.js';
 import Image from './models/image_model.js';
 import swaggerDocs from './utils/swagger.js';
 import logger from './utils/logger.js';
+import authentication from './routers/authentication_router.js'
+import bodyParser from 'body-parser';
+
+
 //Application config
 dotenv.config();
 const port = process.env.PORT || 8080
@@ -35,6 +39,11 @@ app.use(function (req, res, next) {
     res.setHeader("Access-Control-Allow-Credentials", true);
     next();
 });
+
+// Sử dụng body-parser middleware để phân tích các yêu cầu POST
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
+
 
 
 async function syncDatabase() {
@@ -79,7 +88,7 @@ async function syncDatabase() {
         Voucher.belongsToMany(User, {through:'voucher_user',foreignKey:'voucher_id'});
     
 
-        await sequelize.sync({ force: true }); // Sử dụng { force: true } để xóa và tạo lại bảng
+        await sequelize.sync({ force: false }); // Sử dụng { force: true } để xóa và tạo lại bảng
 
         const rawProvince = await JSON.parse(fs.readFileSync(path.join(__dirname, '/static/tinh_tp.json'), 'utf-8'));
         const rawDistrict = await JSON.parse(fs.readFileSync(path.join(__dirname, '/static/quan_huyen.json'), 'utf-8'));
@@ -107,17 +116,18 @@ async function syncDatabase() {
         logger.info('All tables created successfully!');
     } catch (error) {
         console.error('Unable to connect to the database:', error);
-    } finally {
-        // Đóng kết nối
-        await sequelize.close();
     }
 }
 
 syncDatabase();
 
+
 app.get('/', (req, res) => {
     res.send("This is sample backend, it's api for clothing store")
 })
+
+
+app.use('/api', authentication());
 
 
 
@@ -125,3 +135,10 @@ app.listen(port, () => {
     logger.info(`Listening at http://localhost:${port}`)
     swaggerDocs(app, port);
 })
+
+
+
+//Mã code:
+
+//controller: xử lý dữ liệu + trả về response
+//router: authentication_router, product_router, cart_router,...

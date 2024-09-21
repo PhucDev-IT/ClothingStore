@@ -3,7 +3,7 @@ import sequelize from '../connection/mysql.js';
 import { v4 as uuidv4 } from 'uuid';
 import permission_model from './permission_model.js';
 // Định nghĩa model User
-const User = sequelize.define('User', {
+const User = sequelize.define('user', {
     id: {
         type: DataTypes.STRING,
         primaryKey: true,
@@ -17,7 +17,7 @@ const User = sequelize.define('User', {
         type: DataTypes.STRING,
         allowNull: true
     },
-    display_name : {
+    full_name : {
         type: DataTypes.STRING,
         allowNull: true
     },
@@ -38,7 +38,7 @@ const User = sequelize.define('User', {
         type: DataTypes.BOOLEAN,
         allowNull: true
     },
-    hash_password:{
+    password:{
         type: DataTypes.STRING,
         allowNull: false
     },
@@ -47,7 +47,7 @@ const User = sequelize.define('User', {
         allowNull: true
     }
 }, {
-     tableName: 'user',
+
     timestamps: true //Tự động thêm các trường createdAt và updatedAt
 });
 
