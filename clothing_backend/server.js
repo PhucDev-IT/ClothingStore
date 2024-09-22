@@ -155,15 +155,8 @@ app.get('/', (req, res) => {
 
 
 
-app.use('/api/auth', authentication());
-app.use('/api/product',productRouter())
-app.use('/api/category',categoryRouter())
-
 app.use('/api/auth', authentication);
-
-//Only role admin use
-//Verify user before call router
-app.use('/api/product',authenticateToken, authorizeRole(['admin']),productRouter)
+app.use('/api',productRouter)
 
 
 

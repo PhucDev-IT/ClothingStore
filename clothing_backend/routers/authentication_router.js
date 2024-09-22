@@ -102,6 +102,7 @@ router.post('/login', async (req, res, next) => {
         const { email, password, device_id, fcm_token } = req.body;
         // Tìm người dùng dựa trên user_name
         const user = await User.findOne({ where: { email } });
+        
 
         if (!user) {
             return res.status(401).json(new Models.ResponseModel(false, new Models.ErrorResponseModel(1, "Người dùng không tồn tại", null), null));
