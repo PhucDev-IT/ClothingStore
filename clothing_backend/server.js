@@ -157,7 +157,7 @@ app.get('/', (req, res) => {
 
 app.use('/api/auth', authentication);
 app.use('/api',productRouter)
-
+    
 
 
 app.post('/upload-multiple', upload.array('images', 10), (req, res) => {
