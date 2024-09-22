@@ -24,7 +24,8 @@ import productRouter from './routers/product_router.js'
 import bodyParser from 'body-parser';
 import LogLogin from './models/log_login.js';
 import permission_model from './models/permission_model.js';
-
+import upload from './config/upload.js';
+import { authenticateToken, authorizeRole } from './config/jwt_filter.js'
 
 //Application config
 dotenv.config();
@@ -145,14 +146,37 @@ async function syncDatabase() {
 syncDatabase();
 
 
+//----------------------------  ROUTER --------------------------------------------------------------
+
 app.get('/', (req, res) => {
     res.send("This is sample backend, it's api for clothing store")
 })
 
 
-app.use('/api/auth', authentication());
-app.use('api/product',productRouter())
+app.use('/api/auth', authentication);
 
+//Only role admin use
+//Verify user before call router
+app.use('/api/product',authenticateToken, authorizeRole(['admin']),productRouter)
+
+
+
+app.post('/upload-multiple', upload.array('images', 10), (req, res) => {
+    try {
+        res.status(200).json({
+            message: 'Files uploaded successfully',
+            files: req.files
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: 'File upload failed',
+            error: error.message
+        });
+    }
+});
+
+
+//--------------------------------------- MAIN ------------------------------------------------
 
 app.listen(port, () => {
     logger.info(`Listening at http://localhost:${port}`)
@@ -161,7 +185,4 @@ app.listen(port, () => {
 
 
 
-//Mã code:
 
-//controller: xử lý dữ liệu + trả về response
-//router: authentication_router, product_router, cart_router,...

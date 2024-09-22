@@ -82,167 +82,167 @@ const login_google_request = Joi.object({
 
 //log_login : id, user_id, device_id, fcm_token, time_login
 
-export default function () {
-    // use post to hash data in request
-    // Step 1: hash password and compare to password in database
-    // Step 2: IF password incorrect return message,else transfer step 3
-    // Step 3: Check user is_active => callback if is not active
-    // Step 4: Get token (jsonwebtoken) 
-    // Step 5: we need to add infor login on database
-    // Step 6: return reponse with info user and token
 
-    router.post('/login', async (req, res, next) => {
+// use post to hash data in request
+// Step 1: hash password and compare to password in database
+// Step 2: IF password incorrect return message,else transfer step 3
+// Step 3: Check user is_active => callback if is not active
+// Step 4: Get token (jsonwebtoken) 
+// Step 5: we need to add infor login on database
+// Step 6: return reponse with info user and token
 
-        const { error } = await loginRequest.validate(req.body);
-        if (error) {
-            const formattedErrors = formatValidationError(error.details);
-            return res.status(400).json(new Models.ResponseModel(false, new Models.ErrorResponseModel(1, "Validation Error", formattedErrors), null));
+router.post('/login', async (req, res, next) => {
+
+    const { error } = await loginRequest.validate(req.body);
+    if (error) {
+        const formattedErrors = formatValidationError(error.details);
+        return res.status(400).json(new Models.ResponseModel(false, new Models.ErrorResponseModel(1, "Validation Error", formattedErrors), null));
+    }
+    try {
+        const { email, password, device_id, fcm_token } = req.body;
+        // Tìm người dùng dựa trên user_name
+        const user = await User.findOne({ where: { email } });
+
+        if (!user) {
+            return res.status(401).json(new Models.ResponseModel(false, new Models.ErrorResponseModel(1, "Người dùng không tồn tại", null), null));
         }
-        try {
-            const { email, password, device_id, fcm_token } = req.body;
-            // Tìm người dùng dựa trên user_name
-            const user = await User.findOne({ where: { email } });
+        // So sánh mật khẩu đã nhập với chuỗi hash lấy từ cơ sở dữ liệu
+        const passwordMatch = await bcrypt.compare(password, user.password);
+        if (passwordMatch) {
 
-            if (!user) {
-                return res.status(401).json(new Models.ResponseModel(false, new Models.ErrorResponseModel(1, "Người dùng không tồn tại", null), null));
-            }
-            // So sánh mật khẩu đã nhập với chuỗi hash lấy từ cơ sở dữ liệu
-            const passwordMatch = await bcrypt.compare(password, user.password);
-            if (passwordMatch) {
-
-                LogLogin.create({
-                    device_id: device_id,
-                    fcm_token: fcm_token,
-                    time_login: new Date()
-                });
-                
-                //Get roles
-                const roles = await user.getRoles();
-                const roleNames = roles.map(role => role.name);
-                const token = jwt.sign({ email: user.email, roles: roleNames }, process.env.TOKEN_SECRET, { expiresIn: '5d' });
-                const userWithRoles = {
-                    ...user.toJSON(),
-                    roles: roleNames
-                };
-            
-                var response = new LoginResponse(userWithRoles, token)
-                return res.status(200).json(new Models.ResponseModel(true, null, response));
-
-            } else {
-                return res.status(401).json(new Models.ResponseModel(false, new Models.ErrorResponseModel(1, "Tên người dùng hoặc mật khẩu không chính xác", null), null));
-
-            }
-
-        } catch (err) {
-            return res.status(401).json(new Models.ResponseModel(false, new Models.ErrorResponseModel(1, "Lỗi hệ thống", err.message), null));
-
-        }
-
-    });
-
-    //Step 1: you must validate data from request 
-    //If information missing , you need to response with error
-    //Step 2: Check user exist
-    router.post('/register', async (req, res, next) => {
-        const { error } = await registerRequest.validate(req.body);
-        if (error) {
-            const formattedErrors = formatValidationError(error.details);
-            return res.status(400).json({
-                code: 400,
-                message: "Validation Error",
-                details: formattedErrors
-            });
-        }
-        try {
-            const { email, password, full_name } = req.body;
-
-            var find_user = await User.findOne({ where: { email } });
-            if (find_user) {
-                return res.status(400).json(new Models.ResponseModel(false, new Models.ErrorResponseModel(1, "Người dùng đã tồn tại", null), null));
-            }
-
-            const hashedPassword = await hashPassword(password);
-
-            const newUser = await User.create({
-                email: email,
-                password: hashedPassword,
-                full_name: full_name,
-            });
-
-            let userRole = await permission_role.Role.findOne({ where: { name: 'user' } });
-            if (!userRole) {
-                userRole = await permission_role.Role.create({ name: 'user', display_name: 'Customer' });
-            }
-            await newUser.addRole(userRole);
-
-            return res.status(201).json(new Models.ResponseModel(true, null, newUser));
-
-        } catch (err) {
-            return res.status(500).json(new Models.ResponseModel(false, new Models.ErrorResponseModel(1, "Lỗi hệ thống", err.message), null));
-        }
-
-    });
-
-
-    router.post('/login_google', async (req, res, next) => {
-        logger.info("Login with google");
-        const { error } = await login_google_request.validate(req.body);
-        if (error) {
-            const formattedErrors = formatValidationError(error.details);
-            return res.status(400).json({
-                code: 400,
-                message: "Validation Error",
-                details: formattedErrors
-            });
-        }
-        try {
-            const { email, password, full_name, first_name, last_name, number_phone, avatar, fcm_token ,device_id} = req.body;
-
-            const hashedPassword = await hashPassword(password);
-
-            const [newUser, created] = await User.upsert({
-                first_name: first_name,
-                last_name: last_name,
-                email: email,
-                password: hashedPassword,
-                full_name: full_name,
-                number_phone: number_phone,
-                avatar: avatar
-            });
-            let userRole = await permission_role.Role.findOne({ where: { name: 'user' } });
-            if (!userRole) {
-                userRole = await permission_role.Role.create({ name: 'user', display_name: 'Customer' });
-            }
-            await newUser.addRole(userRole);
             LogLogin.create({
                 device_id: device_id,
                 fcm_token: fcm_token,
                 time_login: new Date()
             });
-          
-            return res.status(201).json(new Models.ResponseModel(true, null, newUser));
 
-        } catch (err) {
-            return res.status(500).json(new Models.ResponseModel(false, new Models.ErrorResponseModel(1, "Lỗi hệ thống", err.message), null));
+            //Get roles
+            const roles = await user.getRoles();
+            const roleNames = roles.map(role => role.name);
+            const token = jwt.sign({ email: user.email, roles: roleNames }, process.env.TOKEN_SECRET, { expiresIn: '5d' });
+            const userWithRoles = {
+                ...user.toJSON(),
+                roles: roleNames
+            };
+
+            var response = new LoginResponse(userWithRoles, token)
+            return res.status(200).json(new Models.ResponseModel(true, null, response));
+
+        } else {
+            return res.status(401).json(new Models.ResponseModel(false, new Models.ErrorResponseModel(1, "Tên người dùng hoặc mật khẩu không chính xác", null), null));
+
         }
 
-    });
+    } catch (err) {
+        return res.status(401).json(new Models.ResponseModel(false, new Models.ErrorResponseModel(1, "Lỗi hệ thống", err.message), null));
 
-    // Hàm băm mật khẩu
-    async function hashPassword(password) {
-        try {
-            const salt = await bcrypt.genSalt();
-            const hash = await bcrypt.hash(password, salt);
-            logger.info("hash: " + hash)
-            return hash;
-        } catch (err) {
-            console.error('Error hashing password:', err);
-            throw err; // Rethrow the error to handle it outside
-        }
     }
 
-    return router;
+});
+
+//Step 1: you must validate data from request 
+//If information missing , you need to response with error
+//Step 2: Check user exist
+router.post('/register', async (req, res, next) => {
+    const { error } = await registerRequest.validate(req.body);
+    if (error) {
+        const formattedErrors = formatValidationError(error.details);
+        return res.status(400).json({
+            code: 400,
+            message: "Validation Error",
+            details: formattedErrors
+        });
+    }
+    try {
+        const { email, password, full_name } = req.body;
+
+        var find_user = await User.findOne({ where: { email } });
+        if (find_user) {
+            return res.status(400).json(new Models.ResponseModel(false, new Models.ErrorResponseModel(1, "Người dùng đã tồn tại", null), null));
+        }
+
+        const hashedPassword = await hashPassword(password);
+
+        const newUser = await User.create({
+            email: email,
+            password: hashedPassword,
+            full_name: full_name,
+        });
+
+        let userRole = await permission_role.Role.findOne({ where: { name: 'user' } });
+        if (!userRole) {
+            userRole = await permission_role.Role.create({ name: 'user', display_name: 'Customer' });
+        }
+        await newUser.addRole(userRole);
+
+        return res.status(201).json(new Models.ResponseModel(true, null, newUser));
+
+    } catch (err) {
+        return res.status(500).json(new Models.ResponseModel(false, new Models.ErrorResponseModel(1, "Lỗi hệ thống", err.message), null));
+    }
+
+});
+
+
+router.post('/login_google', async (req, res, next) => {
+    logger.info("Login with google");
+    const { error } = await login_google_request.validate(req.body);
+    if (error) {
+        const formattedErrors = formatValidationError(error.details);
+        return res.status(400).json({
+            code: 400,
+            message: "Validation Error",
+            details: formattedErrors
+        });
+    }
+    try {
+        const { email, password, full_name, first_name, last_name, number_phone, avatar, fcm_token, device_id } = req.body;
+
+        const hashedPassword = await hashPassword(password);
+
+        const [newUser, created] = await User.upsert({
+            first_name: first_name,
+            last_name: last_name,
+            email: email,
+            password: hashedPassword,
+            full_name: full_name,
+            number_phone: number_phone,
+            avatar: avatar
+        });
+        let userRole = await permission_role.Role.findOne({ where: { name: 'user' } });
+        if (!userRole) {
+            userRole = await permission_role.Role.create({ name: 'user', display_name: 'Customer' });
+        }
+        await newUser.addRole(userRole);
+        LogLogin.create({
+            device_id: device_id,
+            fcm_token: fcm_token,
+            time_login: new Date()
+        });
+
+        return res.status(201).json(new Models.ResponseModel(true, null, newUser));
+
+    } catch (err) {
+        return res.status(500).json(new Models.ResponseModel(false, new Models.ErrorResponseModel(1, "Lỗi hệ thống", err.message), null));
+    }
+
+});
+
+// Hàm băm mật khẩu
+async function hashPassword(password) {
+    try {
+        const salt = await bcrypt.genSalt();
+        const hash = await bcrypt.hash(password, salt);
+        logger.info("hash: " + hash)
+        return hash;
+    } catch (err) {
+        console.error('Error hashing password:', err);
+        throw err; // Rethrow the error to handle it outside
+    }
 }
+
+export default router;
+
 
 
 
