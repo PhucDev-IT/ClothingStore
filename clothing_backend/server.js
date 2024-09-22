@@ -22,6 +22,7 @@ import logger from './utils/logger.js';
 import authentication from './routers/authentication_router.js'
 import bodyParser from 'body-parser';
 import LogLogin from './models/log_login.js';
+import permission_model from './models/permission_model.js';
 
 
 //Application config
@@ -98,6 +99,7 @@ async function syncDatabase() {
         const rawImage = await JSON.parse(fs.readFileSync(path.join(__dirname, '/static/image_table.json'), 'utf-8'));
         const raw_product_details = await JSON.parse(fs.readFileSync(path.join(__dirname, '/static/product_details.json'), 'utf-8'));
         const raw_category = await JSON.parse(fs.readFileSync(path.join(__dirname, '/static/categories_table.json'), 'utf-8'));
+        const rawPermission = await JSON.parse(fs.readFileSync(path.join(__dirname, '/static/permission_data.json'), 'utf-8'));
 
         const dataProvince = Object.values(rawProvince);
         const dataDistrict = Object.values(rawDistrict);
@@ -113,6 +115,23 @@ async function syncDatabase() {
         await product_model.ProductDetails.bulkCreate(raw_product_details, {ignoreDuplicates: true})
         await Category.bulkCreate(raw_category, {ignoreDuplicates: true})
 
+        await permission_model.Permission.bulkCreate(rawPermission.permissions);
+        await permission_model.Role.bulkCreate(rawPermission.roles);
+        const roles = await permission_model.Role.findAll();
+        const permissions = await permission_model.Permission.findAll();
+        const roleHasPermissionData = rawPermission.roleHasPermission.map((entry) => {
+            const role = roles.find(r => r.name === entry.role_name);
+            const permission = permissions.find(p => p.name === entry.permission_name);
+    
+            return {
+              role_id: role.id,
+              permission_id: permission.id
+            };
+          });
+    
+          // Sử dụng bulkCreate để thêm dữ liệu vào bảng trung gian
+          await sequelize.model('role_has_permission').bulkCreate(roleHasPermissionData);
+    
         // Đồng bộ hóa cơ sở dữ liệu
         logger.info('All tables created successfully!');
     } catch (error) {

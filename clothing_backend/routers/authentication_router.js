@@ -12,6 +12,7 @@ import Models from '../models/response/ResponseModel.js';
 import logger from '../utils/logger.js';
 import LoginResponse from '../models/response/LoginResponse.js';
 import LogLogin from '../models/log_login.js';
+import permission_role from '../models/permission_model.js'
 
 dotenv.config();
 
@@ -52,12 +53,32 @@ const registerRequest = Joi.object({
         "any.required": "Mật khẩu là bắt buộc",
         "string.base": "Mật khẩu phải là chuỗi ký tự"
     }),
+
+
+});
+
+const login_google_request = Joi.object({
+    email: Joi.string().email().required().messages({
+        "any.required": "Tên người dùng là bắt buộc",
+        "string.base": "Tên người dùng phải là chuỗi ký tự"
+    }),
+    password: Joi.string().optional(),
+    full_name: Joi.string().optional(),
+    fcm_token: Joi.string().required().messages({
+        "any.required": "fcm_token là bắt buộc",
+        "string.base": "use for notification"
+    }),
+    device_id: Joi.string().required().messages({
+        "any.required": "device_id là bắt buộc",
+        "string.base": "device_id phải là chuỗi ký tự"
+    }),
     first_name: Joi.string().optional(),
     last_name: Joi.string().optional(),
     avatar: Joi.string().optional(),
     number_phone: Joi.string().optional()
 
 });
+
 
 //log_login : id, user_id, device_id, fcm_token, time_login
 
@@ -94,9 +115,17 @@ export default function () {
                     fcm_token: fcm_token,
                     time_login: new Date()
                 });
-
-                const token = jwt.sign({ email: user.email }, process.env.TOKEN_SECRET, { expiresIn: '5d' }); //exp:10 => 10s
-                var response = new LoginResponse(user, token)
+                
+                //Get roles
+                const roles = await user.getRoles();
+                const roleNames = roles.map(role => role.name);
+                const token = jwt.sign({ email: user.email, roles: roleNames }, process.env.TOKEN_SECRET, { expiresIn: '5d' });
+                const userWithRoles = {
+                    ...user.toJSON(),
+                    roles: roleNames
+                };
+            
+                var response = new LoginResponse(userWithRoles, token)
                 return res.status(200).json(new Models.ResponseModel(true, null, response));
 
             } else {
@@ -125,7 +154,7 @@ export default function () {
             });
         }
         try {
-            const { email, password, full_name, first_name, last_name, number_phone, avatar } = req.body;
+            const { email, password, full_name } = req.body;
 
             var find_user = await User.findOne({ where: { email } });
             if (find_user) {
@@ -135,14 +164,17 @@ export default function () {
             const hashedPassword = await hashPassword(password);
 
             const newUser = await User.create({
-                first_name: first_name,
-                last_name: last_name,
                 email: email,
                 password: hashedPassword,
                 full_name: full_name,
-                number_phone: number_phone,
-                avatar: avatar
             });
+
+            let userRole = await permission_role.Role.findOne({ where: { name: 'user' } });
+            if (!userRole) {
+                userRole = await permission_role.Role.create({ name: 'user', display_name: 'Customer' });
+            }
+            await newUser.addRole(userRole);
+
             return res.status(201).json(new Models.ResponseModel(true, null, newUser));
 
         } catch (err) {
@@ -152,6 +184,49 @@ export default function () {
     });
 
 
+    router.post('/login_google', async (req, res, next) => {
+        logger.info("Login with google");
+        const { error } = await login_google_request.validate(req.body);
+        if (error) {
+            const formattedErrors = formatValidationError(error.details);
+            return res.status(400).json({
+                code: 400,
+                message: "Validation Error",
+                details: formattedErrors
+            });
+        }
+        try {
+            const { email, password, full_name, first_name, last_name, number_phone, avatar, fcm_token ,device_id} = req.body;
+
+            const hashedPassword = await hashPassword(password);
+
+            const [newUser, created] = await User.upsert({
+                first_name: first_name,
+                last_name: last_name,
+                email: email,
+                password: hashedPassword,
+                full_name: full_name,
+                number_phone: number_phone,
+                avatar: avatar
+            });
+            let userRole = await permission_role.Role.findOne({ where: { name: 'user' } });
+            if (!userRole) {
+                userRole = await permission_role.Role.create({ name: 'user', display_name: 'Customer' });
+            }
+            await newUser.addRole(userRole);
+            LogLogin.create({
+                device_id: device_id,
+                fcm_token: fcm_token,
+                time_login: new Date()
+            });
+          
+            return res.status(201).json(new Models.ResponseModel(true, null, newUser));
+
+        } catch (err) {
+            return res.status(500).json(new Models.ResponseModel(false, new Models.ErrorResponseModel(1, "Lỗi hệ thống", err.message), null));
+        }
+
+    });
 
     // Hàm băm mật khẩu
     async function hashPassword(password) {
