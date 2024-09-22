@@ -20,6 +20,7 @@ import Image from './models/image_model.js';
 import swaggerDocs from './utils/swagger.js';
 import logger from './utils/logger.js';
 import authentication from './routers/authentication_router.js'
+import productRouter from './routers/product_router.js'
 import bodyParser from 'body-parser';
 import LogLogin from './models/log_login.js';
 import permission_model from './models/permission_model.js';
@@ -100,6 +101,7 @@ async function syncDatabase() {
         const raw_product_details = await JSON.parse(fs.readFileSync(path.join(__dirname, '/static/product_details.json'), 'utf-8'));
         const raw_category = await JSON.parse(fs.readFileSync(path.join(__dirname, '/static/categories_table.json'), 'utf-8'));
         const rawPermission = await JSON.parse(fs.readFileSync(path.join(__dirname, '/static/permission_data.json'), 'utf-8'));
+        const raw_prod_cate = await JSON.parse(fs.readFileSync(path.join(__dirname, '/static/category_prod.json'), 'utf-8'));
 
         const dataProvince = Object.values(rawProvince);
         const dataDistrict = Object.values(rawDistrict);
@@ -131,6 +133,7 @@ async function syncDatabase() {
     
           // Sử dụng bulkCreate để thêm dữ liệu vào bảng trung gian
           await sequelize.model('role_has_permission').bulkCreate(roleHasPermissionData);
+          await sequelize.model('category_product').bulkCreate(raw_prod_cate);
     
         // Đồng bộ hóa cơ sở dữ liệu
         logger.info('All tables created successfully!');
@@ -147,8 +150,8 @@ app.get('/', (req, res) => {
 })
 
 
-app.use('/api', authentication());
-
+app.use('/api/auth', authentication());
+app.use('api/product',productRouter())
 
 
 app.listen(port, () => {
