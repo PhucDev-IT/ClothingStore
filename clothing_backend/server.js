@@ -21,6 +21,7 @@ import swaggerDocs from './utils/swagger.js';
 import logger from './utils/logger.js';
 import authentication from './routers/authentication_router.js'
 import productRouter from './routers/product_router.js'
+import categoryRouter from './routers/product_router.js'
 import bodyParser from 'body-parser';
 import LogLogin from './models/log_login.js';
 import permission_model from './models/permission_model.js';
@@ -151,8 +152,8 @@ app.get('/', (req, res) => {
 
 
 app.use('/api/auth', authentication());
-app.use('api/product',productRouter())
-
+app.use('/api/product',productRouter())
+app.use('/api/category',categoryRouter())
 
 app.listen(port, () => {
     logger.info(`Listening at http://localhost:${port}`)
