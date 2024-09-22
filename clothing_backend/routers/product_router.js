@@ -5,7 +5,7 @@ const router = express.Router(); // Sử dụng express.Router()
 import { formatValidationError } from '../utils/exception.js'
 import Category from '../models/category_model.js';
 import product_model from '../models/product_model.js';
-<<<<<<< HEAD
+
 import Models from '../models/response/ResponseModel.js';
 
 
@@ -28,11 +28,11 @@ const updateCategory = Joi.object({
         "boolean.base": "is_public phải là true hoặc false"
     }),
 });
-=======
+
 import upload from '../config/upload.js';
 
 
->>>>>>> 04ada045213fa3f4327f2afefee581ae9683cd3f
+
 
 
 
@@ -75,7 +75,7 @@ export default function () {
     });
 
 
-<<<<<<< HEAD
+
 
     router.post('/addCategory', async (req, res, next) => {
         const { error } = addCategory.validate(req.body);
@@ -170,7 +170,9 @@ export default function () {
             return res.status(200).json(new Models.ResponseModel(true, null, "Danh mục đã được xóa thành công"));
         } catch (err) {
             return res.status(500).json(new Models.ResponseModel(false, new Models.ErrorResponseModel(1, "Lỗi hệ thống", err.message), null));
-=======
+        }
+    });
+        
     //Update
     router.put('/:id',async(req,res,next)=>{
         
@@ -186,14 +188,13 @@ export default function () {
            
         } catch (error) {
             // handle
->>>>>>> 04ada045213fa3f4327f2afefee581ae9683cd3f
+
         }
     });
 
     return router;
 }
+    
 
-
-
-
+    
 

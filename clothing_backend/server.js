@@ -154,11 +154,11 @@ app.get('/', (req, res) => {
 })
 
 
-<<<<<<< HEAD
+
 app.use('/api/auth', authentication());
 app.use('/api/product',productRouter())
 app.use('/api/category',categoryRouter())
-=======
+
 app.use('/api/auth', authentication);
 
 //Only role admin use
@@ -183,7 +183,7 @@ app.post('/upload-multiple', upload.array('images', 10), (req, res) => {
 
 
 //--------------------------------------- MAIN ------------------------------------------------
->>>>>>> 04ada045213fa3f4327f2afefee581ae9683cd3f
+
 
 app.listen(port, () => {
     logger.info(`Listening at http://localhost:${port}`)
