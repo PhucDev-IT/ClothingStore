@@ -5,6 +5,7 @@ const router = express.Router(); // Sử dụng express.Router()
 import { formatValidationError } from '../utils/exception.js'
 import Category from '../models/category_model.js';
 import product_model from '../models/product_model.js';
+<<<<<<< HEAD
 import Models from '../models/response/ResponseModel.js';
 
 
@@ -27,6 +28,11 @@ const updateCategory = Joi.object({
         "boolean.base": "is_public phải là true hoặc false"
     }),
 });
+=======
+import upload from '../config/upload.js';
+
+
+>>>>>>> 04ada045213fa3f4327f2afefee581ae9683cd3f
 
 
 
@@ -38,7 +44,7 @@ export default function () {
 
     //get all
     //Need to get with condition is_public = true, and sort by rate
-    router.get("/products", async(req,res,next)=>{
+    router.get("/", async(req,res,next)=>{
         const products = await product_model.Product.findAll({
             where: {
                 is_public: true,
@@ -48,7 +54,7 @@ export default function () {
     });
 
     //find product by id - return additional details
-    router.get('/product/:id', async (req, res, next) => {
+    router.get('/:id', async (req, res, next) => {
         try {
             const product = await product_model.Product.findByPk(req.params.id); 
             
@@ -58,7 +64,7 @@ export default function () {
     });
 
     //Pagination
-    router.get('/products/p',async(req,res,next)=>{
+    router.get('/p',async(req,res,next)=>{
         const limit = req.body.limit;
         const offset = req.body.offset;
 
@@ -69,6 +75,7 @@ export default function () {
     });
 
 
+<<<<<<< HEAD
 
     router.post('/addCategory', async (req, res, next) => {
         const { error } = addCategory.validate(req.body);
@@ -163,6 +170,23 @@ export default function () {
             return res.status(200).json(new Models.ResponseModel(true, null, "Danh mục đã được xóa thành công"));
         } catch (err) {
             return res.status(500).json(new Models.ResponseModel(false, new Models.ErrorResponseModel(1, "Lỗi hệ thống", err.message), null));
+=======
+    //Update
+    router.put('/:id',async(req,res,next)=>{
+        
+    });
+
+    //Add new
+    //Need to check Joi
+    router.post('/', upload.array('images', 10),async(req,res,next)=>{
+        try {
+            const { name, description, price } = req.body;
+            const images = req.files.map(file => file.filename);
+                
+           
+        } catch (error) {
+            // handle
+>>>>>>> 04ada045213fa3f4327f2afefee581ae9683cd3f
         }
     });
 

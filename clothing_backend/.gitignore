@@ -2,7 +2,8 @@
 .gradle/
 build/
 /node_modules
-
+.env
+/upload
 # Local configuration file (sdk path, etc)
 local.properties
 
@@ -59,7 +60,7 @@ DerivedData/
 
 ## Obj-C/Swift specific
 *.hmap
-.env
+
 ## App packaging
 *.ipa
 *.dSYM.zip
