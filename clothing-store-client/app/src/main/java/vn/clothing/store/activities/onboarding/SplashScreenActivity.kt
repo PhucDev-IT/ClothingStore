@@ -9,9 +9,16 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import vn.clothing.store.MainActivity
 import vn.clothing.store.R
 import vn.clothing.store.activities.authentication.LoginActivity
+import vn.clothing.store.common.AppManager
+import vn.clothing.store.database.AppDatabase.Companion.APPDATABASE
 import vn.clothing.store.utils.MySharedPreferences
 
 @SuppressLint("CustomSplashScreen")
@@ -39,13 +46,39 @@ class SplashScreenActivity : AppCompatActivity() {
         Handler(Looper.getMainLooper()).postDelayed({
             val isFirstApp = MySharedPreferences.getBooleanValue(this, MySharedPreferences.PREF_WAS_ONBOARDING)
             if(isFirstApp){
-                val intent = Intent(this, LoginActivity::class.java)
-                startActivity(intent)
-                finishAffinity()
+                checkUser()
             }else{
                 startActivity(Intent(this, OnboardingActivity::class.java))
                 finish()
             }
         }, 2000)
+    }
+
+
+    private fun checkUser(){
+        CoroutineScope(Dispatchers.IO).launch {
+            val listDeferred = async {
+                APPDATABASE.userDao().getAll()
+            }
+            val tokenDeferred = async {
+                MySharedPreferences.getStringValues(this@SplashScreenActivity, MySharedPreferences.PREF_TOKEN)
+            }
+            val list = listDeferred.await()
+            val token = tokenDeferred.await()
+
+            withContext(Dispatchers.Main) {
+                if(list.isEmpty() || token == null){
+                    val intent = Intent(this@SplashScreenActivity, LoginActivity::class.java)
+                    startActivity(intent)
+                    finishAffinity()
+                }else{
+                    AppManager.token = token
+                    AppManager.user = list[0]
+                    val intent = Intent(this@SplashScreenActivity, MainActivity::class.java)
+                    startActivity(intent)
+                    finishAffinity()
+                }
+            }
+        }
     }
 }

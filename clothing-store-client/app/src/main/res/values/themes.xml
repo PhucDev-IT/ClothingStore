@@ -1,6 +1,6 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Base.Theme.Clothing" parent="Theme.MaterialComponents.Light.NoActionBar">
+    <style name="Base.Theme.Clothing" parent="Theme.Material3.Light.NoActionBar">
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
 
@@ -11,7 +11,10 @@
 
 
         <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="bottomNavigationStyle">@style/Theme.Bottom.Navigation</item>
     </style>
 
     <style name="Theme.Clothing" parent="Base.Theme.Clothing" />
+    
+    <style name="Theme.Bottom.Navigation" parent="Theme.MaterialComponents.Light.NoActionBar"/>
 </resources>

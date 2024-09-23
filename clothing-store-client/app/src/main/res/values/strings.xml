@@ -13,6 +13,7 @@
     <string name="channel_name">Thông báo</string>
     <string name="channel_description">Thông báo OTP</string>
     <string name="required_permission_notification">Vui lòng cấp quyền truy cập thông báo</string>
+    <string name="required_filed">Trường này là bắt buộc</string>
 
     <!--    ONBOARDING-->
     <string name="label_skip">Bỏ qua</string>
@@ -87,4 +88,11 @@
     <string name="shipping_cost">Phí vận chuyển</string>
     <string name="voucher_discount">Phiếu giảm giá</string>
     <string name="please_add_address">Cần bổ sung thêm thông tin địa chỉ nhận hàng để tiếp tục thực hiện</string>
+
+    <!--    Product-->
+    <string name="information_product_details">Thông tin chi tiết</string>
+    <string name="select_size">Chọn size</string>
+    <string name="label_classify">Phân loại: </string>
+    <string name="default_btn_add_to_cart">Thêm: %s</string>
+    <string name="add_to_card_success">Thêm giỏ hàng thành công!</string>
 </resources>

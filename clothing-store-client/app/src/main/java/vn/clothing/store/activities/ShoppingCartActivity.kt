@@ -14,13 +14,17 @@ import vn.clothing.store.adapter.RvItemCartAdapter
 import vn.clothing.store.common.PopupDialog
 import vn.clothing.store.databinding.ActivityShoppingCartBinding
 import vn.clothing.store.interfaces.ShoppingCartContract
+import vn.clothing.store.models.CartModel
 import vn.clothing.store.networks.response.CartResponseModel
+import vn.clothing.store.presenter.ShoppingCartPresenter
 
 class ShoppingCartActivity : BaseActivity(),ShoppingCartContract.View {
 
     private lateinit var binding:ActivityShoppingCartBinding
-    private var presenter:ShoppingCartContract.Presenter?=null
+    private var presenter:ShoppingCartPresenter?=null
     private lateinit var adapter:RvItemCartAdapter
+    private var cart:CartResponseModel?=null
+
 
     override fun initView() {
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
@@ -28,11 +32,12 @@ class ShoppingCartActivity : BaseActivity(),ShoppingCartContract.View {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+        presenter = ShoppingCartPresenter(this)
         adapter = RvItemCartAdapter(emptyList(),{},{})
     }
 
     override fun populateData() {
-
+        presenter?.getAllCarts()
     }
 
     override fun setListener() {
@@ -49,6 +54,10 @@ class ShoppingCartActivity : BaseActivity(),ShoppingCartContract.View {
         }
 
 
+    private fun displayData(){
+
+    }
+
     //===================================================
     //    region ShoppingCartContract.View
     //==================================================
@@ -63,15 +72,21 @@ class ShoppingCartActivity : BaseActivity(),ShoppingCartContract.View {
         binding.shimmerLayout.visibility = View.GONE
     }
 
-    override fun onLoadedData(data: CartResponseModel) {
-        adapter.setData(data.listItem)
-    }
-
     override fun showError(message: String?) {
         PopupDialog.showDialog(this,PopupDialog.PopupType.NOTIFICATION,null,message?:getString(R.string.has_error_please_retry)){}
+    }
+
+    override fun onResultCarts(cart: CartResponseModel) {
+        adapter.setData(cart.listItem)
+        this.cart = cart
     }
 
     //================================================
     //  endregion ShoppingCartContract.View
     //===============================================
+
+    override fun onDestroy() {
+        presenter?.onDestroy()
+        super.onDestroy()
+    }
 }

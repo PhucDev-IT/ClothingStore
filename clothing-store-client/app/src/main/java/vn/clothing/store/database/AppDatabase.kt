@@ -7,14 +7,20 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import vn.clothing.store.MyApplication
 import vn.clothing.store.database.dao.AddressDao
+import vn.clothing.store.database.dao.CategoryDao
+import vn.clothing.store.database.dao.UserDao
 import vn.clothing.store.database.models.AddressSchema
+import vn.clothing.store.models.Category
+import vn.clothing.store.models.User
 import vn.master.epass.database.core.Converters
 
 
-@Database(entities = [AddressSchema::class], version = 1)
+@Database(entities = [AddressSchema::class, User::class, Category::class], version = 1)
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun addressDao(): AddressDao
+    abstract fun userDao(): UserDao
+    abstract fun categoryDao(): CategoryDao
 
     companion object {
         @Volatile

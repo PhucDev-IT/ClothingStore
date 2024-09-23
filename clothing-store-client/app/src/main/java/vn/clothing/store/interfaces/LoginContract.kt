@@ -2,6 +2,7 @@ package vn.clothing.store.interfaces
 
 import android.content.Context
 import vn.clothing.store.common.CoreConstant
+import vn.clothing.store.models.User
 
 interface LoginContract {
     interface View{
@@ -9,11 +10,12 @@ interface LoginContract {
         fun onHideLoading()
         fun getContext():Context
         fun onShowError(message:String?)
-        fun onShowToast(type: CoreConstant.ToastType, message:String)
+        fun onShowToast(type: CoreConstant.ToastType, message:String?)
+        fun onLoginSuccess(user:User)
     }
 
     interface Presenter{
         fun loginWithGoogle()
-        fun loginSystem(userName:String, password:String)
+        fun loginSystem(email:String, password:String)
     }
 }

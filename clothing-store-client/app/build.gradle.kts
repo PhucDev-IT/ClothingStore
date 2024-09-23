@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
     id("com.google.devtools.ksp")
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -43,7 +44,7 @@ android {
     flavorDimensions.add("dev")
     productFlavors{
         create("dev"){
-            buildConfigField("String","API_BASE_URL","\"https://orange-comics-dream.loca.lt/\"")
+            buildConfigField("String","API_BASE_URL","\"http://192.168.201.16:3000/\"")
         }
     }
 }
@@ -86,7 +87,7 @@ dependencies {
 
     //Firebase
     implementation("com.google.firebase:firebase-messaging:24.0.1")
-
+    implementation("com.google.firebase:firebase-auth:23.0.0")
     val room_version = "2.6.1"
     annotationProcessor("androidx.room:room-compiler:$room_version")
     implementation("androidx.room:room-ktx:$room_version")

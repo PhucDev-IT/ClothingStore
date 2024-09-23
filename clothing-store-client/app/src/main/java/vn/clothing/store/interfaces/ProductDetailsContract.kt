@@ -1,0 +1,25 @@
+package vn.clothing.store.interfaces
+
+import android.content.Context
+import vn.clothing.store.common.CoreConstant
+import vn.clothing.store.models.Image
+import vn.clothing.store.models.ProductDetails
+import vn.clothing.store.networks.request.CartRequestModel
+
+interface ProductDetailsContract {
+    interface View{
+        fun onShowLoading()
+        fun onHiddenLoading()
+        fun onShowError(message: String?)
+        fun onShowToast(message:String?, type: CoreConstant.ToastType)
+        fun onResultProductDetails(productDetails: List<ProductDetails>)
+        fun onResultImages(images:List<Image>)
+        fun getContext():Context
+    }
+
+    interface Presenter{
+        fun loadInformationProduct(productId:String)
+        fun loadImages(id:String)
+        fun addToCart(model: CartRequestModel)
+    }
+}

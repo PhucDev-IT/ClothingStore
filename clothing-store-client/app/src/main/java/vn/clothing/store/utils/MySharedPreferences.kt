@@ -8,6 +8,7 @@ class MySharedPreferences {
     companion object {
         private const val MY_SHARED_PREFERENCES: String = "MY_SHARED_PREFERENCES"
         const val PREF_WAS_ONBOARDING: String = "PREF_WAS_ONBOARDING"
+        const val PREF_TOKEN: String = "PREF_TOKEN"
         const val PREF_KEY_LANGUAGE = "PREF_LANGUAGE"
         const val PREF_KEY_THEME_MODE = "PREF_KEY_THEME_MODE"
 

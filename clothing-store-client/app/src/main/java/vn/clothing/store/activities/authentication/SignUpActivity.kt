@@ -23,7 +23,6 @@ class SignUpActivity : AppCompatActivity() {
             supportFragmentManager.beginTransaction()
                 .replace(R.id.container, SignUpMainFragment())
                 .commitNow()
-
         }
     }
 }

@@ -1,8 +1,9 @@
 package vn.clothing.store.models
 
 import com.google.gson.annotations.SerializedName
+import java.io.Serializable
 
-class Product {
+class Product : Serializable{
     var id: String? = null
     var name: String? = null
     @SerializedName("img_preview")

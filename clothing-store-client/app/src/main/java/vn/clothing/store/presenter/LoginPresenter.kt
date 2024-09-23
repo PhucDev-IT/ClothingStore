@@ -13,8 +13,23 @@ import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingExcept
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import vn.clothing.store.R
+import vn.clothing.store.activities.authentication.LoginActivity
+import vn.clothing.store.activities.authentication.LoginActivity.Companion
+import vn.clothing.store.common.AppManager
+import vn.clothing.store.common.CoreConstant
+import vn.clothing.store.database.AppDatabase.Companion.APPDATABASE
 import vn.clothing.store.interfaces.LoginContract
+import vn.clothing.store.models.User
+import vn.clothing.store.networks.ApiService.Companion.APISERVICE
+import vn.clothing.store.networks.request.LoginGoogleRequest
+import vn.clothing.store.networks.request.LoginRequest
+import vn.clothing.store.networks.response.LoginResponseModel
+import vn.clothing.store.utils.MySharedPreferences
+import vn.clothing.store.utils.Utils
+import vn.mobile.banking.network.response.ResponseModel
+import vn.mobile.banking.network.rest.BaseCallback
 import java.security.MessageDigest
 import java.util.Date
 import java.util.UUID
@@ -23,7 +38,7 @@ class LoginPresenter(private var view: LoginContract.View?) : LoginContract.Pres
 
     companion object {
         private val TAG = LoginPresenter::class.java.name
-        private const val WEB_CLIENT_ID = ""
+        private const val WEB_CLIENT_ID = "473358678062-l7ic9nrjhvfh1j6ecmfluaoqkurs4bqe.apps.googleusercontent.com"
     }
 
 
@@ -51,24 +66,16 @@ class LoginPresenter(private var view: LoginContract.View?) : LoginContract.Pres
                 .addCredentialOption(googleIdOption)
                 .build()
 
-        CoroutineScope(Dispatchers.Default).launch {
+        CoroutineScope(Dispatchers.IO).launch {
             try {
                 val result = credentialManager.getCredential(view!!.getContext(), request)
                 handleSignIn(result)
             } catch (e: Exception) {
+                view?.onShowToast(CoreConstant.ToastType.ERROR,view?.getContext()?.getString(R.string.has_error_please_retry)?:"")
                 e.printStackTrace()
-                Log.i(TAG, "Error = ${e.message}")
             }
         }
     }
-
-
-    override fun loginSystem(userName: String, password: String) {
-        view?.onShowLoading()
-
-
-    }
-
 
     private fun handleSignIn(result: GetCredentialResponse) {
         when (val credential = result.credential) {
@@ -77,14 +84,15 @@ class LoginPresenter(private var view: LoginContract.View?) : LoginContract.Pres
                     try {
                         // Use googleIdTokenCredential and extract id to validate and
                         // authenticate on your server.
-                        val googleIdTokenCredential = GoogleIdTokenCredential
+                        val data = GoogleIdTokenCredential
                             .createFrom(credential.data)
-
-                        googleIdTokenCredential.
-
-
+                        Utils.getTokenFCM { token->
+                            val login = LoginGoogleRequest(data.id,"",token,"",data.displayName,data.familyName,data.givenName,data.phoneNumber,
+                                data.profilePictureUri.toString()
+                            )
+                            requestLoginGoogle(login)
+                        }
                     } catch (e: GoogleIdTokenParsingException) {
-                        view!!.onShowError("Received an invalid google id token response ${e.message}")
                         Log.e(TAG, "Received an invalid google id token response", e)
                     }
                 }
@@ -106,5 +114,57 @@ class LoginPresenter(private var view: LoginContract.View?) : LoginContract.Pres
                 Log.e(TAG, "Unexpected type of credential")
             }
         }
+    }
+
+    override fun loginSystem(email: String, password: String) {
+        view?.onShowLoading()
+        Utils.getTokenFCM { token->
+            val login = LoginRequest(email,password,token,"1")
+            APISERVICE.getService().login(login).enqueue(object: BaseCallback<ResponseModel<LoginResponseModel>>(){
+                override fun onSuccess(model: ResponseModel<LoginResponseModel>) {
+
+                    if(!model.success || model.data==null){
+                        view?.onHideLoading()
+                        view?.onShowToast(CoreConstant.ToastType.ERROR,model.error?.message)
+                    }
+                    else{
+                        CoroutineScope(Dispatchers.IO).launch {
+                            AppManager.user = model.data!!.user!!
+                            AppManager.token = model.data?.token
+                            MySharedPreferences.setStringValue(view?.getContext()!!,MySharedPreferences.PREF_TOKEN,model.data?.token!!)
+                            APPDATABASE.userDao().upsertUser(AppManager.user!!)
+                            withContext(Dispatchers.Main){
+                                view?.onHideLoading()
+                                view?.onLoginSuccess(model.data?.user!!)
+                            }
+                        }
+                    }
+                }
+                override fun onError(message: String) {
+                    view?.onHideLoading()
+                    view?.onShowError(message)
+                }
+            })
+        }
+
+    }
+
+
+
+
+    private fun requestLoginGoogle(login:LoginGoogleRequest){
+        view?.onShowLoading()
+            APISERVICE.getService().loginGoogle(login).enqueue(object: BaseCallback<ResponseModel<User>>() {
+                override fun onSuccess(model: ResponseModel<User>) {
+                    view?.onHideLoading()
+
+                }
+
+                override fun onError(message: String) {
+                    view?.onHideLoading()
+                    view?.onShowError(message)
+                }
+            })
+
     }
 }

@@ -8,6 +8,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import vn.clothing.store.MainActivity
 import vn.clothing.store.R
+import vn.clothing.store.activities.authentication.LoginActivity
 import vn.clothing.store.databinding.ActivityWelcomeScreenBinding
 
 class WelcomeScreenActivity : AppCompatActivity() {
@@ -24,7 +25,7 @@ class WelcomeScreenActivity : AppCompatActivity() {
         }
 
         binding.btnLetsStart.setOnClickListener {
-            val intent = Intent(this,MainActivity::class.java)
+            val intent = Intent(this,LoginActivity::class.java)
             startActivity(intent)
             finishAffinity()
         }

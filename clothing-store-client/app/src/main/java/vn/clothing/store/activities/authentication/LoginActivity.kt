@@ -12,6 +12,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialResponse
+import androidx.credentials.GetPasswordOption
 import androidx.credentials.PasswordCredential
 import androidx.credentials.PublicKeyCredential
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
@@ -20,12 +21,17 @@ import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingExcept
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import vn.clothing.store.MainActivity
 import vn.clothing.store.R
 import vn.clothing.store.common.CoreConstant
 import vn.clothing.store.common.PopupDialog
 import vn.clothing.store.databinding.ActivityLoginBinding
 import vn.clothing.store.interfaces.LoginContract
+import vn.clothing.store.models.User
+import vn.clothing.store.networks.request.LoginGoogleRequest
 import vn.clothing.store.presenter.LoginPresenter
+
+import vn.clothing.store.utils.Utils
 import java.security.MessageDigest
 import java.util.Date
 import java.util.UUID
@@ -59,7 +65,7 @@ class LoginActivity : AppCompatActivity() , LoginContract.View{
         }
 
         binding.loginWithGoogle.setOnClickListener {
-            presenter?.loginWithGoogle()
+           presenter?.loginWithGoogle()
         }
 
         binding.tvRegister.setOnClickListener {
@@ -101,8 +107,14 @@ class LoginActivity : AppCompatActivity() , LoginContract.View{
         PopupDialog.showDialog(this, PopupDialog.PopupType.NOTIFICATION,null,message?:getString(R.string.has_error_please_retry)){}
     }
 
-    override fun onShowToast(type: CoreConstant.ToastType, message: String) {
+    override fun onShowToast(type: CoreConstant.ToastType, message: String?) {
+        CoreConstant.showToast(this,message?:getString(R.string.has_error_please_retry),type)
+    }
 
+    override fun onLoginSuccess(user: User) {
+        val intent = Intent(this,MainActivity::class.java)
+        startActivity(intent)
+        finishAffinity()
     }
 
     //================================================

@@ -23,7 +23,7 @@ object PopupDialog {
 
 
     fun showDialogLoading(context: Context){
-        dialog = Dialog(context, R.style.Theme_Dialog)
+        dialog = Dialog(context)
         dialog!!.setContentView(R.layout.custom_loading_dialog)
 
         dialog!!.setCancelable(false)

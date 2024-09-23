@@ -1,6 +1,7 @@
 package vn.clothing.store.fragments.auth
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
 import android.os.Build
@@ -20,7 +21,9 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import vn.clothing.store.R
+import vn.clothing.store.activities.authentication.LoginActivity
 import vn.clothing.store.databinding.ViewVerifyOtpCodeBinding
+import vn.clothing.store.utils.Utils
 import java.lang.StringBuilder
 
 class VerifyOtpSignUpFragment : Fragment(), OnFocusChangeListener, TextView.OnEditorActionListener{
@@ -43,6 +46,11 @@ class VerifyOtpSignUpFragment : Fragment(), OnFocusChangeListener, TextView.OnEd
     }
 
     private fun init(){
+        binding?.header?.tvName?.visibility = View.GONE
+
+        binding?.header?.toolbar?.setNavigationOnClickListener {
+            requireActivity().finish()
+        }
         bgFilled = ContextCompat.getDrawable(requireContext(), R.drawable.bg_otp_active_border)!!
         bgEmpty = ContextCompat.getDrawable(requireContext(), R.drawable.bg_otp_digit)!!
     }
@@ -217,7 +225,8 @@ class VerifyOtpSignUpFragment : Fragment(), OnFocusChangeListener, TextView.OnEd
 
 
     private fun getOTP(){
-
+        otpCode = Utils.generateOTP()
+        Utils.sendNotification(requireContext(),"Verify OTP authentication", "OTP code: $otpCode")
     }
 
     private fun checkOTP():Boolean{
@@ -231,11 +240,9 @@ class VerifyOtpSignUpFragment : Fragment(), OnFocusChangeListener, TextView.OnEd
             .append(binding!!.edt5.text.toString())
             .append(binding!!.edt6.text.toString()).toString()
         if(inputOtp == otpCode){
-            val result = Bundle().apply {
-                putString("phone", phone)
-            }
-            parentFragmentManager.setFragmentResult("verifyOTP", result)
-            parentFragmentManager.popBackStack()
+            val intent = Intent(requireActivity(), LoginActivity::class.java)
+            startActivity(intent)
+            requireActivity().finishAffinity()
         }else{
             binding!!.edt1.text = null
             binding!!.edt2.text = null
@@ -248,6 +255,11 @@ class VerifyOtpSignUpFragment : Fragment(), OnFocusChangeListener, TextView.OnEd
 
         }
         return false
+    }
+
+    override fun onResume() {
+        super.onResume()
+        requestPermission()
     }
 
     override fun onDestroyView() {
