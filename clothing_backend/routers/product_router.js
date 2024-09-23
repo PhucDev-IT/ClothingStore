@@ -31,7 +31,7 @@ const updateCategory = Joi.object({
 
 //get all
 //Need to get with condition is_public = true, and sort by rate
-router.get("/", async (req, res, next) => {
+router.get("/products", async (req, res, next) => {
     const products = await product_model.Product.findAll({
         where: {
             is_public: true,
@@ -40,12 +40,37 @@ router.get("/", async (req, res, next) => {
     });
 });
 
-//find product by id - return additional details
-router.get("/:id", async (req, res, next) => {
+//find product by id
+router.put("products/:id", async (req, res, next) => {
     try {
+        const id = req.params.id;
+        logger.info("id = "+id);
         const product = await product_model.Product.findByPk(req.params.id);
     } catch (error) {
         // handle exception
+    }
+});
+
+//Find product details
+router.get('/products/:id/details', async (req,res,next)=>{
+    try {
+        const id = req.params.id;
+        logger.info("id = "+id);
+        const product = await product_model.Product.findByPk(id, {
+            include: [{
+                model: product_model.ProductDetails, // Adjust to your actual model name
+                as: 'product_details' // Make sure this alias matches your association
+            }]
+        });
+
+        if (!product) {
+            return res.status(404).json(new Models.ResponseModel(false, new Models.ErrorResponseModel(2, "Product not found", null), null));
+        }
+       
+        return res.status(200).json(new Models.ResponseModel(true, null, product.product_details));
+    } catch (error) {
+        logger.error("Error fetching products details:", error);
+        return res.status(500).json(new Models.ResponseModel(false, new Models.ErrorResponseModel(1, "Lỗi hệ thống", error.message), null));
     }
 });
 
@@ -78,28 +103,17 @@ router.post("/", authenticateToken,authorizeRole(["admin"]),upload.array("images
 
 //------------------------ CATEGORY -----------------------------------------------------------------
 
-//need to " product_model.Product" , because file.js export more model,
-
-// router.get("/categories/:id/products", async (req, res, next) => {
-//     try {
-//         const categoryId = req.params.id;
-//         logger.warn("categoryId: " + categoryId);
-//         const category = await Category.findByPk(categoryId, {
-//             include: {
-//                 model: product_model.Product,
-//                 through: { attributes: [] }, // Loại bỏ các thuộc tính của bảng trung gian
-//             },
-//         });
-
-//         if (category) {
-//             return res.status(200).json(new Models.ResponseModel(true, null, category.products));
-//         } else {
-//             console.log("Category not found");
-//         }
-//     } catch (error) {
-//         logger.error("Error fetching products:", error);
-//     }
-// });
+//get all category
+router.get("/categories/", async (req,res,next)=>{
+    const data = req.body.data;
+    try{
+        const categories = await Category.findAll();
+        return res.status(200).json(new Models.ResponseModel(true, null, categories));
+    } catch (error) {
+        logger.error("Error fetching categories:", error);
+        return res.status(500).json(new Models.ResponseModel(false, new Models.ErrorResponseModel(1, "Lỗi hệ thống", error.message), null));
+    }
+});
 
 router.get("/categories/:id/products", async (req, res, next) => {
     try {

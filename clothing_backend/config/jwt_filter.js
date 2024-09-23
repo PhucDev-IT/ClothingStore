@@ -1,6 +1,7 @@
 import dotenv from 'dotenv';
 import jwt from 'jsonwebtoken';
 import Models from '../models/response/ResponseModel.js';
+
 dotenv.config();
 
 export const authenticateToken = (req, res, next) => {
