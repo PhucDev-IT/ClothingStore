@@ -78,9 +78,10 @@ async function syncDatabase() {
 
 
         cart_model.Cart.hasMany(cart_model.CartItem, { foreignKey: 'cart_id' });
-        cart_model.CartItem.belongsTo(cart_model.Cart, { foreignKey: 'cart_detail_id' });
-        cart_model.CartItem.belongsTo(product_model.ProductDetails, { foreignKey: 'cart_detail_id' });
-        product_model.ProductDetails.hasMany(cart_model.CartItem, { foreignKey: 'product_detail_id' });
+        cart_model.CartItem.belongsTo(cart_model.Cart, { foreignKey: 'cart_id' });
+
+        cart_model.CartItem.belongsTo(product_model.ProductDetails, { foreignKey: 'product_details_id' });
+        product_model.ProductDetails.hasMany(cart_model.CartItem, { foreignKey: 'product_details_id' });
 
         //Notification
         User.hasMany(Notification, { foreignKey: 'user_id' });
