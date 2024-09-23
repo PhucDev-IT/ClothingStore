@@ -33,8 +33,8 @@ const Order = sequelize.define('order', {
         allowNull: false,
     },
 
-    address_id :{
-        type: DataTypes.INTEGER,
+    shipping_address :{
+        type: DataTypes.STRING,
         allowNull: false,
     },
     user_id:{
@@ -53,7 +53,7 @@ const OrderItem = sequelize.define('order_item',{
     id: {
         type: DataTypes.STRING,
         primaryKey: true,       
-        // defaultValue: () => uuidv4(),   
+        defaultValue: () => uuidv4(),   
     },
     order_id:{
         type: DataTypes.STRING,
