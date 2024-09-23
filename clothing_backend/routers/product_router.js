@@ -51,6 +51,29 @@ router.put("products/:id", async (req, res, next) => {
     }
 });
 
+//Find product details
+router.get('/products/:id/details', async (req,res,next)=>{
+    try {
+        const id = req.params.id;
+        logger.info("id = "+id);
+        const product = await product_model.Product.findByPk(id, {
+            include: [{
+                model: product_model.ProductDetails, // Adjust to your actual model name
+                as: 'product_details' // Make sure this alias matches your association
+            }]
+        });
+
+        if (!product) {
+            return res.status(404).json(new Models.ResponseModel(false, new Models.ErrorResponseModel(2, "Product not found", null), null));
+        }
+       
+        return res.status(200).json(new Models.ResponseModel(true, null, product.product_details));
+    } catch (error) {
+        logger.error("Error fetching products details:", error);
+        return res.status(500).json(new Models.ResponseModel(false, new Models.ErrorResponseModel(1, "Lỗi hệ thống", error.message), null));
+    }
+});
+
 //Pagination
 router.get("/p", async (req, res, next) => {
     const limit = req.body.limit;

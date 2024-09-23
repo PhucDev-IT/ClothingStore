@@ -28,7 +28,7 @@ import LogLogin from './models/log_login.js';
 import permission_model from './models/permission_model.js';
 import upload from './config/upload.js';
 import { authenticateToken, authorizeRole } from './config/jwt_filter.js'
-
+import image_router from './routers/images_route.js'
 //Application config
 dotenv.config();
 const port = process.env.PORT || 8080
@@ -87,7 +87,7 @@ async function syncDatabase() {
         order_model.Order.belongsTo(Voucher, {foreignKey:'order_id'});
         //Product - ProductDetail
         product_model.Product.hasMany(product_model.ProductDetails, {foreignKey:'product_id'});
-        product_model.ProductDetails.belongsTo(product_model.Product,{foreignKey:'product_detail_id'});
+    
         
         //Voucher
         User.belongsToMany(Voucher, {through:'voucher_user',foreignKey:'user_id'});
@@ -105,7 +105,7 @@ async function syncDatabase() {
         const raw_category = await JSON.parse(fs.readFileSync(path.join(__dirname, '/static/categories_table.json'), 'utf-8'));
         const rawPermission = await JSON.parse(fs.readFileSync(path.join(__dirname, '/static/permission_data.json'), 'utf-8'));
         const raw_prod_cate = await JSON.parse(fs.readFileSync(path.join(__dirname, '/static/category_prod.json'), 'utf-8'));
-
+        const raw_images = await JSON.parse(fs.readFileSync(path.join(__dirname, '/static/image_table.json'), 'utf-8'));
         const dataProvince = Object.values(rawProvince);
         const dataDistrict = Object.values(rawDistrict);
         const dataWard = Object.values(rawWard);
@@ -119,6 +119,7 @@ async function syncDatabase() {
         await Image.bulkCreate(rawImage, {ignoreDuplicates: true})
         await product_model.ProductDetails.bulkCreate(raw_product_details, {ignoreDuplicates: true})
         await Category.bulkCreate(raw_category, {ignoreDuplicates: true})
+        await Image.bulkCreate(raw_images, {ignoreDuplicates: true});
 
         await permission_model.Permission.bulkCreate(rawPermission.permissions);
         await permission_model.Role.bulkCreate(rawPermission.roles);
@@ -157,8 +158,10 @@ app.get('/', (req, res) => {
 
 
 app.use('/api/auth', authentication);
-app.use('/api',productRouter);
+app.use('/api',productRouter)
+app.use('/api',image_router)
 app.use('/api',orderRouter);
+
 
 
 app.post('/upload-multiple', upload.array('images', 10), (req, res) => {
