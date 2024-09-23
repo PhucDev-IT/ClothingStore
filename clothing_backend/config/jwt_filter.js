@@ -1,6 +1,7 @@
 import dotenv from 'dotenv';
 import jwt from 'jsonwebtoken';
 import Models from '../models/response/ResponseModel.js';
+import logger from '../utils/logger.js';
 
 dotenv.config();
 
@@ -22,6 +23,7 @@ export const authenticateToken = (req, res, next) => {
 };
 
 export const authorizeRole = (roles) => {
+    logger.info("Role user: "+roles);
     return (req, res, next) => {
         if (!roles.includes(req.user.role)) {
             return  res.status(403).json(new Models.ResponseModel(false, new Models.ErrorResponseModel(1, "Bạn không có quyền truy cập", null), null));

@@ -7,16 +7,16 @@ import logger from "../utils/logger.js";
 import Image from "../models/image_model.js";
 import response_model from "../models/response/ResponseModel.js";
 import cart_model from "../models/cart_model.js";
-
+import { CartResponseModel, CartItemResponseModel } from '../models/response/CartResponseModel.js'
 
 
 //Add new cart
 //Step 1: check permission, only user
 //Step 2: validate data
 //
-router.post('/',authenticateToken,authorizeRole['user'],async (req,res,next)=>{
+router.post('/cart',authenticateToken,authorizeRole(["user"]),async (req,res,next)=>{
     const { user_id, product_details_id, quantity, color, size } = req.body;
-
+    logger.info("CART - POST: ");
     try {
         // Kiểm tra xem giỏ hàng của user đã tồn tại chưa
         let cart = await cart_model.Cart.findOne({ where: { user_id } });
@@ -34,21 +34,14 @@ router.post('/',authenticateToken,authorizeRole['user'],async (req,res,next)=>{
             color,
             size
         });
-
-        return res.status(201).json({
-            success: true,
-            message: 'Product added to cart successfully!',
-            cartItem
-        });
+       
+        return res.status(200).json(new Models.ResponseModel(true, null, cartItem));
     } catch (error) {
         console.error('Error adding product to cart:', error);
-        return res.status(500).json({
-            success: false,
-            message: 'Error adding product to cart',
-            error: error.message
-        });
+        return res.status(500).json(new Models.ResponseModel(false, new Models.ErrorResponseModel(1, "Lỗi hệ thống", error.message), null));
     }
 });
+import { format } from "mysql2";
 
 
 

@@ -5,7 +5,7 @@ import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import fs from 'fs';
 import path from 'path';
-import sequelize  from './connection/mysql.js';
+import sequelize from './connection/mysql.js';
 import user from './models/user_model.js';
 import permission from './models/permission_model.js';
 import Category from './models/category_model.js';
@@ -22,13 +22,14 @@ import logger from './utils/logger.js';
 import authentication from './routers/authentication_router.js'
 import productRouter from './routers/product_router.js'
 import orderRouter from './routers/order_router.js'
-
 import bodyParser from 'body-parser';
 import LogLogin from './models/log_login.js';
 import permission_model from './models/permission_model.js';
 import upload from './config/upload.js';
 import { authenticateToken, authorizeRole } from './config/jwt_filter.js'
 import image_router from './routers/images_route.js'
+import cart_router from './routers/cart_route.js'
+
 //Application config
 dotenv.config();
 const port = process.env.PORT || 8080
@@ -58,41 +59,57 @@ async function syncDatabase() {
         await sequelize.authenticate();
         logger.info('Connection has been established successfully.');
 
-        product_model.Product.belongsToMany(Category,{through: 'category_product',foreignKey:'product_id'});
-        Category.belongsToMany(product_model.Product,{through: 'category_product',foreignKey: 'category_id'});
+
+        // Định nghĩa quan hệ giữa User và Order
+        User.hasMany(order_model.Order, { foreignKey: 'user_id' });   // Một User có thể có nhiều Order
+        order_model.Order.belongsTo(User, { foreignKey: 'user_id' }); // Một Order chỉ thuộc về một User
+
+
+        product_model.Product.belongsToMany(Category, { through: 'category_product', foreignKey: 'product_id' });
+        Category.belongsToMany(product_model.Product, { through: 'category_product', foreignKey: 'category_id' });
 
 
         //Cart
         User.hasOne(cart_model.Cart, { foreignKey: 'user_id' });
         cart_model.Cart.belongsTo(User, { foreignKey: 'user_id' });
-        
 
-        cart_model.Cart.hasMany(cart_model.CartItem, {foreignKey:'cart_id'});
-        cart_model.CartItem.belongsTo(cart_model.Cart, {foreignKey:'cart_detail_id'});
-        cart_model.CartItem.belongsTo(product_model.ProductDetails, {foreignKey:'cart_detail_id'});
-        product_model.ProductDetails.hasMany(cart_model.CartItem, {foreignKey:'product_detail_id'});
+
+        cart_model.Cart.hasMany(cart_model.CartItem, { foreignKey: 'cart_id' });
+        cart_model.CartItem.belongsTo(cart_model.Cart, { foreignKey: 'cart_detail_id' });
+        cart_model.CartItem.belongsTo(product_model.ProductDetails, { foreignKey: 'cart_detail_id' });
+        product_model.ProductDetails.hasMany(cart_model.CartItem, { foreignKey: 'product_detail_id' });
 
         //Notification
-        User.hasMany(Notification, {foreignKey:'user_id'});
-        Notification.belongsTo(User, {foreignKey:'notification_id'});
+        User.hasMany(Notification, { foreignKey: 'user_id' });
+        Notification.belongsTo(User, { foreignKey: 'notification_id' });
 
         //Order : n - n Product
-        order_model.Order.belongsToMany(product_model.Product, {through : order_model.OrderItem,foreignKey: 'order_id'});
-        product_model.Product.belongsToMany(order_model.Order,  {through : order_model.OrderItem,foreignKey: 'product_id'})
-        order_model.OrderItem.belongsTo(product_model.ProductDetails,{foreignKey: 'order_details_id'});
-        product_model.ProductDetails.hasMany(order_model.OrderItem,{foreignKey:'product_details_id'})
-        
 
-        Voucher.hasMany(order_model.Order, {foreignKey:'voucher_id'});
-        order_model.Order.belongsTo(Voucher, {foreignKey:'order_id'});
+        order_model.Order.belongsToMany(product_model.Product, {
+            through: order_model.OrderItem,
+            foreignKey: 'order_id',    // Khóa ngoại trong OrderItem trỏ tới Order
+            otherKey: 'product_id'     // Khóa ngoại trong OrderItem trỏ tới Product
+        });
+
+        product_model.Product.belongsToMany(order_model.Order, {
+            through: order_model.OrderItem,
+            foreignKey: 'product_id',  // Khóa ngoại trong OrderItem trỏ tới Product
+            otherKey: 'order_id'       // Khóa ngoại trong OrderItem trỏ tới Order
+        });
+        order_model.OrderItem.belongsTo(product_model.ProductDetails, { foreignKey: 'order_details_id' });
+        product_model.ProductDetails.hasMany(order_model.OrderItem, { foreignKey: 'product_details_id' })
+
+
+        Voucher.hasMany(order_model.Order, { foreignKey: 'voucher_id' });
+        order_model.Order.belongsTo(Voucher, { foreignKey: 'voucher_id' });
         //Product - ProductDetail
-        product_model.Product.hasMany(product_model.ProductDetails, {foreignKey:'product_id'});
-    
-        
+        product_model.Product.hasMany(product_model.ProductDetails, { foreignKey: 'product_id' });
+
+
         //Voucher
-        User.belongsToMany(Voucher, {through:'voucher_user',foreignKey:'user_id'});
-        Voucher.belongsToMany(User, {through:'voucher_user',foreignKey:'voucher_id'});
-    
+        User.belongsToMany(Voucher, { through: 'voucher_user', foreignKey: 'user_id' });
+        Voucher.belongsToMany(User, { through: 'voucher_user', foreignKey: 'voucher_id' });
+
 
         await sequelize.sync({ force: true }); // Sử dụng { force: true } để xóa và tạo lại bảng
 
@@ -109,17 +126,17 @@ async function syncDatabase() {
         const dataProvince = Object.values(rawProvince);
         const dataDistrict = Object.values(rawDistrict);
         const dataWard = Object.values(rawWard);
-        
 
-        await address_model.Province.bulkCreate(dataProvince, {ignoreDuplicates: true})
-        await address_model.District.bulkCreate(dataDistrict, {ignoreDuplicates: true})
-        await address_model.Ward.bulkCreate(dataWard, {ignoreDuplicates: true})
 
-        await product_model.Product.bulkCreate(rawProduct, {ignoreDuplicates: true})
-        await Image.bulkCreate(rawImage, {ignoreDuplicates: true})
-        await product_model.ProductDetails.bulkCreate(raw_product_details, {ignoreDuplicates: true})
-        await Category.bulkCreate(raw_category, {ignoreDuplicates: true})
-        await Image.bulkCreate(raw_images, {ignoreDuplicates: true});
+        await address_model.Province.bulkCreate(dataProvince, { ignoreDuplicates: true })
+        await address_model.District.bulkCreate(dataDistrict, { ignoreDuplicates: true })
+        await address_model.Ward.bulkCreate(dataWard, { ignoreDuplicates: true })
+
+        await product_model.Product.bulkCreate(rawProduct, { ignoreDuplicates: true })
+        await Image.bulkCreate(rawImage, { ignoreDuplicates: true })
+        await product_model.ProductDetails.bulkCreate(raw_product_details, { ignoreDuplicates: true })
+        await Category.bulkCreate(raw_category, { ignoreDuplicates: true })
+        await Image.bulkCreate(raw_images, { ignoreDuplicates: true });
 
         await permission_model.Permission.bulkCreate(rawPermission.permissions);
         await permission_model.Role.bulkCreate(rawPermission.roles);
@@ -128,17 +145,17 @@ async function syncDatabase() {
         const roleHasPermissionData = rawPermission.roleHasPermission.map((entry) => {
             const role = roles.find(r => r.name === entry.role_name);
             const permission = permissions.find(p => p.name === entry.permission_name);
-    
+
             return {
-              role_id: role.id,
-              permission_id: permission.id
+                role_id: role.id,
+                permission_id: permission.id
             };
-          });
-    
-          // Sử dụng bulkCreate để thêm dữ liệu vào bảng trung gian
-          await sequelize.model('role_has_permission').bulkCreate(roleHasPermissionData);
-          await sequelize.model('category_product').bulkCreate(raw_prod_cate);
-    
+        });
+
+        // Sử dụng bulkCreate để thêm dữ liệu vào bảng trung gian
+        await sequelize.model('role_has_permission').bulkCreate(roleHasPermissionData);
+        await sequelize.model('category_product').bulkCreate(raw_prod_cate);
+
         // Đồng bộ hóa cơ sở dữ liệu
         logger.info('All tables created successfully!');
     } catch (error) {
@@ -158,10 +175,10 @@ app.get('/', (req, res) => {
 
 
 app.use('/api/auth', authentication);
-app.use('/api',productRouter)
-app.use('/api',image_router)
-app.use('/api',orderRouter);
-
+app.use('/api', productRouter)
+app.use('/api', image_router)
+app.use('/api', orderRouter);
+app.use('/api', cart_router);
 
 
 app.post('/upload-multiple', upload.array('images', 10), (req, res) => {
