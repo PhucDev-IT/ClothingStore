@@ -61,6 +61,7 @@ async function syncDatabase() {
         await sequelize.authenticate();
         logger.info('Connection has been established successfully.');
 
+        const is_reset_database = true;
 
         // Định nghĩa quan hệ giữa User và Order
         User.hasMany(order_model.Order, { foreignKey: 'user_id' });   // Một User có thể có nhiều Order
@@ -113,7 +114,12 @@ async function syncDatabase() {
         Voucher.belongsToMany(User, { through: 'voucher_user', foreignKey: 'voucher_id' });
 
 
-        await sequelize.sync({ force: true }); // Sử dụng { force: true } để xóa và tạo lại bảng
+        await sequelize.sync({ force: is_reset_database }); // Sử dụng { force: true } để xóa và tạo lại bảng
+
+        if(!is_reset_database){
+            logger.info('Not allow reset database!');
+            return;  
+        }
 
         const rawProvince = await JSON.parse(fs.readFileSync(path.join(__dirname, '/static/tinh_tp.json'), 'utf-8'));
         const rawDistrict = await JSON.parse(fs.readFileSync(path.join(__dirname, '/static/quan_huyen.json'), 'utf-8'));
