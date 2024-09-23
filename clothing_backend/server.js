@@ -21,7 +21,8 @@ import swaggerDocs from './utils/swagger.js';
 import logger from './utils/logger.js';
 import authentication from './routers/authentication_router.js'
 import productRouter from './routers/product_router.js'
-import categoryRouter from './routers/product_router.js'
+import orderRouter from './routers/order_router.js'
+
 import bodyParser from 'body-parser';
 import LogLogin from './models/log_login.js';
 import permission_model from './models/permission_model.js';
@@ -156,8 +157,8 @@ app.get('/', (req, res) => {
 
 
 app.use('/api/auth', authentication);
-app.use('/api',productRouter)
-    
+app.use('/api',productRouter);
+app.use('/api',orderRouter);
 
 
 app.post('/upload-multiple', upload.array('images', 10), (req, res) => {
