@@ -2,7 +2,6 @@ import express from "express";
 import Joi from "joi";
 const router = express.Router(); // Sử dụng express.Router()
 import { formatValidationError } from "../utils/exception.js";
-import { authenticateToken, authorizeRole } from "../config/jwt_filter.js";
 import logger from "../utils/logger.js";
 import Image from "../models/image_model.js";
 import Models from "../models/response/ResponseModel.js";

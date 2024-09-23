@@ -29,7 +29,6 @@ import bodyParser from 'body-parser';
 import LogLogin from './models/log_login.js';
 import permission_model from './models/permission_model.js';
 import upload from './config/upload.js';
-import { authenticateToken, authorizeRole } from './config/jwt_filter.js'
 import image_router from './routers/images_route.js'
 import cart_router from './routers/cart_route.js'
 
@@ -183,11 +182,6 @@ app.use('/api',productRouter)
 app.use('/api',image_router)
 app.use('/api',orderRouter);
 app.use('/api',cart_Router);
-
-app.use('/api', productRouter)
-app.use('/api', image_router)
-app.use('/api', orderRouter);
-app.use('/api', cart_router);
 
 
 

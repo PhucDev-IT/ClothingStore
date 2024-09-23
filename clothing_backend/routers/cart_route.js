@@ -9,14 +9,16 @@ import response_model from "../models/response/ResponseModel.js";
 import cart_model from "../models/cart_model.js";
 import { CartResponseModel, CartItemResponseModel } from '../models/response/CartResponseModel.js'
 
-
+import Models from '../models/response/ResponseModel.js';
 //Add new cart
 //Step 1: check permission, only user
 //Step 2: validate data
 //
 router.post('/cart',authenticateToken,authorizeRole(["user"]),async (req,res,next)=>{
-    const { user_id, product_details_id, quantity, color, size } = req.body;
-    logger.info("CART - POST: ");
+    const { product_details_id, quantity, color, size } = req.body;
+
+    const user_id = req.user.id;
+    logger.info("user_id request: "+user_id);
     try {
         // Kiểm tra xem giỏ hàng của user đã tồn tại chưa
         let cart = await cart_model.Cart.findOne({ where: { user_id } });
@@ -41,7 +43,7 @@ router.post('/cart',authenticateToken,authorizeRole(["user"]),async (req,res,nex
         return res.status(500).json(new Models.ResponseModel(false, new Models.ErrorResponseModel(1, "Lỗi hệ thống", error.message), null));
     }
 });
-import { format } from "mysql2";
+
 
 
 router.put('/:cartItemId',  async (req, res, next) => {
