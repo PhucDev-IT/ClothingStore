@@ -7,17 +7,57 @@ import logger from "../utils/logger.js";
 import Image from "../models/image_model.js";
 import response_model from "../models/response/ResponseModel.js";
 import cart_model from "../models/cart_model.js";
-import { CartResponseModel, CartItemResponseModel } from '../models/response/CartResponseModel.js'
-
-
+import CartResponseModels from '../models/response/CartResponseModel.js'
+import Models from "../models/response/ResponseModel.js";
 //Add new cart
 //Step 1: check permission, only user
 //Step 2: validate data
 //
-router.post('/cart',authenticateToken,authorizeRole(["user"]),async (req,res,next)=>{
+
+router.get('/', authenticateToken, authorizeRole(["user"]), async (req, res, next) => {
+    try {
+        const user_id = req.user.id;
+        const cart = await cart_model.Cart.findOne({ where: { user_id } });
+        if (!cart) {
+            const errorResponse = new Models.ErrorResponseModel('CART_NOT_FOUND', 'Cart not found for the user.');
+            return res.status(404).json(new Models.ResponseModel(false, errorResponse));
+        }
+
+        const cartItems = await cart_model.CartItem.findAll({
+            where: { cart_id: cart.id },
+            include: [{ model: cart_model.Product }]  
+        });
+
+        const cartItemResponses = cartItems.map(cartItem => {
+            const product = cartItem.Product; 
+            return new CartResponseModels.CartItemResponseModel(
+                cartItem.id,
+                product.id,
+                cartItem.quantity,
+                cartItem.color,
+                cartItem.size,
+                product.image,   
+                product.name,    
+                product.price    
+            );
+        });
+
+        const cartResponse = new CartResponseModels.CartResponseModel(req.user, null, cartItemResponses);
+
+        return res.status(200).json(new Models.ResponseModel(true, null, cartResponse));
+    } catch (error) {
+        logger.error('Error fetching cart items:', error);
+        const errorResponse = new Models.ErrorResponseModel('INTERNAL_SERVER_ERROR', 'Error fetching cart items', [error.message]);
+        return res.status(500).json(new Models.ResponseModel(false, errorResponse));
+    }
+});
+
+
+router.post('/',authenticateToken,authorizeRole(["user"]),async (req,res,next)=>{
     const { user_id, product_details_id, quantity, color, size } = req.body;
     logger.info("CART - POST: ");
     try {
+
         // Kiểm tra xem giỏ hàng của user đã tồn tại chưa
         let cart = await cart_model.Cart.findOne({ where: { user_id } });
 
@@ -41,10 +81,9 @@ router.post('/cart',authenticateToken,authorizeRole(["user"]),async (req,res,nex
         return res.status(500).json(new Models.ResponseModel(false, new Models.ErrorResponseModel(1, "Lỗi hệ thống", error.message), null));
     }
 });
-import { format } from "mysql2";
 
 
-router.put('/:cartItemId',  async (req, res, next) => {
+router.put('/:cartItemId', authenticateToken,authorizeRole(["user"]), async (req, res, next) => {
     const { cartItemId } = req.params;
     const { quantity, color, size } = req.body;
 
@@ -83,7 +122,7 @@ router.put('/:cartItemId',  async (req, res, next) => {
     }
 });
 
-router.delete('/:cartItemId',  async (req, res, next) => {
+router.delete('/:cartItemId', authenticateToken,authorizeRole(["user"]), async (req, res, next) => {
     const { cartItemId } = req.params;
     try {
         // Tìm kiếm item trong giỏ hàng dựa trên cartItemId
