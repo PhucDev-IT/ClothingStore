@@ -22,7 +22,7 @@ import logger from './utils/logger.js';
 import authentication from './routers/authentication_router.js'
 import productRouter from './routers/product_router.js'
 import orderRouter from './routers/order_router.js'
-
+import cart_Router from './routers/cart_route.js'
 import bodyParser from 'body-parser';
 import LogLogin from './models/log_login.js';
 import permission_model from './models/permission_model.js';
@@ -161,7 +161,7 @@ app.use('/api/auth', authentication);
 app.use('/api',productRouter)
 app.use('/api',image_router)
 app.use('/api',orderRouter);
-
+app.use('/api',cart_Router);
 
 
 app.post('/upload-multiple', upload.array('images', 10), (req, res) => {

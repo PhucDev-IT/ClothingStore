@@ -51,6 +51,75 @@ router.post('/',authenticateToken,authorizeRole['user'],async (req,res,next)=>{
 });
 
 
+router.put('/:cartItemId',  async (req, res, next) => {
+    const { cartItemId } = req.params;
+    const { quantity, color, size } = req.body;
+
+    try {
+        // Tìm kiếm item trong giỏ hàng dựa trên cartItemId
+        let cartItem = await cart_model.CartItem.findOne({ where: { id: cartItemId } });
+
+        // Nếu không tìm thấy item, trả về lỗi
+        if (!cartItem) {
+            return res.status(404).json({
+                success: false,
+                message: 'Cart item not found!'
+            });
+        }
+
+        // Cập nhật thông tin của sản phẩm trong giỏ hàng
+        await cartItem.update({
+            //Nếu không thay đổi thì giữ nguyên
+            quantity: quantity || cartItem.quantity, 
+            color: color || cartItem.color,          
+            size: size || cartItem.size              
+        });
+
+        return res.status(200).json({
+            success: true,
+            message: 'Cart item updated successfully!',
+            cartItem
+        });
+    } catch (error) {
+        console.error('Error updating cart item:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Error updating cart item',
+            error: error.message
+        });
+    }
+});
+
+router.delete('/:cartItemId',  async (req, res, next) => {
+    const { cartItemId } = req.params;
+    try {
+        // Tìm kiếm item trong giỏ hàng dựa trên cartItemId
+        const cartItem = await cart_model.CartItem.findOne({ where: { id: cartItemId } });
+
+        // Nếu không tìm thấy item, trả về lỗi
+        if (!cartItem) {
+            return res.status(404).json({
+                success: false,
+                message: 'Cart item not found!'
+            });
+        }
+
+        // Xóa item khỏi giỏ hàng
+        await cartItem.destroy();
+
+        return res.status(200).json({
+            success: true,
+            message: 'Cart item deleted successfully!'
+        });
+    } catch (error) {
+        console.error('Error deleting cart item:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Error deleting cart item',
+            error: error.message
+        });
+    }
+});
 
 
 export default router;
