@@ -23,7 +23,6 @@ router.get('/', authenticateToken, authorizeRole(["user"]), async (req, res, nex
             const errorResponse = new Models.ErrorResponseModel('CART_NOT_FOUND', 'Cart not found for the user.');
             return res.status(404).json(new Models.ResponseModel(false, errorResponse));
         }
-
         const cartItems = await cart_model.CartItem.findAll({
             where: { cart_id: cart.id },
             include: [{ model: cart_model.Product }]  
@@ -83,8 +82,6 @@ router.post('/',authenticateToken,authorizeRole(["user"]),async (req,res,next)=>
         return res.status(500).json(new Models.ResponseModel(false, new Models.ErrorResponseModel(1, "Lỗi hệ thống", error.message), null));
     }
 });
-
-
 
 
 router.put('/:cartItemId', authenticateToken,authorizeRole(["user"]), async (req, res, next) => {
