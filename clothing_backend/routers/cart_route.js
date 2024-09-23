@@ -15,7 +15,7 @@ import Models from "../models/response/ResponseModel.js";
 //Step 2: validate data
 //
 
-router.get('/', authenticateToken, authorizeRole(["user"]), async (req, res, next) => {
+router.get('/cart', authenticateToken, authorizeRole(["user"]), async (req, res, next) => {
     try {
         const user_id = req.user.id;
         const cart = await cart_model.Cart.findOne({ where: { user_id } });
@@ -46,17 +46,17 @@ router.get('/', authenticateToken, authorizeRole(["user"]), async (req, res, nex
 
         return res.status(200).json(new Models.ResponseModel(true, null, cartResponse));
     } catch (error) {
-        logger.error('Error fetching cart items:', error);
+        logger.error('Error fetching cart items:', error.message);
         const errorResponse = new Models.ErrorResponseModel('INTERNAL_SERVER_ERROR', 'Error fetching cart items', [error.message]);
         return res.status(500).json(new Models.ResponseModel(false, errorResponse));
     }
 });
 
 
-router.post('/',authenticateToken,authorizeRole(["user"]),async (req,res,next)=>{
+router.post('/cart',authenticateToken,authorizeRole(["user"]),async (req,res,next)=>{
     const { product_details_id, quantity, color, size } = req.body;
     const user_id = req.user.id;
-    logger.info("user_id request: "+user_id);
+    logger.info("user_id request add cart: " + user_id);
     try {
 
         // Kiểm tra xem giỏ hàng của user đã tồn tại chưa
@@ -67,18 +67,33 @@ router.post('/',authenticateToken,authorizeRole(["user"]),async (req,res,next)=>
             cart = await cart_model.Cart.create({ user_id });
         }
 
-        // Thêm sản phẩm vào giỏ hàng
-        const cartItem = await cart_model.CartItem.create({
-            product_details_id,
-            cart_id: cart.id,
-            quantity,
-            color,
-            size
+        // Kiểm tra xem sản phẩm đã tồn tại trong giỏ hàng chưa
+        let cartItem = await cart_model.CartItem.findOne({
+            where: {
+                product_details_id: product_details_id,
+                cart_id: cart.id,
+                color: color,
+                size: size
+            }
         });
-       
+
+        if (cartItem) {
+            // Nếu sản phẩm đã tồn tại, cập nhật số lượng
+            cartItem = await cartItem.update({ quantity: cartItem.quantity + quantity });
+        } else {
+            // Nếu sản phẩm chưa tồn tại, tạo mới
+            cartItem = await cart_model.CartItem.create({
+                product_details_id: product_details_id,
+                cart_id: cart.id,
+                quantity: quantity,
+                color: color,
+                size: size
+            });
+        }
+
         return res.status(200).json(new Models.ResponseModel(true, null, cartItem));
     } catch (error) {
-        console.error('Error adding product to cart:', error);
+        logger.error('Error adding product to cart:', error);
         return res.status(500).json(new Models.ResponseModel(false, new Models.ErrorResponseModel(1, "Lỗi hệ thống", error.message), null));
     }
 });
