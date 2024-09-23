@@ -40,7 +40,7 @@ router.get("/products", async (req, res, next) => {
     });
 });
 
-//find product by id
+//find product by id - return additional details
 router.put("products/:id", async (req, res, next) => {
     try {
         const id = req.params.id;
