@@ -9,6 +9,7 @@ import response_model from "../models/response/ResponseModel.js";
 import cart_model from "../models/cart_model.js";
 import CartResponseModels from '../models/response/CartResponseModel.js'
 import Models from "../models/response/ResponseModel.js";
+import product_model from "../models/product_model.js";
 
 //Add new cart
 //Step 1: check permission, only user
@@ -18,33 +19,43 @@ import Models from "../models/response/ResponseModel.js";
 router.get('/cart', authenticateToken, authorizeRole(["user"]), async (req, res, next) => {
     try {
         const user_id = req.user.id;
-        const cart = await cart_model.Cart.findOne({ where: { user_id } });
+        logger.info("Fetching cart for user_id: " + user_id);   
+
+        // Tìm giỏ hàng cho người dùng và bao gồm CartItems và ProductDetails
+        const cart = await cart_model.Cart.findOne({
+            where: { user_id },
+            include: [
+                {
+                    model: cart_model.CartItem,
+                    include: [
+                        {
+                            model: product_model.ProductDetails
+                        }
+                    ]
+                }
+            ]
+        });
+
+        //console.log('Cart:', JSON.stringify(cart, null, 2));
         if (!cart) {
             const errorResponse = new Models.ErrorResponseModel('CART_NOT_FOUND', 'Cart not found for the user.');
             return res.status(404).json(new Models.ResponseModel(false, errorResponse));
         }
-        const cartItems = await cart_model.CartItem.findAll({
-            where: { cart_id: cart.id },
-            include: [{ model: cart_model.Product }]  
-        });
 
-        const cartItemResponses = cartItems.map(cartItem => {
-            const product = cartItem.Product; 
-            return new CartResponseModels.CartItemResponseModel(
-                cartItem.id,
-                product.id,
-                cartItem.quantity,
-                cartItem.color,
-                cartItem.size,
-                product.image,   
-                product.name,    
-                product.price    
-            );
-        });
+        // Lấy thông tin cart_items
+        const cartItems = cart.cart_items.map(cartItem => ({
+            id: cartItem.id,
+            product_details_id: cartItem.product_details_id,
+            cart_id: cartItem.cart_id,
+            quantity: cartItem.quantity,
+            color: cartItem.color,
+            size: cartItem.size,
+            createdAt: cartItem.createdAt,
+            updatedAt: cartItem.updatedAt
+        }));
 
-        const cartResponse = new CartResponseModels.CartResponseModel(req.user, null, cartItemResponses);
-
-        return res.status(200).json(new Models.ResponseModel(true, null, cartResponse));
+        // Trả về phản hồi với cart_items
+        return res.status(200).json(new Models.ResponseModel(true, null, { cart_items: cartItems }));
     } catch (error) {
         logger.error('Error fetching cart items:', error.message);
         const errorResponse = new Models.ErrorResponseModel('INTERNAL_SERVER_ERROR', 'Error fetching cart items', [error.message]);
@@ -99,7 +110,7 @@ router.post('/cart',authenticateToken,authorizeRole(["user"]),async (req,res,nex
 });
 
 
-router.put('/:cartItemId', authenticateToken,authorizeRole(["user"]), async (req, res, next) => {
+router.put('/cart/:cartItemId', authenticateToken,authorizeRole(["user"]), async (req, res, next) => {
     const { cartItemId } = req.params;
     const { quantity, color, size } = req.body;
 
@@ -138,7 +149,7 @@ router.put('/:cartItemId', authenticateToken,authorizeRole(["user"]), async (req
     }
 });
 
-router.delete('/:cartItemId', authenticateToken,authorizeRole(["user"]), async (req, res, next) => {
+router.delete('/cart/:cartItemId', authenticateToken,authorizeRole(["user"]), async (req, res, next) => {
     const { cartItemId } = req.params;
     try {
         // Tìm kiếm item trong giỏ hàng dựa trên cartItemId
