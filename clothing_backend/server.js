@@ -22,15 +22,13 @@ import logger from './utils/logger.js';
 import authentication from './routers/authentication_router.js'
 import productRouter from './routers/product_router.js'
 import orderRouter from './routers/order_router.js'
-
-import cart_Router from './routers/cart_route.js'
-
 import bodyParser from 'body-parser';
 import LogLogin from './models/log_login.js';
 import permission_model from './models/permission_model.js';
 import upload from './config/upload.js';
 import image_router from './routers/images_route.js'
 import cart_router from './routers/cart_route.js'
+import address_route from './routers/address_route.js'
 
 //Application config
 dotenv.config();
@@ -67,9 +65,28 @@ async function syncDatabase() {
         User.hasMany(order_model.Order, { foreignKey: 'user_id' });   // Một User có thể có nhiều Order
         order_model.Order.belongsTo(User, { foreignKey: 'user_id' }); // Một Order chỉ thuộc về một User
 
+        User.hasMany(LogLogin, { foreignKey: 'user_id' });   // Một User có thể có nhiều Order
+        LogLogin.belongsTo(User, { foreignKey: 'user_id' }); // Một Order chỉ thuộc về một User
+
 
         product_model.Product.belongsToMany(Category, { through: 'category_product', foreignKey: 'product_id' });
         Category.belongsToMany(product_model.Product, { through: 'category_product', foreignKey: 'category_id' });
+
+        product_model.ProductDetails.belongsTo(product_model.Product, { foreignKey: 'product_id' });
+        product_model.Product.hasMany(product_model.ProductDetails, { foreignKey: 'product_id' });
+
+        //Address
+        User.hasMany(address_model.DeliveryInformation,{foreignKey:'user_id'});
+        address_model.DeliveryInformation.belongsTo(User, { foreignKey: 'user_id' });
+
+        address_model.Province.hasMany(address_model.DeliveryInformation,{foreignKey:'province_id'});
+        address_model.DeliveryInformation.belongsTo(address_model.Province,{foreignKey:'province_id'});   
+        
+        address_model.District.hasMany(address_model.DeliveryInformation,{foreignKey:'district_id'});
+        address_model.DeliveryInformation.belongsTo(address_model.District,{foreignKey:'district_id'});   
+
+        address_model.Ward.hasMany(address_model.DeliveryInformation,{foreignKey:'ward_id'});
+        address_model.DeliveryInformation.belongsTo(address_model.Ward,{foreignKey:'ward_id'}); 
 
 
         //Cart
@@ -85,7 +102,7 @@ async function syncDatabase() {
 
         //Notification
         User.hasMany(Notification, { foreignKey: 'user_id' });
-        Notification.belongsTo(User, { foreignKey: 'notification_id' });
+        Notification.belongsTo(User, { foreignKey: 'user_id' });
 
         //Order : n - n Product
 
@@ -100,9 +117,8 @@ async function syncDatabase() {
             foreignKey: 'product_id',  // Khóa ngoại trong OrderItem trỏ tới Product
             otherKey: 'order_id'       // Khóa ngoại trong OrderItem trỏ tới Order
         });
-        order_model.OrderItem.belongsTo(product_model.ProductDetails, { foreignKey: 'order_details_id' });
-        product_model.ProductDetails.hasMany(order_model.OrderItem, { foreignKey: 'product_details_id' })
 
+    
 
         Voucher.hasMany(order_model.Order, { foreignKey: 'voucher_id' });
         order_model.Order.belongsTo(Voucher, { foreignKey: 'voucher_id' });
@@ -187,9 +203,9 @@ app.use('/api/auth', authentication);
 
 app.use('/api',productRouter)
 app.use('/api',image_router)
-app.use('/api',orderRouter);
-app.use('/api',cart_Router);
-
+app.use('/api/orders',orderRouter);
+app.use('/api',cart_router);
+app.use('/api/address',address_route);
 
 
 app.post('/upload-multiple', upload.array('images', 10), (req, res) => {

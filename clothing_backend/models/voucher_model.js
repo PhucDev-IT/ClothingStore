@@ -37,10 +37,7 @@ const Voucher = sequelize.define('voucher', {
         type: DataTypes.BOOLEAN,
         allowNull: false,
     },
-    user_id:{
-        type: DataTypes.STRING,
-        allowNull: true,
-    },
+
 }, {
     timestamps: true //Tự động thêm các trường createdAt và updatedAt
 });

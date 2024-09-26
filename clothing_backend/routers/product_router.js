@@ -121,13 +121,9 @@ router.get("/categories/:id/products", async (req, res, next) => {
         const limit = parseInt(req.query.limit) || 20; 
         const offset = parseInt(req.query.offset) || 0; 
 
-        logger.warn("categoryId: " + categoryId);
-        logger.warn("Limit: " + limit);
-        logger.warn("Offset: " + offset);
-
         const category = await Category.findByPk(categoryId);
         if (!category) {
-            return res.status(404).json(new Models.ResponseModel(false, new Models.ErrorResponseModel(1, "Category not found", null), null));
+            return res.json(new Models.ResponseModel(false, new Models.ErrorResponseModel(1, "Category not found", null), null));
         }
 
         // Lấy danh sách sản phẩm thuộc về danh mục này với phân trang
@@ -141,7 +137,7 @@ router.get("/categories/:id/products", async (req, res, next) => {
             offset: offset,
         });
 
-        return res.status(200).json(new Models.ResponseModel(true, null, products));
+        return res.json(new Models.ResponseModel(true, null, products));
     } catch (error) {
         logger.error("Error fetching products:", error);
         return res.status(500).json(new Models.ResponseModel(false, new Models.ErrorResponseModel(1, "Lỗi hệ thống", error.message), null));

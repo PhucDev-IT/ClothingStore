@@ -25,15 +25,16 @@ const Order = sequelize.define('order', {
     },
 
     status :{
-        type: DataTypes.BOOLEAN,
+        type: DataTypes.STRING,
         allowNull: false,
+        defaultValue:()=>"PENDING"
     },
     voucher_id:{
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true,
     },
 
-    shipping_address :{
+    delivery_information :{
         type: DataTypes.STRING,
         allowNull: false,
     },
@@ -59,8 +60,12 @@ const OrderItem = sequelize.define('order_item',{
         type: DataTypes.STRING,
         allowNull: false,
     },
-    product_detail_id: {
-        type: DataTypes.INTEGER,
+    color:{
+        type: DataTypes.STRING,
+        allowNull: false,
+    }, 
+    size:{
+        type: DataTypes.STRING,
         allowNull: false,
     },
     quantity:{
@@ -75,13 +80,5 @@ const OrderItem = sequelize.define('order_item',{
 })
 
 
-// Order.hasMany(OrderDetails, {foreignKey: 'order_id'});
-// OrderDetails.belongsTo(Order,{foreignKey: 'order_details_id'});
-
-// Voucher.hasMany(Order, {foreignKey:'voucher_id'});
-// Order.belongsTo(Voucher, {foreignKey:'order_id'});
-
-// OrderDetails.hasMany(ProductDetails, {foreignKey:'order_details_id'});
-// ProductDetails.belongsTo(OrderDetails,{foreignKey:'product_detail_id'});
 
 export default {Order, OrderItem};

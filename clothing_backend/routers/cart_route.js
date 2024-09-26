@@ -7,21 +7,17 @@ import logger from "../utils/logger.js";
 import Image from "../models/image_model.js";
 import response_model from "../models/response/ResponseModel.js";
 import cart_model from "../models/cart_model.js";
-import CartResponseModels from '../models/response/CartResponseModel.js'
+import cart_response from '../models/response/CartResponseModel.js'
 import Models from "../models/response/ResponseModel.js";
 import product_model from "../models/product_model.js";
 
-//Add new cart
-//Step 1: check permission, only user
-//Step 2: validate data
-//
 
-router.get('/cart', authenticateToken, authorizeRole(["user"]), async (req, res, next) => {
+router.get('/carts', authenticateToken, authorizeRole(["user"]), async (req, res, next) => {
     try {
         const user_id = req.user.id;
-        logger.info("Fetching cart for user_id: " + user_id);   
+        logger.info("Fetching cart for user_id: " + user_id);
 
-        // Tìm giỏ hàng cho người dùng và bao gồm CartItems và ProductDetails
+        // Tìm giỏ hàng cho người dùng và bao gồm CartItems, ProductDetails và Product
         const cart = await cart_model.Cart.findOne({
             where: { user_id },
             include: [
@@ -29,33 +25,37 @@ router.get('/cart', authenticateToken, authorizeRole(["user"]), async (req, res,
                     model: cart_model.CartItem,
                     include: [
                         {
-                            model: product_model.ProductDetails
+                            model: product_model.ProductDetails,
+                            include: [
+                                {
+                                    model: product_model.Product // Bao gồm thông tin từ bảng Product
+                                }
+                            ]
                         }
                     ]
                 }
             ]
         });
 
-        //console.log('Cart:', JSON.stringify(cart, null, 2));
         if (!cart) {
-            const errorResponse = new Models.ErrorResponseModel('CART_NOT_FOUND', 'Cart not found for the user.');
-            return res.status(404).json(new Models.ResponseModel(false, errorResponse));
+            return res.status(200).json(new Models.ResponseModel(true, null, null));
         }
 
-        // Lấy thông tin cart_items
-        const cartItems = cart.cart_items.map(cartItem => ({
-            id: cartItem.id,
-            product_details_id: cartItem.product_details_id,
-            cart_id: cartItem.cart_id,
-            quantity: cartItem.quantity,
-            color: cartItem.color,
-            size: cartItem.size,
-            createdAt: cartItem.createdAt,
-            updatedAt: cartItem.updatedAt
-        }));
+        // Tạo danh sách CartItemResponseModel từ cart_items
+        const cartItems = cart.cart_items.map(cartItem => {
+            const productDetails = cartItem.product_detail;
+            const product = productDetails.product; // Lấy thông tin sản phẩm
 
-        // Trả về phản hồi với cart_items
-        return res.status(200).json(new Models.ResponseModel(true, null, { cart_items: cartItems }));
+            // Khởi tạo đối tượng CartItemResponseModel với thông tin sản phẩm
+            return new cart_response.CartItemResponseModel(cartItem.id, product.id, cartItem.quantity, cartItem.color, cartItem.size, product.img_preview, product.name, productDetails.price);
+        });
+
+        // Khởi tạo đối tượng CartResponseModel
+        const cartResponse = new cart_response.CartResponseModel(cart.id, cart.user_id, cartItems)
+
+
+        // Trả về response dạng CartResponseModel
+        return res.status(200).json(new Models.ResponseModel(true, null, cartResponse));
     } catch (error) {
         logger.error('Error fetching cart items:', error.message);
         const errorResponse = new Models.ErrorResponseModel('INTERNAL_SERVER_ERROR', 'Error fetching cart items', [error.message]);
@@ -64,7 +64,7 @@ router.get('/cart', authenticateToken, authorizeRole(["user"]), async (req, res,
 });
 
 
-router.post('/cart',authenticateToken,authorizeRole(["user"]),async (req,res,next)=>{
+router.post('/cart', authenticateToken, authorizeRole(["user"]), async (req, res, next) => {
     const { product_details_id, quantity, color, size } = req.body;
     const user_id = req.user.id;
     logger.info("user_id request add cart: " + user_id);
@@ -110,7 +110,7 @@ router.post('/cart',authenticateToken,authorizeRole(["user"]),async (req,res,nex
 });
 
 
-router.put('/cart/:cartItemId', authenticateToken,authorizeRole(["user"]), async (req, res, next) => {
+router.put('/cart/:cartItemId', authenticateToken, authorizeRole(["user"]), async (req, res, next) => {
     const { cartItemId } = req.params;
     const { quantity, color, size } = req.body;
 
@@ -129,9 +129,9 @@ router.put('/cart/:cartItemId', authenticateToken,authorizeRole(["user"]), async
         // Cập nhật thông tin của sản phẩm trong giỏ hàng
         await cartItem.update({
             //Nếu không thay đổi thì giữ nguyên
-            quantity: quantity || cartItem.quantity, 
-            color: color || cartItem.color,          
-            size: size || cartItem.size              
+            quantity: quantity || cartItem.quantity,
+            color: color || cartItem.color,
+            size: size || cartItem.size
         });
 
         return res.status(200).json({
@@ -149,32 +149,55 @@ router.put('/cart/:cartItemId', authenticateToken,authorizeRole(["user"]), async
     }
 });
 
-router.delete('/cart/:cartItemId', authenticateToken,authorizeRole(["user"]), async (req, res, next) => {
-    const { cartItemId } = req.params;
-    try {
-        // Tìm kiếm item trong giỏ hàng dựa trên cartItemId
-        const cartItem = await cart_model.CartItem.findOne({ where: { id: cartItemId } });
+router.delete('/cart', authenticateToken, authorizeRole(["user"]), async (req, res, next) => {
+    let { ids } = req.body;  // Nhận ids từ body, có thể là một số nguyên hoặc mảng các số nguyên
 
-        // Nếu không tìm thấy item, trả về lỗi
-        if (!cartItem) {
+    // Nếu ids là một số nguyên (id duy nhất), chuyển thành mảng
+    if (typeof ids === 'number') {
+        ids = [ids];  // Chuyển id duy nhất thành mảng
+    }
+
+    // Kiểm tra nếu ids không phải là mảng hoặc là mảng rỗng
+    if (!Array.isArray(ids) || ids.length === 0) {
+        return res.status(400).json({
+            success: false,
+            message: 'No cart item ids provided!'
+        });
+    }
+
+    try {
+        // Tìm kiếm tất cả các item có id thuộc danh sách ids
+        const cartItems = await cart_model.CartItem.findAll({
+            where: {
+                id: ids
+            }
+        });
+
+        // Nếu không tìm thấy bất kỳ item nào, trả về lỗi
+        if (cartItems.length === 0) {
             return res.status(404).json({
                 success: false,
-                message: 'Cart item not found!'
+                message: 'No cart items found with provided ids!'
             });
         }
 
-        // Xóa item khỏi giỏ hàng
-        await cartItem.destroy();
+        // Xóa tất cả các item tìm được
+        await cart_model.CartItem.destroy({
+            where: {
+                id: ids
+            }
+        });
 
         return res.status(200).json({
             success: true,
-            message: 'Cart item deleted successfully!'
+            message: 'Cart items deleted successfully!',
+            deletedItemsCount: cartItems.length
         });
     } catch (error) {
-        console.error('Error deleting cart item:', error);
+        console.error('Error deleting cart items:', error);
         return res.status(500).json({
             success: false,
-            message: 'Error deleting cart item',
+            message: 'Error deleting cart items',
             error: error.message
         });
     }

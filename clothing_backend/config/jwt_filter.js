@@ -14,11 +14,22 @@ export const authenticateToken = (req, res, next) => {
         return  res.status(401).json(new Models.ResponseModel(false, new Models.ErrorResponseModel(1, "Unauthorized", null), null));
     }
 
-    jwt.verify(token, process.env.TOKEN_SECRET, (err, user) => {
+    jwt.verify(token, process.env.TOKEN_SECRET, async (err, user) => {
         if (err) {
             return  res.status(401).json(new Models.ResponseModel(false, new Models.ErrorResponseModel(1, "Unauthorized", null), null));
         }
-        req.user = user;
+         // Lấy email từ token đã được xác thực và giải mã
+         const userEmail = user.email;
+
+         // Truy vấn database để lấy người dùng dựa trên email
+         const userFind = await User.findOne({ where: { email: userEmail } });
+
+         // Nếu không tìm thấy người dùng, trả về lỗi
+         if (!userFind) {
+             return res.status(403).json(new Models.ResponseModel(false, new Models.ErrorResponseModel(1, "Người dùng không tồn tại", null), null));
+         }
+
+        req.user = userFind;
         next();
     });
 };
@@ -26,17 +37,8 @@ export const authenticateToken = (req, res, next) => {
 export const authorizeRole = (requiredRoles) => {
     return async (req, res, next) => {
         try {
-            // Lấy email từ token đã được xác thực và giải mã
-            const userEmail = req.user.email;
-
-            // Truy vấn database để lấy người dùng dựa trên email
-            const user = await User.findOne({ where: { email: userEmail } });
-
-            // Nếu không tìm thấy người dùng, trả về lỗi
-            if (!user) {
-                return res.status(403).json(new Models.ResponseModel(false, new Models.ErrorResponseModel(1, "Người dùng không tồn tại", null), null));
-            }
-
+           
+            const user = req.user;
             // Lấy tất cả các quyền (roles) của người dùng từ database
             const userRoles = await user.getRoles(); // giả sử bạn có quan hệ giữa User và Role
 

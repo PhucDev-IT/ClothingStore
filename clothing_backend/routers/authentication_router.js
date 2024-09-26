@@ -96,7 +96,7 @@ router.post('/login', async (req, res, next) => {
     const { error } = await loginRequest.validate(req.body);
     if (error) {
         const formattedErrors = formatValidationError(error.details);
-        return res.status(400).json(new Models.ResponseModel(false, new Models.ErrorResponseModel(1, "Validation Error", formattedErrors), null));
+        return res.json(new Models.ResponseModel(false, new Models.ErrorResponseModel(1, "Validation Error", formattedErrors), null));
     }
     try {
         const { email, password, device_id, fcm_token } = req.body;
@@ -105,7 +105,7 @@ router.post('/login', async (req, res, next) => {
         
 
         if (!user) {
-            return res.status(401).json(new Models.ResponseModel(false, new Models.ErrorResponseModel(1, "Người dùng không tồn tại", null), null));
+            return res.json(new Models.ResponseModel(false, new Models.ErrorResponseModel(1, "Người dùng không tồn tại", null), null));
         }
         // So sánh mật khẩu đã nhập với chuỗi hash lấy từ cơ sở dữ liệu
         const passwordMatch = await bcrypt.compare(password, user.password);
@@ -114,7 +114,8 @@ router.post('/login', async (req, res, next) => {
             LogLogin.create({
                 device_id: device_id,
                 fcm_token: fcm_token,
-                time_login: new Date()
+                time_login: new Date(),
+                user_id : user.id
             });
 
             //Get roles
@@ -130,12 +131,12 @@ router.post('/login', async (req, res, next) => {
             return res.status(200).json(new Models.ResponseModel(true, null, response));
 
         } else {
-            return res.status(401).json(new Models.ResponseModel(false, new Models.ErrorResponseModel(1, "Tên người dùng hoặc mật khẩu không chính xác", null), null));
+            return res.json(new Models.ResponseModel(false, new Models.ErrorResponseModel(1, "Tên người dùng hoặc mật khẩu không chính xác", null), null));
 
         }
 
     } catch (err) {
-        return res.status(401).json(new Models.ResponseModel(false, new Models.ErrorResponseModel(1, "Lỗi hệ thống", err.message), null));
+        return res.json(new Models.ResponseModel(false, new Models.ErrorResponseModel(1, "Lỗi hệ thống", err.message), null));
 
     }
 
@@ -234,7 +235,7 @@ async function hashPassword(password) {
     try {
         const salt = await bcrypt.genSalt();
         const hash = await bcrypt.hash(password, salt);
-        logger.info("hash: " + hash)
+    
         return hash;
     } catch (err) {
         console.error('Error hashing password:', err);
