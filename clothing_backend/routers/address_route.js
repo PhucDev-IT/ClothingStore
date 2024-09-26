@@ -115,4 +115,20 @@ router.post("/delivery", authenticateToken, authorizeRole(["user"]), async (req,
     }
 });
 
+
+router.get("/delivery", authenticateToken, authorizeRole(["user"]), async (req, res) => {
+    try{
+        const user_id = req.user.id;
+        const addresses = await address_model.DeliveryInformation.findAll({
+            where:{
+                user_id:user_id
+            }
+        })
+        return res.status(200).json(new response_model.ResponseModel(true, null, addresses));
+    }catch (error) {
+        const errorResponse = new response_model.ErrorResponseModel('INTERNAL_SERVER_ERROR', 'Error fetching address', [error.message]);
+        return res.status(500).json(new response_model.ResponseModel(false, errorResponse));
+    }
+});
+
 export default router;

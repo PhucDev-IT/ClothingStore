@@ -110,13 +110,13 @@ router.post('/cart', authenticateToken, authorizeRole(["user"]), async (req, res
 });
 
 
-router.put('/cart/:cartItemId', authenticateToken, authorizeRole(["user"]), async (req, res, next) => {
-    const { cartItemId } = req.params;
+router.put('/cart/:id', authenticateToken, authorizeRole(["user"]), async (req, res, next) => {
+    const { id } = req.params;
     const { quantity, color, size } = req.body;
 
     try {
         // Tìm kiếm item trong giỏ hàng dựa trên cartItemId
-        let cartItem = await cart_model.CartItem.findOne({ where: { id: cartItemId } });
+        let cartItem = await cart_model.CartItem.findOne({ where: { id: id } });
 
         // Nếu không tìm thấy item, trả về lỗi
         if (!cartItem) {
@@ -134,72 +134,33 @@ router.put('/cart/:cartItemId', authenticateToken, authorizeRole(["user"]), asyn
             size: size || cartItem.size
         });
 
-        return res.status(200).json({
-            success: true,
-            message: 'Cart item updated successfully!',
-            cartItem
-        });
+        return res.status(200).json(new Models.ResponseModel(true, null, cartItem));
     } catch (error) {
-        console.error('Error updating cart item:', error);
-        return res.status(500).json({
-            success: false,
-            message: 'Error updating cart item',
-            error: error.message
-        });
+        const errorResponse = new Models.ErrorResponseModel('INTERNAL_SERVER_ERROR', 'Error fetching cart items', [error.message]);
+        return res.status(500).json(new Models.ResponseModel(false, errorResponse));
     }
 });
 
-router.delete('/cart', authenticateToken, authorizeRole(["user"]), async (req, res, next) => {
+//Because method delete form resful api, so we will use post to receive array id cart
+//I need to remove more cart
+router.post('/carts/delete', authenticateToken, authorizeRole(["user"]), async (req, res, next) => {
     let { ids } = req.body;  // Nhận ids từ body, có thể là một số nguyên hoặc mảng các số nguyên
 
-    // Nếu ids là một số nguyên (id duy nhất), chuyển thành mảng
-    if (typeof ids === 'number') {
-        ids = [ids];  // Chuyển id duy nhất thành mảng
-    }
-
-    // Kiểm tra nếu ids không phải là mảng hoặc là mảng rỗng
     if (!Array.isArray(ids) || ids.length === 0) {
-        return res.status(400).json({
-            success: false,
-            message: 'No cart item ids provided!'
-        });
+        return res.status(400).json({ error: 'Danh sách ID không hợp lệ' });
     }
 
     try {
-        // Tìm kiếm tất cả các item có id thuộc danh sách ids
-        const cartItems = await cart_model.CartItem.findAll({
-            where: {
-                id: ids
-            }
-        });
-
-        // Nếu không tìm thấy bất kỳ item nào, trả về lỗi
-        if (cartItems.length === 0) {
-            return res.status(404).json({
-                success: false,
-                message: 'No cart items found with provided ids!'
-            });
-        }
-
         // Xóa tất cả các item tìm được
         await cart_model.CartItem.destroy({
             where: {
-                id: ids
+                id: ids,
             }
         });
-
-        return res.status(200).json({
-            success: true,
-            message: 'Cart items deleted successfully!',
-            deletedItemsCount: cartItems.length
-        });
+        return res.status(200).json(new Models.ResponseModel(true, null, true));
     } catch (error) {
-        console.error('Error deleting cart items:', error);
-        return res.status(500).json({
-            success: false,
-            message: 'Error deleting cart items',
-            error: error.message
-        });
+        const errorResponse = new Models.ErrorResponseModel('INTERNAL_SERVER_ERROR', 'Error fetching cart items', [error.message]);
+        return res.status(500).json(new Models.ResponseModel(false, errorResponse));
     }
 });
 

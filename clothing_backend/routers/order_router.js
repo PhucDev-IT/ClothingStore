@@ -11,6 +11,8 @@ import address_model from "../models/address_model.js";
 import User from "../models/user_model.js";
 import sequelize from '../connection/mysql.js';
 import { authenticateToken, authorizeRole } from "../config/jwt_filter.js";
+import product_model from "../models/product_model.js";
+import { QueryTypes, Sequelize } from "sequelize";
 
 // ----------Order-----------
 
@@ -109,29 +111,72 @@ router.post('/', authenticateToken, authorizeRole(["user"]), async (req, res, ne
 });
 
 //get all
-router.get('/', authenticateToken, authorizeRole(["user"]), async (req, res, next) => {
+router.get('/my_orders/:status', authenticateToken, authorizeRole(["user"]), async (req, res, next) => {
+    const user_id = req.user.id;
+    const status = req.params.status;
+    const page = parseInt(req.query.page) || 1;  // Trang hiện tại
+    const limit = parseInt(req.query.limit) || 10;  // Số lượng sản phẩm mỗi trang
+    const offset = (page - 1) * limit;  // Tính toán vị trí bắt đầu
+    logger.info(`=====> USER ${user_id} GET ALL ORDER <============`);
+
     try {
-        const user_id = req.user.id;
-        const page = parseInt(req.query.page) || 1;
-        const limit = parseInt(req.query.limit) || 20;
-        const offset = (page - 1) * limit;
-        logger.info("Fetching cart for user_id: " + user_id);
-        const { count, rows } = await order_model.Order.findAndCountAll({
-            where: { user_id: user_id },
-            limit,
-            offset
+        // Lấy tổng số sản phẩm thuộc user
+        const totalOrders = await order_model.Order.count({
+            where: { user_id: user_id, status: status }  // Điều kiện lấy theo user_id
         });
-        const totalPages = Math.ceil(count / limit);
-        return res.status(200).json(new response_model.ResponseModel(true, null, {
-            user_id: user_id,
-            orders: rows,
-            // pagination:{
-            //     totalOrders: count,
-            //     totalPages,
-            //     currentPage: page,
-            //     limit
-            // }
-        }));
+
+        // Lấy danh sách sản phẩm có phân trang
+        const orders = await sequelize.query(`
+            SELECT 
+                o.id AS order_id,
+                o.total,
+                o.real_total,
+                o.status,
+                o.order_date,
+                COUNT(oi.id) AS item_count,
+                (SELECT p.img_preview 
+                 FROM products p 
+                 INNER JOIN order_items oi2 ON p.id = oi2.product_id 
+                 WHERE oi2.order_id = o.id 
+                 ORDER BY oi2.id ASC 
+                 LIMIT 1) AS first_product_image,
+                (SELECT p.name
+                    FROM products p 
+                    INNER JOIN order_items oi2 ON p.id = oi2.product_id 
+                    WHERE oi2.order_id = o.id 
+                    ORDER BY oi2.id ASC 
+                    LIMIT 1) AS first_product_name -- Lấy tên sản phẩm đầu tiên
+            FROM orders o
+            INNER JOIN order_items oi ON o.id = oi.order_id
+            WHERE o.user_id = :user_id
+            GROUP BY o.id
+            ORDER BY o.order_date DESC
+            LIMIT :limit OFFSET :offset;
+        `, {
+            replacements: {
+                user_id: user_id,
+                limit: limit,  // Giới hạn số bản ghi trả về
+                offset: offset    // Bỏ qua các bản ghi trước đó
+            },
+            type: QueryTypes.SELECT
+        });
+
+        // Tính tổng số trang dựa trên tổng số sản phẩm và limit
+        const totalPages = Math.ceil(totalOrders / limit);
+
+        // Trả về dữ liệu bao gồm danh sách sản phẩm và thông tin phân trang
+        res.status(200).json({
+            success: true,
+            data: {
+                orders: orders,
+                pagination: {
+                    totalItems: totalOrders,
+                    totalPages: totalPages,
+                    currentPage: page,
+                    itemsPerPage: limit
+                }
+            }
+        });
     } catch (err) {
         logger.error("Error fetching orders:", err);
         return res.status(500).json(new response_model.ResponseModel(false, new response_model.ErrorResponseModel(1, "Lỗi hệ thống", err.message), null));

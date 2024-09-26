@@ -29,6 +29,7 @@ import upload from './config/upload.js';
 import image_router from './routers/images_route.js'
 import cart_router from './routers/cart_route.js'
 import address_route from './routers/address_route.js'
+import voucher_router from './routers/voucher_router.js'
 
 //Application config
 dotenv.config();
@@ -59,7 +60,7 @@ async function syncDatabase() {
         await sequelize.authenticate();
         logger.info('Connection has been established successfully.');
 
-        const is_reset_database = true;
+        const is_reset_database = false;
 
         // Định nghĩa quan hệ giữa User và Order
         User.hasMany(order_model.Order, { foreignKey: 'user_id' });   // Một User có thể có nhiều Order
@@ -206,7 +207,7 @@ app.use('/api',image_router)
 app.use('/api/orders',orderRouter);
 app.use('/api',cart_router);
 app.use('/api/address',address_route);
-
+app.use('/api/',voucher_router);
 
 app.post('/upload-multiple', upload.array('images', 10), (req, res) => {
     try {
