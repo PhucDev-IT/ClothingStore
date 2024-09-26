@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background"
+    tools:context=".fragments.MyAddressFragment">
+
+  <LinearLayout
+      android:layout_above="@id/lnAddNewAddress"
+      android:layout_width="match_parent"
+      android:orientation="vertical"
+      android:layout_height="match_parent">
+      <include layout="@layout/layout_header"
+          android:id="@+id/header"/>
+
+      <!--    Skeleton-->
+      <com.facebook.shimmer.ShimmerFrameLayout
+          android:visibility="gone"
+          android:id="@+id/shimmer_layout"
+          android:layout_width="match_parent"
+          android:layout_height="match_parent">
+          <include layout="@layout/my_cart_skeleton"/>
+      </com.facebook.shimmer.ShimmerFrameLayout>
+
+      <androidx.recyclerview.widget.RecyclerView
+          android:id="@+id/rvAddress"
+          android:layout_marginVertical="10dp"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"/>
+
+
+  </LinearLayout>
+    <LinearLayout
+        android:layout_alignParentBottom="true"
+        android:id="@+id/lnAddNewAddress"
+        android:layout_margin="@dimen/_15sdp"
+        android:background="@drawable/bg_dash_out_line"
+        android:layout_width="match_parent"
+        android:gravity="center"
+        android:padding="@dimen/_10sdp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="+"
+            android:textStyle="bold"
+            android:textSize="@dimen/text_size_default"
+            android:textColor="@color/colorPrimary"/>
+        <TextView
+            android:fontFamily="@font/inter_medium"
+            android:textSize="@dimen/text_size_default"
+            android:layout_marginStart="@dimen/_10sdp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Thêm địa chỉ mới"
+            android:textColor="@color/colorPrimary"/>
+    </LinearLayout>
+</RelativeLayout>

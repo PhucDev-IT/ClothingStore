@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">clothing</string>
+    <string name="app_name">Clothing Store</string>
 
     <string name="nav_home">Trang chủ</string>
     <string name="nav_shopping_cart">Giỏ hàng</string>
@@ -14,6 +14,9 @@
     <string name="channel_description">Thông báo OTP</string>
     <string name="required_permission_notification">Vui lòng cấp quyền truy cập thông báo</string>
     <string name="required_filed">Trường này là bắt buộc</string>
+    <string name="label_finish">Hoàn thành</string>
+    <string name="can_not_success">Không thành công</string>
+    <string name="success">Thành công</string>
 
     <!--    ONBOARDING-->
     <string name="label_skip">Bỏ qua</string>
@@ -43,6 +46,8 @@
     <string name="not_found_item_in_cart">Chưa có sản phẩm nào trong giỏ hàng.</string>
     <string name="label_color">Màu sắc: %s</string>
     <string name="label_size">Size: %s</string>
+    <string name="title_header_cart">Giỏ hàng</string>
+    <string name="please_select_item">Vui lòng chọn sản phẩm trước khi tiếp tục</string>
 
     <!--   LOGIN -->
     <string name="hi_welcome_back">Xin chào! Chào mừng bạn trở lại, chúng tôi đã nhớ bạn</string>
@@ -95,4 +100,14 @@
     <string name="label_classify">Phân loại: </string>
     <string name="default_btn_add_to_cart">Thêm: %s</string>
     <string name="add_to_card_success">Thêm giỏ hàng thành công!</string>
+
+    <!--    Settings-->
+    <string name="setting_nav_address">Địa chỉ nhận hàng</string>
+    <string name="title_header_settings">Cài đặt</string>
+    <string name="title_info_contact">Thông tin liên hệ</string>
+    <string name="header_address_delivery">Thông tin nhận hàng</string>
+    <string name="header_add_new_address">Thêm thông tin nhận hàng</string>
+    <string name="full_name">Họ và tên</string>
+    <string name="number_phone">Số điện thoại</string>
+
 </resources>

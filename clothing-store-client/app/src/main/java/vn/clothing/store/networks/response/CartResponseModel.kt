@@ -2,17 +2,21 @@ package vn.clothing.store.networks.response
 
 import com.google.gson.annotations.SerializedName
 import vn.clothing.store.models.ProductDetails
+import java.io.Serializable
 
 class CartResponseModel {
-    @SerializedName("id")
+    @SerializedName("cart_id")
     var cartId:String?=null
     @SerializedName("user_id")
     var userId:String?=null
 
-    var listItem:ArrayList<CartItemResponseModel>?=null
+    @SerializedName("list_item")
+    var listItem:List<CartItemResponseModel>?=null
 
-     class CartItemResponseModel {
-        var id:String?=null
+
+     class CartItemResponseModel : Serializable{
+        var id:Int?=null
+         @SerializedName("product_id")
         var productId:String?=null
         var quantity:Int?=null
         var color:String?=null

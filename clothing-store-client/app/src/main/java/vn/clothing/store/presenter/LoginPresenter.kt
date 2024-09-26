@@ -71,7 +71,9 @@ class LoginPresenter(private var view: LoginContract.View?) : LoginContract.Pres
                 val result = credentialManager.getCredential(view!!.getContext(), request)
                 handleSignIn(result)
             } catch (e: Exception) {
-                view?.onShowToast(CoreConstant.ToastType.ERROR,view?.getContext()?.getString(R.string.has_error_please_retry)?:"")
+                withContext(Dispatchers.Main){
+                    view?.onShowToast(CoreConstant.ToastType.ERROR,view?.getContext()?.getString(R.string.has_error_please_retry)?:"")
+                }
                 e.printStackTrace()
             }
         }

@@ -3,14 +3,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:orientation="horizontal"
-    android:padding="10dp"
+    android:layout_marginHorizontal="@dimen/_10sdp"
+    android:paddingBottom="@dimen/_5sdp"
     android:gravity="center"
-    android:background="@drawable/bg_bottom_line"
+    android:background="@color/background"
     android:layout_height="wrap_content">
     <CheckBox
         android:id="@+id/checkbox"
-        android:layout_marginStart="-5dp"
-        android:layout_marginEnd="4dp"
+        android:layout_marginEnd="@dimen/_3sdp"
         android:layout_width="@dimen/_20sdp"
         android:backgroundTint="@color/colorPrimary"
         android:layout_height="@dimen/_20sdp"/>

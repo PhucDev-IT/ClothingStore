@@ -9,13 +9,13 @@ import vn.clothing.store.MyApplication
 import vn.clothing.store.database.dao.AddressDao
 import vn.clothing.store.database.dao.CategoryDao
 import vn.clothing.store.database.dao.UserDao
-import vn.clothing.store.database.models.AddressSchema
 import vn.clothing.store.models.Category
+import vn.clothing.store.models.DeliveryInformation
 import vn.clothing.store.models.User
 import vn.master.epass.database.core.Converters
 
 
-@Database(entities = [AddressSchema::class, User::class, Category::class], version = 1)
+@Database(entities = [DeliveryInformation::class, User::class, Category::class], version = 1)
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun addressDao(): AddressDao

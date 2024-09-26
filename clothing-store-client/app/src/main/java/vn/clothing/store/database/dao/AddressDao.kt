@@ -6,34 +6,43 @@ import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
-import vn.clothing.store.database.models.AddressSchema
+import vn.clothing.store.models.DeliveryInformation
 import java.util.Date
 
 @Dao
 interface AddressDao {
 
-    @Query("SELECT * FROM address")
-    fun getAll(): List<AddressSchema>
+    @Query("SELECT * FROM delivery_information")
+    fun getAll(): List<DeliveryInformation>
 
-    @Query("SELECT * FROM address WHERE id = :id LIMIT 1")
-    fun getAddressById(id: Int): AddressSchema?
+    @Query("SELECT * FROM delivery_information WHERE id = :id LIMIT 1")
+    fun getAddressById(id: Int): DeliveryInformation?
 
     @Insert
-    fun insertAll(vararg addresses: AddressSchema)
+    fun insertAll( addresses: List<DeliveryInformation>)
+
+    @Insert
+    suspend fun insert(addresses: DeliveryInformation)
 
     @Update
-    fun update(addresses: AddressSchema)
+    fun update(addresses: DeliveryInformation)
 
     @Delete
-    fun delete(addresses: AddressSchema)
+    fun delete(addresses: DeliveryInformation)
 
-    @Query("DELETE FROM address")
-    fun deleteAllUsers()
+    @Query("DELETE FROM delivery_information")
+    fun deleteAll()
 
 
     @Transaction
-    fun upsertUser(addresses: AddressSchema) {
-        deleteAllUsers()
+    suspend fun upsert(addresses: DeliveryInformation) {
+        deleteAll()
+        insert(addresses)
+    }
+
+    @Transaction
+    fun upsertAll(addresses: List<DeliveryInformation>) {
+        deleteAll()
         insertAll(addresses)
     }
 }

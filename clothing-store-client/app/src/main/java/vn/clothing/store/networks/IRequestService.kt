@@ -2,6 +2,7 @@ package vn.clothing.store.networks
 
 import retrofit2.Call
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.FormUrlEncoded
 import retrofit2.http.GET
 import retrofit2.http.POST
@@ -9,13 +10,19 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 import vn.clothing.store.models.CartModel
 import vn.clothing.store.models.Category
+import vn.clothing.store.models.DeliveryInformation
+import vn.clothing.store.models.DistrictModel
 import vn.clothing.store.models.Image
+import vn.clothing.store.models.Order
 import vn.clothing.store.models.Product
 import vn.clothing.store.models.ProductDetails
+import vn.clothing.store.models.ProvinceModel
 import vn.clothing.store.models.User
+import vn.clothing.store.models.WardModel
 import vn.clothing.store.networks.request.CartRequestModel
 import vn.clothing.store.networks.request.LoginGoogleRequest
 import vn.clothing.store.networks.request.LoginRequest
+import vn.clothing.store.networks.request.OrderRequestModel
 import vn.clothing.store.networks.request.RegisterRequestModel
 import vn.clothing.store.networks.response.CartResponseModel
 import vn.clothing.store.networks.response.LoginResponseModel
@@ -73,6 +80,44 @@ interface IRequestService {
      @GET("/api/carts")
      fun getAllCart():Call<ResponseModel<CartResponseModel>>
 
+     @DELETE("api/cart")
+     fun deleteCart(@Body ids:List<Int>):Call<ResponseModel<Boolean>>
+    //=================================================
+    //  endregion
+    //=================================================
+
+
+    //=================================================
+    //  region ADDRESS
+    //=================================================
+    @GET("/api/address/delivery")
+    fun getAllDeliveryByUserId():Call<ResponseModel<List<DeliveryInformation>>>
+
+    @GET("/api/address/provinces")
+    fun getAllProvince():Call<ResponseModel<List<ProvinceModel>>>
+
+    @GET("/api/address/p")
+    fun getDistrictByProvinceId(@Query("id") id:String):Call<ResponseModel<List<DistrictModel>>>
+
+    @GET("/api/address/d")
+    fun getWardByDistrictId(@Query("id") id:String):Call<ResponseModel<List<WardModel>>>
+
+    @POST("/api/address/delivery")
+    fun addDeliveryAddress(@Body model:DeliveryInformation):Call<ResponseModel<DeliveryInformation>>
+
+
+    //=================================================
+    //  endregion
+    //=================================================
+
+
+
+    //=================================================
+    //  region ORDER
+    //=================================================
+
+    @POST("/api/orders")
+    fun createOrder(@Body model:OrderRequestModel):Call<ResponseModel<Order>>
 
     //=================================================
     //  endregion

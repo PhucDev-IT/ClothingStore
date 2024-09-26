@@ -7,16 +7,21 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.LinearLayoutManager
 import vn.clothing.store.R
 import vn.clothing.store.activities.common.BaseActivity
 import vn.clothing.store.activities.order.PayOrderActivity
 import vn.clothing.store.adapter.RvItemCartAdapter
+import vn.clothing.store.common.CoreConstant
+import vn.clothing.store.common.IntentData
 import vn.clothing.store.common.PopupDialog
 import vn.clothing.store.databinding.ActivityShoppingCartBinding
 import vn.clothing.store.interfaces.ShoppingCartContract
 import vn.clothing.store.models.CartModel
 import vn.clothing.store.networks.response.CartResponseModel
 import vn.clothing.store.presenter.ShoppingCartPresenter
+import vn.clothing.store.utils.FormatCurrency
 
 class ShoppingCartActivity : BaseActivity(),ShoppingCartContract.View {
 
@@ -24,6 +29,7 @@ class ShoppingCartActivity : BaseActivity(),ShoppingCartContract.View {
     private var presenter:ShoppingCartPresenter?=null
     private lateinit var adapter:RvItemCartAdapter
     private var cart:CartResponseModel?=null
+    private var selectedCart:ArrayList<CartResponseModel.CartItemResponseModel> = arrayListOf()
 
 
     override fun initView() {
@@ -32,8 +38,27 @@ class ShoppingCartActivity : BaseActivity(),ShoppingCartContract.View {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+
+        binding.header.tvName.text = getString(R.string.title_header_cart)
         presenter = ShoppingCartPresenter(this)
-        adapter = RvItemCartAdapter(emptyList(),{},{})
+        adapter = RvItemCartAdapter(emptyList(),{ checked->
+            if(checked.first){
+                selectedCart.add(checked.second)
+            }else{
+                selectedCart.remove(checked.second)
+            }
+            displayPrice()
+        },{ item ->
+            val index = selectedCart.indexOf(item)
+            if (index != -1) {
+                selectedCart[index].quantity  = item.quantity
+            }
+            displayPrice()
+        })
+        val dividerItemDecoration = DividerItemDecoration(binding.rvCart.context, DividerItemDecoration.VERTICAL)
+        binding.rvCart.adapter = adapter
+        binding.rvCart.addItemDecoration(dividerItemDecoration)
+        binding.rvCart.layoutManager = LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false)
     }
 
     override fun populateData() {
@@ -42,7 +67,12 @@ class ShoppingCartActivity : BaseActivity(),ShoppingCartContract.View {
 
     override fun setListener() {
         binding.btnBuyProduct.setOnClickListener {
+            if(selectedCart.isEmpty()){
+                CoreConstant.showToast(this,getString(R.string.please_select_item),CoreConstant.ToastType.WARNING)
+                return@setOnClickListener
+            }
             val intent =Intent(this,PayOrderActivity::class.java)
+            intent.putExtra(IntentData.KEY_LIST_CART_ITEM,selectedCart)
             startActivity(intent)
         }
     }
@@ -53,9 +83,15 @@ class ShoppingCartActivity : BaseActivity(),ShoppingCartContract.View {
             return binding.root
         }
 
-
-    private fun displayData(){
-
+    /**
+     * Whenever change item, we will calculate price
+     */
+    private fun displayPrice(){
+        var price:Double = 0.0
+        for(item in selectedCart){
+            price += item.price!! * item.quantity!!
+        }
+        binding.tvSumMoney.text = FormatCurrency.numberFormat.format(price)
     }
 
     //===================================================

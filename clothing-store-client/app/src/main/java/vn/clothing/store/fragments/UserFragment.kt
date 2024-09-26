@@ -1,11 +1,13 @@
 package vn.clothing.store.fragments
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import vn.clothing.store.R
+import vn.clothing.store.activities.settings.SettingsMainActivity
 import vn.clothing.store.adapter.RvDashboardItemViewUser
 import vn.clothing.store.databinding.FragmentUserBinding
 import vn.clothing.store.models.ItemDashboardViewUser
@@ -30,11 +32,20 @@ class UserFragment : Fragment() {
 
         adapter  = RvDashboardItemViewUser(items)
         binding.rvItem.adapter = adapter
+
+        setListener()
+
         return binding.root
     }
 
 
     private fun initUi(){
 
+    }
+
+    private fun setListener(){
+        binding.btnSetting.setOnClickListener {
+            startActivity(Intent(requireActivity(), SettingsMainActivity::class.java))
+        }
     }
 }

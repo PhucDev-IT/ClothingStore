@@ -20,27 +20,31 @@ import vn.clothing.store.networks.response.CartResponseModel.CartItemResponseMod
 import vn.clothing.store.utils.FormatCurrency
 
 
-class RvItemCartAdapter(private var list:List<CartItemResponseModel>, private val onClick:Consumer<CartItemResponseModel>,
-                        private val onChecked:Consumer<CartItemResponseModel>):RecyclerView.Adapter<RvItemCartAdapter.viewHolder>() {
+class RvItemCartAdapter(
+    private var list: List<CartItemResponseModel>,
+    private val onChecked: Consumer<Pair<Boolean, CartItemResponseModel>>,
+    private val onItemClick: Consumer<CartItemResponseModel>
+) : RecyclerView.Adapter<RvItemCartAdapter.viewHolder>() {
 
     @SuppressLint("NotifyDataSetChanged")
-    fun setData(list: List<CartItemResponseModel>?){
-        if(list.isNullOrEmpty()){
-            this.list = list!!
+    fun setData(list: List<CartItemResponseModel>?) {
+        if (!list.isNullOrEmpty()) {
+            this.list = list
             notifyDataSetChanged()
         }
     }
 
-    class viewHolder(itemView:View):RecyclerView.ViewHolder(itemView){
-        var checkbox:CheckBox
-        var imgProduct:ImageView
-        var nameProduct:TextView
-        var tvColor:TextView
-        var tvSize:TextView
-        var tvPrice:TextView
-        var tvQuantity:TextView
-        var btnDown:ImageButton
-        var btnUp:ImageButton
+    class viewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        var checkbox: CheckBox
+        var imgProduct: ImageView
+        var nameProduct: TextView
+        var tvColor: TextView
+        var tvSize: TextView
+        var tvPrice: TextView
+        var tvQuantity: TextView
+        var btnDown: ImageButton
+        var btnUp: ImageButton
+
         init {
             checkbox = itemView.findViewById(R.id.checkbox)
             imgProduct = itemView.findViewById(R.id.imgProduct)
@@ -55,9 +59,16 @@ class RvItemCartAdapter(private var list:List<CartItemResponseModel>, private va
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): viewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.viewholder_item_cart,parent,false)
+        val view = LayoutInflater.from(parent.context)
+            .inflate(R.layout.viewholder_item_cart, parent, false)
         return viewHolder(view)
     }
+
+    /*
+    *We need to check if the item is selected or not
+    * If item is checked , we transmit item with state = true
+    * Wit if user want to up quantity, we transmit item with state = true
+     */
 
     override fun onBindViewHolder(holder: viewHolder, position: Int) {
         holder.itemView.apply {
@@ -65,34 +76,43 @@ class RvItemCartAdapter(private var list:List<CartItemResponseModel>, private va
             holder.nameProduct.text = list[position].name ?: "ERROR!"
             holder.tvPrice.text = FormatCurrency.numberFormat.format(list[position].price)
 
-            holder.tvSize.text = resources.getString(R.string.label_size,
+            holder.tvSize.text = resources.getString(
+                R.string.label_size,
                 list[position].size
             )
             holder.tvQuantity.text = list[position].quantity.toString()
-            holder.tvColor.text = resources.getString(R.string.label_color,
+            holder.tvColor.text = resources.getString(
+                R.string.label_color,
                 list[position].color
             )
 
             holder.checkbox.setOnClickListener {
-                if(holder.checkbox.isChecked){
-                    onChecked.accept(list[position])
-                }else{
-                    onChecked.accept(list[position])
+                if (holder.checkbox.isChecked) {
+                    onChecked.accept(Pair(true, list[position]))
+                } else {
+                    onChecked.accept(Pair(false, list[position]))
                 }
             }
 
             holder.btnUp.setOnClickListener {
-
+                list[position].quantity = (list[position].quantity ?: 0) + 1
+                holder.tvQuantity.text = list[position].quantity.toString()
+                onItemClick.accept(list[position])
             }
 
             holder.btnDown.setOnClickListener {
-
+                if (list[position].quantity != null && list[position].quantity!! > 1) {
+                    list[position].quantity = list[position].quantity?.minus(1)
+                    holder.tvQuantity.text = list[position].quantity.toString()
+                    onItemClick.accept(list[position])
+                }
             }
+
         }
     }
 
     override fun getItemCount(): Int {
-       return list.size
+        return list.size
     }
 
 }
