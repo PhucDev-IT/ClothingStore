@@ -20,12 +20,14 @@ import vn.clothing.store.models.ProvinceModel
 import vn.clothing.store.models.User
 import vn.clothing.store.models.WardModel
 import vn.clothing.store.networks.request.CartRequestModel
+import vn.clothing.store.networks.request.DeleteCartRequest
 import vn.clothing.store.networks.request.LoginGoogleRequest
 import vn.clothing.store.networks.request.LoginRequest
 import vn.clothing.store.networks.request.OrderRequestModel
 import vn.clothing.store.networks.request.RegisterRequestModel
 import vn.clothing.store.networks.response.CartResponseModel
 import vn.clothing.store.networks.response.LoginResponseModel
+import vn.clothing.store.networks.response.PurchaseHistoryResponseModel
 import vn.mobile.banking.network.response.ResponseModel
 import vn.mobile.banking.network.rest.BaseCallback
 
@@ -80,8 +82,8 @@ interface IRequestService {
      @GET("/api/carts")
      fun getAllCart():Call<ResponseModel<CartResponseModel>>
 
-     @DELETE("api/cart")
-     fun deleteCart(@Body ids:List<Int>):Call<ResponseModel<Boolean>>
+     @POST("api/carts/delete")
+     fun deleteCart(@Body ids:DeleteCartRequest):Call<ResponseModel<Boolean>>
     //=================================================
     //  endregion
     //=================================================
@@ -118,6 +120,9 @@ interface IRequestService {
 
     @POST("/api/orders")
     fun createOrder(@Body model:OrderRequestModel):Call<ResponseModel<Order>>
+
+    @GET("api/orders/my_orders/{status}")
+    fun getOrders(@Path("status") status:String, @Query("limit") limit:Int, @Query("page") page:Int):Call<ResponseModel<PurchaseHistoryResponseModel>>
 
     //=================================================
     //  endregion

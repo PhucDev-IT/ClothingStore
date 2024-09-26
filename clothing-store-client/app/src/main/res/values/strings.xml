@@ -103,11 +103,20 @@
 
     <!--    Settings-->
     <string name="setting_nav_address">Địa chỉ nhận hàng</string>
+    <string name="setting_nav_color_system">Màu giao diện</string>
     <string name="title_header_settings">Cài đặt</string>
     <string name="title_info_contact">Thông tin liên hệ</string>
     <string name="header_address_delivery">Thông tin nhận hàng</string>
     <string name="header_add_new_address">Thêm thông tin nhận hàng</string>
     <string name="full_name">Họ và tên</string>
     <string name="number_phone">Số điện thoại</string>
+
+    <!--    Order-->
+    <string name="title_header_order">Lịch sử mua hàng</string>
+    <string name="tab_item_pending">Chờ xác nhận</string>
+    <string name="tab_item_processing">Đang xử lý</string>
+    <string name="tab_item_history">Đã mua</string>
+    <string name="tab_item_review">Đánh giá</string>
+    <string name="str_quantity">x%s sản phẩm</string>
 
 </resources>

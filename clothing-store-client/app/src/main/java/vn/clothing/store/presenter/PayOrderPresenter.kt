@@ -16,6 +16,7 @@ import vn.clothing.store.interfaces.PayOrderContract
 import vn.clothing.store.models.DeliveryInformation
 import vn.clothing.store.models.Order
 import vn.clothing.store.networks.ApiService.Companion.APISERVICE
+import vn.clothing.store.networks.request.DeleteCartRequest
 import vn.clothing.store.networks.request.OrderRequestModel
 import vn.mobile.banking.network.response.ResponseModel
 import vn.mobile.banking.network.rest.BaseCallback
@@ -42,15 +43,17 @@ class PayOrderPresenter(private var view: PayOrderContract.View?) : PayOrderCont
                         .enqueue(object : BaseCallback<ResponseModel<List<DeliveryInformation>>>() {
                             override fun onSuccess(model: ResponseModel<List<DeliveryInformation>>) {
                                 if (model.success && model.data != null) {
-                                    handler.post {
-                                        view?.onResultAddress(model.data)
-                                    }
                                     APPDATABASE.addressDao().upsertAll(model.data!!)
+                                }
+                                handler.post {
+                                    view?.onResultAddress(model.data)
                                 }
                             }
 
                             override fun onError(message: String) {
-
+                                handler.post {
+                                    view?.onResultAddress(null)
+                                }
                             }
                         })
                 } finally {
@@ -96,7 +99,8 @@ class PayOrderPresenter(private var view: PayOrderContract.View?) : PayOrderCont
 
     //After payment success, we need to remove item cart
     private suspend fun removeCartItems(list:List<Int>):ResponseModel<Boolean>{
-        return APISERVICE.getService(AppManager.token).deleteCart(list).await()
+        val request = DeleteCartRequest(list)
+        return APISERVICE.getService(AppManager.token).deleteCart(request).await()
     }
 
 

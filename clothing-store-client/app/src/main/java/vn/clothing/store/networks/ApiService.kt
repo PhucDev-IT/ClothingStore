@@ -6,7 +6,8 @@ import vn.mobile.banking.network.rest.RetrofitClient
 
 
 class ApiService private constructor(){
-    private val BASE_URL = BuildConfig.API_BASE_URL
+    var BASE_URL = BuildConfig.API_BASE_URL
+        private set
     private var TOKEN:String = ""
 
     companion object {
@@ -37,6 +38,10 @@ class ApiService private constructor(){
         this.TOKEN = token
     }
 
+    fun setBaseUrl(url:String){
+        this.BASE_URL = url
+
+    }
 
     //========================================
     //  region CALL API

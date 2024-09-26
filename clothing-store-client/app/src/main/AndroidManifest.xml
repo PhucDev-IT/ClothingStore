@@ -18,6 +18,9 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
+            android:name=".activities.order.PurchaseHistoryActivity"
+            android:exported="false" />
+        <activity
             android:name=".activities.settings.AddressActivity"
             android:exported="false" />
         <activity

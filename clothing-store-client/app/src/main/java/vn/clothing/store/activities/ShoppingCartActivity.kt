@@ -75,6 +75,10 @@ class ShoppingCartActivity : BaseActivity(),ShoppingCartContract.View {
             intent.putExtra(IntentData.KEY_LIST_CART_ITEM,selectedCart)
             startActivity(intent)
         }
+
+        binding.header.toolbar.setNavigationOnClickListener {
+            finish()
+        }
     }
 
     override val layoutView: View

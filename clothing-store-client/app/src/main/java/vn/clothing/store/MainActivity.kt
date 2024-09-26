@@ -1,10 +1,14 @@
 package vn.clothing.store
 
 import android.Manifest
+import android.app.Dialog
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.Window
+import android.view.WindowManager
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.RequiresApi
@@ -15,8 +19,11 @@ import vn.clothing.store.activities.ShoppingCartActivity
 import vn.clothing.store.activities.common.BaseActivity
 import vn.clothing.store.common.CoreConstant
 import vn.clothing.store.databinding.ActivityMainBinding
+import vn.clothing.store.databinding.PopupDebugBinding
 import vn.clothing.store.fragments.HomeFragment
 import vn.clothing.store.fragments.UserFragment
+import vn.clothing.store.networks.ApiService.Companion.APISERVICE
+import vn.clothing.store.utils.MySharedPreferences
 
 class MainActivity : BaseActivity() {
 
@@ -38,6 +45,10 @@ class MainActivity : BaseActivity() {
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
+        }
+
+        if(BuildConfig.DEBUG){
+            showDialogDebug()
         }
 
         binding.bottomNavigation.setOnNavigationItemSelectedListener { menuItem ->
@@ -92,4 +103,32 @@ class MainActivity : BaseActivity() {
     override fun onResume() {
         super.onResume()
     }
+
+    private fun showDialogDebug() {
+        val url = MySharedPreferences.getStringValues(this, MySharedPreferences.PREF_KEY_URL)
+        if(url!=null) return
+        val dialog = Dialog(this, R.style.Theme_Dialog)
+        dialog!!.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        dialog!!.window!!.setFlags(
+            WindowManager.LayoutParams.FLAG_FULLSCREEN,
+            WindowManager.LayoutParams.FLAG_FULLSCREEN
+        )
+        dialog!!.window!!.setBackgroundDrawableResource(R.color.transparent)
+        val bindingDialog = PopupDebugBinding.inflate(LayoutInflater.from(this))
+        dialog!!.setContentView(bindingDialog.root)
+
+        bindingDialog.btnConfirm.setOnClickListener {
+            if(bindingDialog.edtUrl.text.toString().isEmpty()){
+                bindingDialog.edtUrl.error = "Vui lòng nhập URL"
+                return@setOnClickListener
+            }
+            APISERVICE.setBaseUrl(bindingDialog.edtUrl.text.toString())
+            MySharedPreferences.setStringValue(this, MySharedPreferences.PREF_KEY_URL,bindingDialog.edtUrl.text.toString())
+            dialog.dismiss()
+        }
+
+        dialog.setCancelable(false)
+        dialog.show()
+    }
+
 }

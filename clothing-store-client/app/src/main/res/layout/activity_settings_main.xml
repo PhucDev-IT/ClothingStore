@@ -21,4 +21,5 @@
         android:textSize="@dimen/text_size_default"
         android:background="@drawable/bg_bottom_line"
         android:padding="@dimen/_10sdp"/>
+
 </LinearLayout>

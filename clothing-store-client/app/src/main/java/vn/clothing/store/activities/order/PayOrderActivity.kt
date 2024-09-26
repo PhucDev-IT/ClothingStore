@@ -1,6 +1,7 @@
 package vn.clothing.store.activities.order
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.activity.enableEdgeToEdge
@@ -11,6 +12,7 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import vn.clothing.store.R
 import vn.clothing.store.activities.common.BaseActivity
+import vn.clothing.store.activities.settings.SettingsMainActivity
 import vn.clothing.store.adapter.RvPayOrderAdapter
 import vn.clothing.store.common.CoreConstant
 import vn.clothing.store.common.IntentData
@@ -70,6 +72,14 @@ class PayOrderActivity : BaseActivity(), PayOrderContract.View {
         binding.btnBuyProduct.setOnClickListener {
             payment()
         }
+
+        binding.header.toolbar.setNavigationOnClickListener {
+            finish()
+        }
+
+        binding.btnSelectAddress.setOnClickListener {
+            startActivity(Intent(this,SettingsMainActivity::class.java))
+        }
     }
 
     override val layoutView: View
@@ -114,12 +124,13 @@ class PayOrderActivity : BaseActivity(), PayOrderContract.View {
         val orderRequestModel = OrderRequestModel(
             totalMoney,
             totalMoney + FEESHIP,
-            address!!.details!!,
+            address!!.details,
             null,
             "PENDING",
             orderItems
         )
-        presenter.payment(orderRequestModel)
+        val cartIds = cartItems.map { it.id!! }
+        presenter.payment(orderRequestModel, cartIds)
     }
 
 
@@ -135,11 +146,12 @@ class PayOrderActivity : BaseActivity(), PayOrderContract.View {
     }
 
     override fun onShowPopup(message: String, type: PopupDialog.PopupType) {
-        PopupDialog.showDialog(this, type, null, message){}
+        PopupDialog.showDialog(this, type, null, message) {}
     }
 
     override fun onPaymentSuccess(orderId: String) {
-        CoreConstant.showToast(this,getString(R.string.success),CoreConstant.ToastType.SUCCESS)
+        CoreConstant.showToast(this, getString(R.string.success), CoreConstant.ToastType.SUCCESS)
+        startActivity(Intent(this, PurchaseHistoryActivity::class.java))
         finish()
     }
 
@@ -152,7 +164,7 @@ class PayOrderActivity : BaseActivity(), PayOrderContract.View {
                     break
                 }
             }
-            if(address == null){
+            if (address == null) {
                 this.address = addresses[0]
             }
             displayAddress(address!!)

@@ -28,8 +28,9 @@ import java.lang.StringBuilder
 
 class VerifyOtpSignUpFragment : Fragment(), OnFocusChangeListener, TextView.OnEditorActionListener{
     private var binding:ViewVerifyOtpCodeBinding?=null
+
     private var otpCode = ""
-    private lateinit var bgFilled: Drawable
+//    private lateinit var bgFilled: Drawable
     private lateinit var bgEmpty: Drawable
 
 
@@ -51,7 +52,7 @@ class VerifyOtpSignUpFragment : Fragment(), OnFocusChangeListener, TextView.OnEd
         binding?.header?.toolbar?.setNavigationOnClickListener {
             requireActivity().finish()
         }
-        bgFilled = ContextCompat.getDrawable(requireContext(), R.drawable.bg_otp_active_border)!!
+        //bgFilled = ContextCompat.getDrawable(requireContext(), R.drawable.bg_otp_active_border)!!
         bgEmpty = ContextCompat.getDrawable(requireContext(), R.drawable.bg_otp_digit)!!
     }
 
@@ -79,11 +80,11 @@ class VerifyOtpSignUpFragment : Fragment(), OnFocusChangeListener, TextView.OnEd
             override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
                 if((p0?.length ?: 0) >= 1){
                     binding!!.edt2.requestFocus()
-                    binding!!.edt1.background = bgFilled
+                  //  binding!!.edt1.background = bgFilled
                 }else{
                     binding!!.edt1.background = bgEmpty
                     if (binding!!.edt1.isFocused) {
-                        binding!!.edt1.background = bgFilled
+                    //    binding!!.edt1.background = bgFilled
                     }
                 }
             }
@@ -96,11 +97,11 @@ class VerifyOtpSignUpFragment : Fragment(), OnFocusChangeListener, TextView.OnEd
             override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
                 if((p0?.length ?: 0) >= 1){
                     binding!!.edt3.requestFocus()
-                    binding!!.edt2.background = bgFilled
+                   // binding!!.edt2.background = bgFilled
                 }else{
                     binding!!.edt2.background = bgEmpty
                     if (binding!!.edt2.isFocused) {
-                        binding!!.edt2.background = bgFilled
+                    //    binding!!.edt2.background = bgFilled
                     }
                 }
             }
@@ -113,11 +114,11 @@ class VerifyOtpSignUpFragment : Fragment(), OnFocusChangeListener, TextView.OnEd
             override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
                 if((p0?.length ?: 0) >= 1){
                     binding!!.edt4.requestFocus()
-                    binding!!.edt3.background = bgFilled
+                   // binding!!.edt3.background = bgFilled
                 }else{
                     binding!!.edt3.background = bgEmpty
                     if (binding!!.edt3.isFocused) {
-                        binding!!.edt3.background = bgFilled
+                   //     binding!!.edt3.background = bgFilled
                     }
                 }
             }
@@ -130,11 +131,11 @@ class VerifyOtpSignUpFragment : Fragment(), OnFocusChangeListener, TextView.OnEd
             override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
                 if((p0?.length ?: 0) >= 1){
                     binding!!.edt5.requestFocus()
-                    binding!!.edt4.background = bgFilled
+               //     binding!!.edt4.background = bgFilled
                 }else{
                     binding!!.edt4.background = bgEmpty
                     if (binding!!.edt4.isFocused) {
-                        binding!!.edt4.background = bgFilled
+                //        binding!!.edt4.background = bgFilled
                     }
                 }
             }
@@ -147,11 +148,11 @@ class VerifyOtpSignUpFragment : Fragment(), OnFocusChangeListener, TextView.OnEd
             override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
                 if((p0?.length ?: 0) >= 1){
                     binding!!.edt6.requestFocus()
-                    binding!!.edt5.background = bgFilled
+                  //  binding!!.edt5.background = bgFilled
                 }else{
                     binding!!.edt5.background = bgEmpty
                     if (binding!!.edt5.isFocused) {
-                        binding!!.edt5.background = bgFilled
+                 //       binding!!.edt5.background = bgFilled
                     }
                 }
             }
@@ -168,7 +169,7 @@ class VerifyOtpSignUpFragment : Fragment(), OnFocusChangeListener, TextView.OnEd
                 }else{
                     binding!!.edt6.background = bgEmpty
                     if (binding!!.edt6.isFocused) {
-                        binding!!.edt6.background = bgFilled
+                    //    binding!!.edt6.background = bgFilled
                     }
                 }
             }
@@ -180,12 +181,12 @@ class VerifyOtpSignUpFragment : Fragment(), OnFocusChangeListener, TextView.OnEd
 
 
     override fun onFocusChange(v: View?, hasFocus: Boolean) {
-        view?.background = if(hasFocus) bgFilled else bgEmpty
-        if (view is EditText){
-            if(((view as EditText).text?.length ?: 0) > 1){
-                (view as EditText).background = bgFilled
-            }
-        }
+//        view?.background = if(hasFocus) bgFilled else bgEmpty
+//        if (view is EditText){
+//            if(((view as EditText).text?.length ?: 0) > 1){
+//                (view as EditText).background = bgFilled
+//            }
+//        }
     }
 
     override fun onEditorAction(v: TextView?, actionId: Int, event: KeyEvent?): Boolean {

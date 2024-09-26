@@ -11,6 +11,7 @@ class MySharedPreferences {
         const val PREF_TOKEN: String = "PREF_TOKEN"
         const val PREF_KEY_LANGUAGE = "PREF_LANGUAGE"
         const val PREF_KEY_THEME_MODE = "PREF_KEY_THEME_MODE"
+        const val PREF_KEY_URL =  "PREF_KEY_URL"
 
 
 

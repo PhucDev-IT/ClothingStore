@@ -97,6 +97,7 @@
                     </LinearLayout>
 
                     <ImageView
+                        android:id="@+id/btn_select_address"
                         android:layout_width="@dimen/_20sdp"
                         android:layout_height="@dimen/_20sdp"
                         android:contentDescription="@string/todo"
