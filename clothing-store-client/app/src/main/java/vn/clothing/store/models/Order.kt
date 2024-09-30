@@ -18,8 +18,21 @@ class Order {
     var orderDate: Date?=null
     @SerializedName("user_id")
     var userId: String?=null
-//    @SerializedName("list_item")
-//    var listItem: List<OrderItem>?=null
+    var status: String?=null
+    @SerializedName("fee_ship")
+    var feeShip: Float?=null
+    @SerializedName("list_item")
+    var listItem: List<OrderItem>?=null
 
+    var product:Product?=null
+}
 
+class OrderItem{
+    var id:String?=null
+    @SerializedName("order_id")
+    var orderId:String?=null
+    var color:String?=null
+    var size:String?=null
+    var quantity:Int?=null
+    var price:Float?=null
 }

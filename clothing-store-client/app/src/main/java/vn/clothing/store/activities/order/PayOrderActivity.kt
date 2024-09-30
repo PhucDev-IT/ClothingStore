@@ -21,6 +21,7 @@ import vn.clothing.store.common.PopupDialog
 import vn.clothing.store.databinding.ActivityPayOrderBinding
 import vn.clothing.store.interfaces.PayOrderContract
 import vn.clothing.store.models.DeliveryInformation
+import vn.clothing.store.models.VoucherModel
 import vn.clothing.store.networks.request.OrderItemRequestModel
 import vn.clothing.store.networks.request.OrderRequestModel
 import vn.clothing.store.networks.response.CartResponseModel
@@ -33,10 +34,12 @@ class PayOrderActivity : BaseActivity(), PayOrderContract.View {
     private var address: DeliveryInformation? = null
     private lateinit var cartItems: ArrayList<CartResponseModel.CartItemResponseModel>
     private var adapter: RvPayOrderAdapter? = null
-    private val FEESHIP = 20000
+    private val FEESHIP = 20000f
     private var totalMoney: Double = 0.0
+    private var voucher:VoucherModel?=null
 
     override fun initView() {
+        enableEdgeToEdge()
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
@@ -80,6 +83,12 @@ class PayOrderActivity : BaseActivity(), PayOrderContract.View {
         binding.btnSelectAddress.setOnClickListener {
             startActivity(Intent(this,SettingsMainActivity::class.java))
         }
+
+        binding.tvChooseVoucher.setOnClickListener {
+            val intent = Intent(this, SelectCouponActivity::class.java)
+            intent.putExtra(IntentData.KEY_VOUCHER,voucher)
+            startActivityForResult(intent, REQUEST_SELECT_VOUCHER)
+        }
     }
 
     override val layoutView: View
@@ -120,13 +129,13 @@ class PayOrderActivity : BaseActivity(), PayOrderContract.View {
                 )
             )
         }
-
+        val deliveryDetails = "${address!!.fullName}|${address!!.numberPhone}|${address!!.details}"
         val orderRequestModel = OrderRequestModel(
             totalMoney,
             totalMoney + FEESHIP,
-            address!!.details,
+            deliveryDetails,
             null,
-            "PENDING",
+            feeShip = FEESHIP,
             orderItems
         )
         val cartIds = cartItems.map { it.id!! }
@@ -191,4 +200,21 @@ class PayOrderActivity : BaseActivity(), PayOrderContract.View {
     // endregion PayOrderContract.View
     //=====================================
 
+    @Deprecated("This method has been deprecated in favor of using the Activity Result API\n      which brings increased type safety via an {@link ActivityResultContract} and the prebuilt\n      contracts for common intents available in\n      {@link androidx.activity.result.contract.ActivityResultContracts}, provides hooks for\n      testing, and allow receiving results in separate, testable classes independent from your\n      activity. Use\n      {@link #registerForActivityResult(ActivityResultContract, ActivityResultCallback)}\n      with the appropriate {@link ActivityResultContract} and handling the result in the\n      {@link ActivityResultCallback#onActivityResult(Object) callback}.")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if(resultCode == RESULT_OK){
+            when(requestCode){
+                REQUEST_SELECT_VOUCHER -> {
+                    val voucher = data?.getSerializableExtra(IntentData.KEY_VOUCHER) as VoucherModel?
+                    this.voucher = voucher
+                }
+            }
+        }
+    }
+
+
+    companion object{
+        private const val REQUEST_SELECT_VOUCHER = 235
+    }
 }

@@ -32,6 +32,7 @@ class MyAddressFragment : Fragment(), MyAddressContract.View {
         binding.rvAddress.layoutManager =
             LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
 
+
         initUi()
         return binding.root
     }
@@ -42,6 +43,10 @@ class MyAddressFragment : Fragment(), MyAddressContract.View {
         binding.lnAddNewAddress.setOnClickListener {
             requireActivity().supportFragmentManager.beginTransaction()
                 .replace(R.id.container, AddNewDeliveryInfoFragment()).addToBackStack(null).commit()
+        }
+
+        binding.header.toolbar.setNavigationOnClickListener {
+           parentFragmentManager.popBackStack()
         }
     }
 

@@ -23,3 +23,5 @@ class ResponseModel<T> {
         this.data = data
     }
 }
+
+class Pagination(var totalItems:Int?,var totalPages:Int?,var currentPage:Int?,var itemsPerPage:Int?)

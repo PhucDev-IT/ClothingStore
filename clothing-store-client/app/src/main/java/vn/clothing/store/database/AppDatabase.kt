@@ -15,7 +15,7 @@ import vn.clothing.store.models.User
 import vn.master.epass.database.core.Converters
 
 
-@Database(entities = [DeliveryInformation::class, User::class, Category::class], version = 1)
+@Database(entities = [DeliveryInformation::class, User::class, Category::class], version = 2)
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun addressDao(): AddressDao
@@ -33,7 +33,8 @@ abstract class AppDatabase : RoomDatabase() {
                     MyApplication.instance.context,
                     AppDatabase::class.java,
                     DATABASE_NAME
-                ).allowMainThreadQueries().build().also { instance = it }
+                ).fallbackToDestructiveMigration()
+                    .allowMainThreadQueries().build().also { instance = it }
             }
         }
     }

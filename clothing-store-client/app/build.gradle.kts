@@ -21,11 +21,16 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isDebuggable = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+        }
+        debug {
+            isMinifyEnabled = false
+            isDebuggable = true
         }
     }
     compileOptions {
@@ -44,7 +49,7 @@ android {
     flavorDimensions.add("dev")
     productFlavors{
         create("dev"){
-            buildConfigField("String","API_BASE_URL","\"http://192.168.201.27:3000/\"")
+            buildConfigField("String","API_BASE_URL","\"http://192.168.201.21:3000/\"")
         }
     }
 }

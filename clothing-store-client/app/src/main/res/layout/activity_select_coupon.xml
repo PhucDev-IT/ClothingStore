@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/background"
+    tools:context=".activities.order.SelectCouponActivity">
+
+    <include layout="@layout/layout_header"
+        android:id="@+id/layout_header"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/_40sdp"
+        android:layout_margin="@dimen/_10sdp"
+        android:background="@drawable/bg_search_white"
+        android:orientation="horizontal">
+        <EditText
+            android:id="@+id/edtCode"
+            android:layout_marginStart="@dimen/_12sdp"
+            android:layout_marginVertical="@dimen/_4sdp"
+            android:layout_weight="0.5"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:paddingHorizontal="@dimen/_15sdp"
+            android:background="@color/background"
+            android:hint="Promo code"/>
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btnApplyInput"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/btn_primary"
+            android:textColor="@color/white"
+            android:layout_margin="@dimen/_3sdp"
+            android:textAllCaps="false"
+            android:text="Apply"/>
+    </LinearLayout>
+
+    <!--    Skeleton-->
+    <com.facebook.shimmer.ShimmerFrameLayout
+        android:visibility="gone"
+        android:id="@+id/shimmer_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <include layout="@layout/my_cart_skeleton"/>
+    </com.facebook.shimmer.ShimmerFrameLayout>
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipRefresh"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvCoupons"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            />
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+</LinearLayout>

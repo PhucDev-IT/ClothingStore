@@ -18,6 +18,18 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
+            android:name=".activities.order.SelectCouponActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.SearchProductActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.order.TrackOrderActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.MyVoucherActivity"
+            android:exported="false" />
+        <activity
             android:name=".activities.order.PurchaseHistoryActivity"
             android:exported="false" />
         <activity

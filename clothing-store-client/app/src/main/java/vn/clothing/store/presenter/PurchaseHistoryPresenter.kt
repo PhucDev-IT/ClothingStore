@@ -11,33 +11,55 @@ import vn.mobile.banking.network.rest.BaseCallback
 
 class PurchaseHistoryPresenter(private var view: PurchasedHistoryContract.View?) :
     PurchasedHistoryContract.Presenter {
-        var adapter: RvPurchasedHistoryAdapter
+    var adapter: RvPurchasedHistoryAdapter
+
     init {
         adapter = RvPurchasedHistoryAdapter {
-
+            view?.onRequestSeenDetail(it)
         }
     }
+
     private var totalPage: Int = 0
     private val limit = 10
     private var page = 1
 
+    override fun getFirstOrder(state: String) {
+        totalPage = 0
+        page = 1
+        adapter.clearData()
+        getOrders(state, limit, page)
+    }
 
-    override fun getOrders(state: String) {
+   private fun getOrders(state: String, limitOrder: Int, currentPage: Int) {
         view?.onShowLoading()
-        APISERVICE.getService(AppManager.token).getOrders(state, limit, page)
+        APISERVICE.getService(AppManager.token).getOrders(state, limitOrder, currentPage)
             .enqueue(object : BaseCallback<ResponseModel<PurchaseHistoryResponseModel>>() {
                 override fun onSuccess(model: ResponseModel<PurchaseHistoryResponseModel>) {
-                    if(model.success && model.data!=null){
+                    if (model.success && model.data != null) {
                         view?.onHideLoading()
-                        adapter.setData(model.data!!.orders!!)
-                    }else{
-                        view?.onShowError(model.error?.message?:"")
+                        totalPage = model.data!!.pagination!!.totalPages!!
+                        if(!model.data?.orders.isNullOrEmpty()) {
+                            adapter.setData(model.data!!.orders!!)
+                        }else{
+                            view?.onNotFoundItem()
+                        }
+                    } else {
+                        view?.onShowError(model.error?.message ?: "")
+                        view?.onNotFoundItem()
                     }
                 }
 
                 override fun onError(message: String) {
                     view?.onShowError(message)
+                    view?.onNotFoundItem()
                 }
             })
+    }
+
+    fun getNextPage(status:String){
+        if(page>totalPage) return
+        page++
+        getOrders(status,limit, page)
+
     }
 }

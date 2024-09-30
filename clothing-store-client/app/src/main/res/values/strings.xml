@@ -117,6 +117,9 @@
     <string name="tab_item_processing">Đang xử lý</string>
     <string name="tab_item_history">Đã mua</string>
     <string name="tab_item_review">Đánh giá</string>
+    <string name="tab_item_canceled">Đã hủy</string>
     <string name="str_quantity">x%s sản phẩm</string>
 
+    <string name="title_header_voucher">Mã giảm giá của tôi</string>
+    <string name="label_info_detail">Thông tin chi tiết</string>
 </resources>

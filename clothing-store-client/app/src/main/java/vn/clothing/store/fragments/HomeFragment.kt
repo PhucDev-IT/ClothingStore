@@ -3,6 +3,7 @@ package vn.clothing.store.fragments
 import android.content.Intent
 import android.os.Bundle
 import android.os.CountDownTimer
+import android.os.Handler
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -12,6 +13,7 @@ import com.denzcoskun.imageslider.constants.ScaleTypes
 import com.denzcoskun.imageslider.models.SlideModel
 import vn.clothing.store.R
 import vn.clothing.store.activities.ProductDetailsActivity
+import vn.clothing.store.activities.SearchProductActivity
 import vn.clothing.store.adapter.RvProductHomeAdapter
 import vn.clothing.store.common.CoreConstant
 import vn.clothing.store.common.IntentData
@@ -47,10 +49,26 @@ class HomeFragment : Fragment(), HomeContract.View {
             intent.putExtra(IntentData.KEY_PRODUCT,prod)
             startActivity(intent)
         }
-
+        setListener()
         binding.rvProducts.adapter = adapterProduct
     }
 
+    private fun setListener(){
+        binding.swipRefresh.setOnRefreshListener {
+            Handler().postDelayed({
+                if (binding.radioGroup.childCount > 0) {
+                    val firstRadioButton = binding.radioGroup.getChildAt(0) as RadioButton
+                    firstRadioButton.isChecked = true
+                }
+                binding.swipRefresh.isRefreshing = false
+            },1500)
+        }
+
+        binding.tvSearch.setOnClickListener{
+            val intent = Intent(requireActivity(), SearchProductActivity::class.java)
+            startActivity(intent)
+        }
+    }
 
     private fun initSlider() {
         val imageList = ArrayList<SlideModel>() // Create image list

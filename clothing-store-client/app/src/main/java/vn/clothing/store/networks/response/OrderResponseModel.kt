@@ -1,12 +1,14 @@
 package vn.clothing.store.networks.response
 
 import com.google.gson.annotations.SerializedName
+import vn.mobile.banking.network.response.Pagination
+import java.io.Serializable
 import java.util.Date
 
 
 class PurchaseHistoryResponseModel{
     var orders:List<OrderResponseModel>? = null
-    var pagination:Pagination?=null
+    var pagination: Pagination?=null
 }
 
 class OrderResponseModel (
@@ -23,8 +25,12 @@ class OrderResponseModel (
     @SerializedName("first_product_image")
     var iamge:String,
     @SerializedName("first_product_name")
-    var productName:String
+    var productName:String,
+    @SerializedName("fee_ship")
+    var feeShip:Float?,
+    @SerializedName("delivery_information")
+    var shippingAddress:String?
 
-)
 
-class Pagination(var totalItems:Int?,var totalPages:Int?,var currentPage:Int?,var itemsPerPage:Int?)
+):Serializable
+

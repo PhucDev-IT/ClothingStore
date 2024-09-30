@@ -10,7 +10,8 @@ data class OrderRequestModel(
     var shippingAddress: String,
     @SerializedName("voucher_id")
     var voucherId: String?,
-    var status:String = "PENDING",
+    @SerializedName("fee_ship")
+    var feeShip:Float,
     @SerializedName("list_item")
     var listItem: List<OrderItemRequestModel>
 )

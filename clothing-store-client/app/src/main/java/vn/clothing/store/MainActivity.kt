@@ -13,6 +13,7 @@ import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import vn.clothing.store.activities.ShoppingCartActivity
@@ -41,14 +42,15 @@ class MainActivity : BaseActivity() {
     }
 
     override fun initView() {
+        window.statusBarColor = ContextCompat.getColor(this, R.color.background)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, 0)
             insets
         }
 
         if(BuildConfig.DEBUG){
-            showDialogDebug()
+         //   showDialogDebug()
         }
 
         binding.bottomNavigation.setOnNavigationItemSelectedListener { menuItem ->

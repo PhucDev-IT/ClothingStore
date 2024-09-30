@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <dimen name="text_size_medium">@dimen/_14sdp</dimen>
     <dimen name="text_size_small">@dimen/_12sdp</dimen>
     <dimen name="text_size_default">@dimen/_13sdp</dimen>
@@ -12,4 +12,7 @@
     <dimen name="margin_none">0dp</dimen>
     <dimen name="item_photo_width">112dp</dimen>
     <dimen name="item_photo_height">112dp</dimen>
+
+    <dimen name="design_bottom_navigation_item_max_width" tools:override="true">600dp</dimen>
+    <dimen name="design_bottom_navigation_active_item_max_width" tools:override="true">600dp</dimen>
 </resources>

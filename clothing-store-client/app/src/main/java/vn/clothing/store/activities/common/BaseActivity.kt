@@ -17,7 +17,7 @@ import vn.clothing.store.R
 abstract class BaseActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+       // enableEdgeToEdge()
         setContentView(layoutView)
         initView()
         setListener()
@@ -31,6 +31,8 @@ abstract class BaseActivity : AppCompatActivity() {
     abstract fun setListener()
 
     abstract val layoutView: View
+
+
 
 
     protected fun requestPermission(permission:ArrayList<String>,runnable: Runnable){

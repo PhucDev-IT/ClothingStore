@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import vn.clothing.store.R
+import vn.clothing.store.activities.MyVoucherActivity
 import vn.clothing.store.activities.order.PurchaseHistoryActivity
 import vn.clothing.store.activities.settings.SettingsMainActivity
 import vn.clothing.store.adapter.RvDashboardItemViewUser
@@ -51,6 +52,7 @@ class UserFragment : Fragment() {
             val intent = Intent(
                 requireActivity(), when (it) {
                     1 -> PurchaseHistoryActivity::class.java
+                    2-> MyVoucherActivity::class.java
                     else -> PurchaseHistoryActivity::class.java
                 }
             )

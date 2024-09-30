@@ -23,6 +23,11 @@ class RvPurchasedHistoryAdapter(private val onClick:Consumer<OrderResponseModel>
         notifyDataSetChanged()
     }
 
+    @SuppressLint("NotifyDataSetChanged")
+    fun clearData(){
+        list.clear()
+        notifyDataSetChanged()
+    }
 
     inner class ItemViewHolder(itemView:View): RecyclerView.ViewHolder(itemView){
         val binding: ViewholderPurchasedHistoryBinding = ViewholderPurchasedHistoryBinding.bind(itemView)
@@ -40,6 +45,11 @@ class RvPurchasedHistoryAdapter(private val onClick:Consumer<OrderResponseModel>
         holder.binding.tvTotalProduct.text = list[position].itemCount.toString() + " mặt hàng"
         holder.binding.tvDateOrder.text =  FormatCurrency.dateFormat.format(list[position].orderDate)
         holder.binding.tvTotalMoney.text = FormatCurrency.numberFormat.format(list[position].realTotal)
+
+        holder.itemView.setOnClickListener {
+            onClick.accept(list[position])
+
+        }
     }
 
     override fun getItemCount(): Int {
