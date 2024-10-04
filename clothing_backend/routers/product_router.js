@@ -8,6 +8,7 @@ import upload from "../config/upload.js";
 import Models from "../models/response/ResponseModel.js";
 import { authenticateToken, authorizeRole } from "../config/jwt_filter.js";
 import logger from "../utils/logger.js";
+import sequelize from '../connection/mysql.js';
 
 const addCategory = Joi.object({
     category_name: Joi.string().required().messages({
@@ -27,6 +28,29 @@ const updateCategory = Joi.object({
     is_public: Joi.boolean().optional().messages({
         "boolean.base": "is_public phải là true hoặc false",
     }),
+});
+
+//search product by like name
+router.get("/products_by_name", authenticateToken, authorizeRole(["admin", "user"]), async (req,res,next)=>{
+    try {
+        const searchQuery = req.query.name;
+
+        if (!searchQuery || searchQuery.trim() === "") {
+            return res.status(400).json(new Models.ResponseModel(false, new Models.ErrorResponseModel(2, "Thiếu từ khóa tìm kiếm", null), null));
+        }
+
+        const query = `SELECT * FROM products WHERE LOWER(name) LIKE LOWER(?)`;
+        const replacements = [`%${searchQuery}%`];
+        const products = await sequelize.query(query, {
+            replacements,
+            type: sequelize.QueryTypes.SELECT,
+        });
+
+        return res.status(200).json(new Models.ResponseModel(true, null, products));
+    } catch (error) {
+        next(error); // Gọi next để truyền lỗi cho middleware xử lý lỗi
+        return res.status(500).json(new Models.ResponseModel(false, new Models.ErrorResponseModel(1, "Lỗi hệ thống", error.message), null));
+    }
 });
 
 //get all

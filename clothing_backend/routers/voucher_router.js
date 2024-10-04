@@ -7,7 +7,7 @@ import logger from "../utils/logger.js";
 import Voucher from "../models/voucher_model.js";
 import Models from "../models/response/ResponseModel.js";
 import User from "../models/user_model.js";
-const { Op } = require('sequelize'); // Import các toán tử Sequelize
+import { Op } from 'sequelize';
 
 //test - ok
 //get all voucher (phân trang - admin) 
