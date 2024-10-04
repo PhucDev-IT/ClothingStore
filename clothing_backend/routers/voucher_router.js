@@ -59,12 +59,7 @@ router.get('/vouchers/my_voucher',authenticateToken, authorizeRole(["user"]), as
         });
 
     
-        return res.status(200).json(new Models.ResponseModel(true, null, {
-            vouchers: filteredVouchers,
-            currentPage: page,
-            totalPages: totalPages,
-            totalVouchers: filteredVouchers.length
-        }));
+        return res.status(200).json(new Models.ResponseModel(true, null, vouchers));
 
     
     } catch (error) {
