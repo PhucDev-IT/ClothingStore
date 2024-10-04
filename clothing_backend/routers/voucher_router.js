@@ -7,6 +7,8 @@ import logger from "../utils/logger.js";
 import Voucher from "../models/voucher_model.js";
 import Models from "../models/response/ResponseModel.js";
 import User from "../models/user_model.js";
+const { Op } = require('sequelize'); // Import các toán tử Sequelize
+
 //test - ok
 //get all voucher (phân trang - admin) 
 router.get('/vouchers',authenticateToken, authorizeRole(["admin"]), async (req, res, next) =>{
@@ -24,9 +26,12 @@ router.get('/vouchers',authenticateToken, authorizeRole(["admin"]), async (req, 
         const totalPages = Math.ceil(count / limit);
         return res.status(200).json(new Models.ResponseModel(true, null, {
             vouchers: rows,
-            currentPage: page,
-            totalPages: totalPages,
-            totalVouchers: count
+            pagination: {
+                totalItems: count,
+                totalPages: totalPages,
+                currentPage: page,
+                itemsPerPage: limit
+            }
         }));
     } catch (error) {
     logger.error('Error fetching vouchers:', error);
@@ -39,34 +44,21 @@ router.get('/vouchers',authenticateToken, authorizeRole(["admin"]), async (req, 
 router.get('/vouchers/my_voucher',authenticateToken, authorizeRole(["user"]), async (req, res, next)=>{
     try{
         const user_id = req.user.id;  
-        const page = parseInt(req.query.page) || 1; 
-        const limit = parseInt(req.query.limit) || 10; 
-        const offset = (page - 1) * limit; 
         const currentDate = new Date(); 
-    
-        // Lấy tất cả vouchers hợp lệ với phân trang
-        const { count, rows } = await Voucher.findAndCountAll({
+        const vouchers = await Voucher.findAll({
             include: [{
                 model: User,
                 where: { id: user_id },
                 attributes: [] 
             }],
             where: {
-                is_public: true
+                is_public: true,
+                startAt: { [Op.lte]: currentDate },  // Sửa: So sánh ngày bắt đầu nhỏ hơn hoặc bằng hiện tại
+                endAt: { [Op.gte]: currentDate }     // Sửa: So sánh ngày kết thúc lớn hơn hoặc bằng hiện tại
             },
-            offset: offset,
-            limit: limit,
-        });
-        
-        const filteredVouchers = rows.filter(voucher => {
-            const startAt = new Date(voucher.start_at);
-            const endAt = new Date(voucher.end_at);
-            return voucher.is_public === true && startAt <= currentDate && endAt >= currentDate;
         });
 
-        // Adjust the total count after filtering
-        const totalPages = Math.ceil(filteredVouchers.length / limit);
-
+    
         return res.status(200).json(new Models.ResponseModel(true, null, {
             vouchers: filteredVouchers,
             currentPage: page,
@@ -112,10 +104,12 @@ router.get('/voucher/:id', authenticateToken, authorizeRole(["user", "admin"]), 
 });
 
 
-router.post('/voucher',authenticateToken, authorizeRole(["admin"]),  async (req, res, next) => {
+//User_id is array
+router.post('/voucher', authenticateToken, authorizeRole(["admin"]), async (req, res, next) => {
     try {
         const { title, description, discount, type, start_at, end_at, is_public, user_id } = req.body;
-        console.log(user_id);
+
+        // Tạo voucher mới
         const voucher = await Voucher.create({
             title,
             description,
@@ -125,12 +119,32 @@ router.post('/voucher',authenticateToken, authorizeRole(["admin"]),  async (req,
             end_at,
             is_public,
         });
-        const user = await User.findByPk(user_id);
-        if (!user) {
-            return res.status(404).json(new Models.ResponseModel(false, new Models.ErrorResponseModel(1, "User not found", null), null));
+
+        // Kiểm tra nếu có user_id được chỉ định
+        if (user_id && user_id.length > 0) {
+            // Gán voucher cho các user được chỉ định
+            const users = await User.findAll({
+                where: {
+                    id: user_id, // Lọc theo danh sách user_id
+                }
+            });
+
+            if (users.length === 0) {
+                return res.json(new Models.ResponseModel(false, new Models.ErrorResponseModel(1, "No users found with provided IDs", null), null));
+            }
+
+            // Gán voucher cho tất cả người dùng chỉ định
+            await Promise.all(users.map(user => user.addVoucher(voucher)));
+
+        } else {
+            // Nếu user_id rỗng, gán voucher cho tất cả người dùng
+            const allUsers = await User.findAll(); // Lấy tất cả người dùng
+
+            await Promise.all(allUsers.map(user => user.addVoucher(voucher)));
         }
-        await user.addVoucher(voucher);
+
         return res.status(200).json(new Models.ResponseModel(true, null, voucher));
+
     } catch (error) {
         logger.error('Error adding voucher:', error);
         return res.status(500).json(new Models.ResponseModel(false, new Models.ErrorResponseModel(1, "Lỗi hệ thống", error.message), null));

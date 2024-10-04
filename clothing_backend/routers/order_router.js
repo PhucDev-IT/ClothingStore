@@ -12,7 +12,7 @@ import User from "../models/user_model.js";
 import sequelize from '../connection/mysql.js';
 import { authenticateToken, authorizeRole } from "../config/jwt_filter.js";
 import product_model from "../models/product_model.js";
-import { QueryTypes, Sequelize } from "sequelize";
+import { or, QueryTypes, Sequelize } from "sequelize";
 
 // ----------Order-----------
 
@@ -57,9 +57,12 @@ const order_request = Joi.object({
         "any.required": "delivery_information là bắt buộc",
         "string.base": "delivery_information : Thông tin chi tiết nhận hàng"
     }),
+    fee_ship: Joi.number().required().messages({
+        "any.required": "fee_ship là bắt buộc",
+        "string.base": "fee_ship : Phí vận chuyển"
+    }),
 
     voucher_id: Joi.string().allow(null, '').empty(true).optional(),
-    status: Joi.string().allow(null).optional(),
     list_item: Joi.array().items(order_item_request).required()
 });
 
@@ -81,6 +84,7 @@ router.post('/', authenticateToken, authorizeRole(["user"]), async (req, res, ne
             delivery_information: value.delivery_information,
             voucher_id: value.voucher_id,
             user_id: user_id,
+            fee_ship: value.fee_ship,
             order_date: new Date()
         }, { transaction });
 
@@ -93,6 +97,11 @@ router.post('/', authenticateToken, authorizeRole(["user"]), async (req, res, ne
             quantity: item.quantity,
             price: item.price
         }));
+
+        const orderStatus = await order_model.OrderStatus.create({
+            order_id: order.id,
+            status: "PENDING",
+        }, { transaction });
 
         // Lưu các OrderItems vào cơ sở dữ liệu
         await order_model.OrderItem.bulkCreate(orderItems, { transaction });
@@ -122,7 +131,7 @@ router.get('/my_orders/:status', authenticateToken, authorizeRole(["user"]), asy
     try {
         // Lấy tổng số sản phẩm thuộc user
         const totalOrders = await order_model.Order.count({
-            where: { user_id: user_id, status: status }  // Điều kiện lấy theo user_id
+            where: { user_id: user_id }  // Điều kiện lấy theo user_id
         });
 
         // Lấy danh sách sản phẩm có phân trang
@@ -131,8 +140,10 @@ router.get('/my_orders/:status', authenticateToken, authorizeRole(["user"]), asy
                 o.id AS order_id,
                 o.total,
                 o.real_total,
-                o.status,
+                o.fee_ship,
+                os.status,
                 o.order_date,
+                o.delivery_information,
                 COUNT(oi.id) AS item_count,
                 (SELECT p.img_preview 
                  FROM products p 
@@ -148,13 +159,16 @@ router.get('/my_orders/:status', authenticateToken, authorizeRole(["user"]), asy
                     LIMIT 1) AS first_product_name -- Lấy tên sản phẩm đầu tiên
             FROM orders o
             INNER JOIN order_items oi ON o.id = oi.order_id
+            INNER JOIN order_statuses os on o.id = os.order_id
             WHERE o.user_id = :user_id
+            AND os.status = :status
             GROUP BY o.id
             ORDER BY o.order_date DESC
             LIMIT :limit OFFSET :offset;
         `, {
             replacements: {
                 user_id: user_id,
+                status: status,
                 limit: limit,  // Giới hạn số bản ghi trả về
                 offset: offset    // Bỏ qua các bản ghi trước đó
             },
@@ -192,12 +206,47 @@ router.get('/:id', authenticateToken, authorizeRole(["user"]), async (req, res, 
             where: {
                 id: orderId,
                 user_id: user_id
-            }
+            },
+            include: [
+                {
+                    model: product_model.Product,
+                    attributes: ['id', 'img_preview', 'name']
+                },
+                {
+                    model: Voucher, // Bao gồm cả Voucher nếu cần
+                    attributes: ['id', 'discount', "type"]
+                },
+                {
+                    model: order_model.OrderStatus, // Bao gồm OrderStatus
+                    attributes: ['id', 'status', 'updatedAt']
+                }
+            ]
         });
         if (!order) {
-            return res.status(404).json(new response_model.ResponseModel(false, new response_model.ErrorResponseModel(2, "Đơn hàng không tìm thấy", null), null));
+            return res.json(new response_model.ResponseModel(false, new response_model.ErrorResponseModel(2, "Đơn hàng không tìm thấy", null), null));
         }
-        return res.status(200).json(new response_model.ResponseModel(true, null, order));
+
+        const order_items = order.products.map((item) => ({
+            product_id: item.id,
+            img_preview: item.img_preview,
+            name: item.name,
+            id: item.order_item.id,
+            order_id: item.order_item.order_id,
+            color: item.order_item.color,
+            size: item.order_item.size,
+            quantity: item.order_item.quantity,
+            price: item.order_item.price
+        }));
+
+        const order_response = {
+            voucher: order.voucher,
+            order_items:order_items,
+            order_status:order.order_statuses
+
+        }
+
+      
+        return res.status(200).json(new response_model.ResponseModel(true, null,order_response));
     } catch (err) {
         logger.error("Error fetching order:", err);
         return res.status(500).json(new response_model.ResponseModel(false, new response_model.ErrorResponseModel(1, "Lỗi hệ thống", err.message), null));

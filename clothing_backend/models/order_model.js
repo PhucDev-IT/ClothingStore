@@ -24,14 +24,15 @@ const Order = sequelize.define('order', {
         allowNull: false,
     },
 
-    status :{
-        type: DataTypes.STRING,
-        allowNull: false,
-        defaultValue:()=>"PENDING"
-    },
+   
     voucher_id:{
         type: DataTypes.STRING,
         allowNull: true,
+    },
+    fee_ship:{
+        type:DataTypes.FLOAT,
+        allowNull:true,
+        defaultValue:()=>0
     },
 
     delivery_information :{
@@ -81,4 +82,29 @@ const OrderItem = sequelize.define('order_item',{
 
 
 
-export default {Order, OrderItem};
+const OrderStatus = sequelize.define('order_status',{
+    id: {
+        type: DataTypes.STRING,
+        primaryKey: true,       
+        defaultValue: () => uuidv4(),   
+    },
+    order_id:{
+        type: DataTypes.STRING,
+        allowNull: false,
+    },
+    status:{
+        type:DataTypes.STRING,
+        allowNull:false
+    },
+    note:{
+        type:DataTypes.STRING,
+        allowNull:true
+    }
+    
+}, {
+    timestamps: true 
+});
+
+
+
+export default {Order, OrderItem,OrderStatus};

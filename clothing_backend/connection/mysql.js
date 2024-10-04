@@ -8,7 +8,7 @@ const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, proces
   host: process.env.DB_HOST,
   dialect: 'mysql', // Sử dụng MySQL
   port: process.env.DB_PORT || 3306,
-  logging: false // Tắt log SQL trong console
+  logging: true // Tắt log SQL trong console
 });
 
 

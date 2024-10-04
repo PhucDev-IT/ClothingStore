@@ -2,6 +2,7 @@ import { DataTypes } from 'sequelize';
 import sequelize from '../connection/mysql.js';
 import { v4 as uuidv4 } from 'uuid';
 import User from './user_model.js';
+import { now } from 'sequelize/lib/utils';
 
 const Notification = sequelize.define('notification', {
     id: {
@@ -13,15 +14,20 @@ const Notification = sequelize.define('notification', {
         type: DataTypes.STRING,
         allowNull: false
     },
-    description :{
+    content :{
         type: DataTypes.STRING,
         allowNull: false,
     },   
+    date:{
+        type:DataTypes.DATE,
+        allowNull:false,
+        defaultValue:()=> now()
+    },
     type :{
         type: DataTypes.STRING,
         allowNull: false,
     },
-    required_action :{
+    is_action :{
         type: DataTypes.BOOLEAN,
         allowNull: false,
     },    
@@ -29,6 +35,10 @@ const Notification = sequelize.define('notification', {
         type: DataTypes.STRING,
         allowNull: false,
     },   
+    is_read:{
+        type:DataTypes.STRING,
+        allowNull:false
+    }
 
 }, {
     timestamps: true //Tự động thêm các trường createdAt và updatedAt

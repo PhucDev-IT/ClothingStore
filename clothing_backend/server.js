@@ -119,7 +119,8 @@ async function syncDatabase() {
             otherKey: 'order_id'       // Khóa ngoại trong OrderItem trỏ tới Order
         });
 
-    
+        order_model.Order.hasMany(order_model.OrderStatus,{foreignKey:"order_id"});
+        order_model.OrderStatus.belongsTo(order_model.Order,{foreignKey:"order_id"});
 
         Voucher.hasMany(order_model.Order, { foreignKey: 'voucher_id' });
         order_model.Order.belongsTo(Voucher, { foreignKey: 'voucher_id' });

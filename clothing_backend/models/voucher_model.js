@@ -42,7 +42,6 @@ const Voucher = sequelize.define('voucher', {
     timestamps: true //Tự động thêm các trường createdAt và updatedAt
 });
 
-// User.belongsToMany(Voucher, {foreignKey:'user_id'});
-// Voucher.belongsToMany(User, {foreignKey:'voucher_id'});
+
 
 export default Voucher;
