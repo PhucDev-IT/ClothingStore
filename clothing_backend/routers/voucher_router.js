@@ -9,7 +9,6 @@ import Models from "../models/response/ResponseModel.js";
 import User from "../models/user_model.js";
 import { Op } from 'sequelize';
 
-
 //test - ok
 //get all voucher (phân trang - admin) 
 router.get('/vouchers',authenticateToken, authorizeRole(["admin"]), async (req, res, next) =>{
