@@ -12,6 +12,7 @@ import android.widget.RadioButton
 import com.denzcoskun.imageslider.constants.ScaleTypes
 import com.denzcoskun.imageslider.models.SlideModel
 import vn.clothing.store.R
+import vn.clothing.store.activities.NotificationActivity
 import vn.clothing.store.activities.ProductDetailsActivity
 import vn.clothing.store.activities.SearchProductActivity
 import vn.clothing.store.adapter.RvProductHomeAdapter
@@ -68,7 +69,12 @@ class HomeFragment : Fragment(), HomeContract.View {
             val intent = Intent(requireActivity(), SearchProductActivity::class.java)
             startActivity(intent)
         }
+
+        binding.llContainerNotification.setOnClickListener {
+            startActivity(Intent(requireActivity(), NotificationActivity::class.java))
+        }
     }
+
 
     private fun initSlider() {
         val imageList = ArrayList<SlideModel>() // Create image list

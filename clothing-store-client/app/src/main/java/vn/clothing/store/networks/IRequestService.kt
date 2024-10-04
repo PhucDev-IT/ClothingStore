@@ -6,6 +6,7 @@ import retrofit2.http.DELETE
 import retrofit2.http.FormUrlEncoded
 import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Path
 import retrofit2.http.Query
 import vn.clothing.store.models.CartModel
@@ -13,6 +14,7 @@ import vn.clothing.store.models.Category
 import vn.clothing.store.models.DeliveryInformation
 import vn.clothing.store.models.DistrictModel
 import vn.clothing.store.models.Image
+import vn.clothing.store.models.NotificationModel
 import vn.clothing.store.models.Order
 import vn.clothing.store.models.Product
 import vn.clothing.store.models.ProductDetails
@@ -135,5 +137,11 @@ interface IRequestService {
 
 
     @GET("/api/vouchers/my_voucher")
-    fun getAllVoucher():Call<ResponseModel<List<VoucherModel>>>
+    fun getAllVoucher():Call<ResponseModel<VoucherResponseModel>>
+
+    @GET("/api/notification")
+    fun getNotification():Call<ResponseModel<List<NotificationModel>>>
+
+    @PUT("/api/notification")
+    fun updateNotification(@Body model:NotificationModel):Call<ResponseModel<NotificationModel>>
 }

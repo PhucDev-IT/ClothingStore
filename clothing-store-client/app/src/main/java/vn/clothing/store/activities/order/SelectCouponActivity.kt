@@ -1,6 +1,8 @@
 package vn.clothing.store.activities.order
 
+import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
 import android.view.View
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -33,7 +35,10 @@ class SelectCouponActivity : BaseActivity() {
 
         val voucher = intent.getStringExtra(IntentData.KEY_VOUCHER) as VoucherModel?
         adapter = RvSelectedVoucherAdapter(voucher?.id) {
-
+            val intent = Intent()
+            intent.putExtra(IntentData.KEY_VOUCHER, it)
+            setResult(RESULT_OK, intent)
+            finish()
         }
         val linearLayoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         binding.rvCoupons.adapter = adapter
@@ -49,6 +54,8 @@ class SelectCouponActivity : BaseActivity() {
         binding.layoutHeader.toolbar.setNavigationOnClickListener {
             finish()
         }
+
+        binding.swipRefresh.setOnRefreshListener { reloadData() }
     }
 
     override val layoutView: View
@@ -59,13 +66,11 @@ class SelectCouponActivity : BaseActivity() {
 
 
     private fun getData() {
-        binding.shimmerLayout.startLayoutAnimation()
-        binding.shimmerLayout.visibility = View.VISIBLE
-
-        APISERVICE.getService(AppManager.token).getAllVoucher().enqueue(object : BaseCallback<ResponseModel<List<VoucherModel>>>(){
-            override fun onSuccess(model: ResponseModel<List<VoucherModel>>) {
+        onShowLoading()
+        APISERVICE.getService(AppManager.token).getAllVoucher().enqueue(object : BaseCallback<ResponseModel<VoucherResponseModel>>(){
+            override fun onSuccess(model: ResponseModel<VoucherResponseModel>) {
                 if(model.success && model.data!=null){
-                    adapter?.setData(model.data!!)
+                    adapter?.setData(model.data!!.vouchers!!)
                 }
                 onHideLoading()
             }
@@ -78,8 +83,20 @@ class SelectCouponActivity : BaseActivity() {
 
     }
 
+    private fun onShowLoading(){
+        binding.shimmerLayout.startLayoutAnimation()
+        binding.shimmerLayout.visibility = View.VISIBLE
+    }
+
     private fun onHideLoading(){
         binding.shimmerLayout.stopShimmer()
         binding.shimmerLayout.visibility = View.GONE
+    }
+
+    private fun reloadData(){
+        Handler().postDelayed({
+            getData()
+            binding.swipRefresh.isRefreshing = false
+        },2000)
     }
 }

@@ -208,6 +208,7 @@ class PayOrderActivity : BaseActivity(), PayOrderContract.View {
                 REQUEST_SELECT_VOUCHER -> {
                     val voucher = data?.getSerializableExtra(IntentData.KEY_VOUCHER) as VoucherModel?
                     this.voucher = voucher
+                    binding.tvChooseVoucher.text = voucher?.id
                 }
             }
         }

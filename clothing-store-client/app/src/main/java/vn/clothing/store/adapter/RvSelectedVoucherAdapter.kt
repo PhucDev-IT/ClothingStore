@@ -12,7 +12,7 @@ import androidx.recyclerview.widget.RecyclerView
 import vn.clothing.store.R
 import vn.clothing.store.models.VoucherModel
 
-class RvSelectedVoucherAdapter(  private var idVoucherOld: String?,private val onClick:Consumer<String?>): RecyclerView.Adapter<RvSelectedVoucherAdapter.viewHolder>() {
+class RvSelectedVoucherAdapter(  private var idVoucherOld: String?,private val onClick:Consumer<VoucherModel?>): RecyclerView.Adapter<RvSelectedVoucherAdapter.viewHolder>() {
 
     private var list: List<VoucherModel> = ArrayList()
 
@@ -62,7 +62,7 @@ class RvSelectedVoucherAdapter(  private var idVoucherOld: String?,private val o
                 val previousSelected = pos
                 if (pos != position) {
                     pos = position
-                    onClick.accept(list[position].id)
+                    onClick.accept(list[position])
                 } else {
                     pos = -1
                     onClick.accept(null)

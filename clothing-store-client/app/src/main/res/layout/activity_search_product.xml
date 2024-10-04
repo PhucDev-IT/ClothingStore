@@ -17,7 +17,7 @@
         android:paddingVertical="@dimen/_10sdp"
         android:paddingHorizontal="@dimen/_10sdp"
         android:orientation="horizontal"
-        android:background="@color/white"
+        android:background="@color/background"
         tools:ignore="UselessParent">
         <ImageButton
             android:id="@+id/btnBack"
@@ -26,7 +26,8 @@
             android:background="@drawable/circle_background"
             android:padding="@dimen/_5sdp"
             android:src="@drawable/icon_back_24"
-            android:contentDescription="@string/todo" />
+            android:contentDescription="@string/todo"
+            app:tint="@color/color_icon" />
         <AutoCompleteTextView
             android:id="@+id/edtInputSearch"
             android:layout_width="0dp"
@@ -94,6 +95,9 @@
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvProducts"
+            app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+            app:spanCount="2"
+            tools:listitem="@layout/item_product"
             android:layout_marginTop="@dimen/_10sdp"
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>

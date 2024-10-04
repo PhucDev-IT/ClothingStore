@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:orientation="horizontal"
+    android:gravity="center"
+    android:padding="@dimen/_10sdp"
+    android:layout_height="wrap_content">
+    <ImageView
+        android:id="@+id/icon"
+
+        android:layout_width="@dimen/_24sdp"
+        android:layout_height="@dimen/_24sdp"
+        android:src="@drawable/baseline_notifications_24"/>
+    <LinearLayout
+        android:layout_marginHorizontal="@dimen/_5sdp"
+        android:layout_weight="1"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/Text.Bold"
+            android:textColor="@color/text_primary"
+            android:id="@+id/tv_title"/>
+        <TextView
+            android:layout_marginTop="@dimen/_5sdp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/inter_regular"
+            android:textSize="@dimen/text_size_default"
+            android:id="@+id/tv_content"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:layout_gravity="end"
+            android:id="@+id/tv_time"
+            android:layout_marginTop="@dimen/_5sdp"
+            android:fontFamily="@font/inter_medium"
+            android:textSize="@dimen/text_size_small"/>
+    </LinearLayout>
+    <View
+        android:id="@+id/view_read"
+        android:layout_width="@dimen/_6sdp"
+        android:layout_height="@dimen/_6sdp"
+        android:background="@drawable/circle_background"
+        android:backgroundTint="@color/colorPrimary"/>
+</LinearLayout>

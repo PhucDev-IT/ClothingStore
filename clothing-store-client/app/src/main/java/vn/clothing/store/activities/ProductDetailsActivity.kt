@@ -30,6 +30,7 @@ import vn.clothing.store.interfaces.ProductDetailsContract
 import vn.clothing.store.models.Image
 import vn.clothing.store.models.Product
 import vn.clothing.store.models.ProductDetails
+import vn.clothing.store.models.ProductFavorite
 import vn.clothing.store.networks.request.CartRequestModel
 import vn.clothing.store.presenter.ProductDetailsPresenter
 import vn.clothing.store.utils.FormatCurrency
@@ -42,6 +43,7 @@ class ProductDetailsActivity : BaseActivity(), ProductDetailsContract.View {
     private var presenter: ProductDetailsPresenter? = null
     private var price : Float = 1000000000f
     private var productDetails:List<ProductDetails>?=null
+    private var isFavorite = false
 
     override fun initView() {
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
@@ -59,6 +61,8 @@ class ProductDetailsActivity : BaseActivity(), ProductDetailsContract.View {
             finish()
             return
         }
+
+
         presenter = ProductDetailsPresenter(this)
         product = intent.getSerializableExtra(IntentData.KEY_PRODUCT) as Product
         images.add(product!!.imgPreview)
@@ -70,6 +74,7 @@ class ProductDetailsActivity : BaseActivity(), ProductDetailsContract.View {
             presenter?.loadImages(it)
         }
         showData()
+        presenter?.checkFavorite(product!!.id!!)
     }
 
     override fun setListener() {
@@ -93,6 +98,11 @@ class ProductDetailsActivity : BaseActivity(), ProductDetailsContract.View {
         }
 
         binding.btnAddToCart.setOnClickListener { addToCart() }
+
+        binding.btnIsLike.setOnClickListener {
+            presenter?.upsertProductFavorite(ProductFavorite(product!!.id!!,product!!.name!!,product!!.price!!,product!!.imgPreview!!))
+            handleLikeProduct()
+        }
     }
 
     override val layoutView: View
@@ -101,6 +111,16 @@ class ProductDetailsActivity : BaseActivity(), ProductDetailsContract.View {
             return binding.root
         }
 
+
+    private fun handleLikeProduct(){
+        if(isFavorite){
+            isFavorite = false
+            binding.btnIsLike.setImageResource(R.drawable.icons8_heart_empty_30)
+        }else{
+            isFavorite = true
+            binding.btnIsLike.setImageResource(R.drawable.ic_heart_fill)
+        }
+    }
 
     private fun showData() {
 
@@ -247,6 +267,11 @@ class ProductDetailsActivity : BaseActivity(), ProductDetailsContract.View {
 
     override fun getContext(): Context {
         return this
+    }
+
+    override fun isProductIsFavorite(isFavorite: Boolean) {
+        this.isFavorite = isFavorite
+        handleLikeProduct()
     }
 
     //================================================

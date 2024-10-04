@@ -13,9 +13,10 @@
         android:layout_height="match_parent">
 
         <RelativeLayout
-            android:paddingHorizontal="@dimen/_10sdp"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="@dimen/_10sdp">
+
             <LinearLayout
                 android:id="@+id/header"
                 android:layout_width="match_parent"
@@ -34,8 +35,8 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/label_location"
                         android:fontFamily="@font/inter_regular"
+                        android:text="@string/label_location"
                         android:textColor="@color/gray"
                         android:textSize="@dimen/_13sdp" />
 
@@ -67,39 +68,73 @@
                             android:src="@drawable/baseline_keyboard_arrow_down_24" />
                     </LinearLayout>
                 </LinearLayout>
-                <LinearLayout
-                    android:elevation="@dimen/_2sdp"
-                    android:padding="@dimen/_5sdp"
-                    android:background="@drawable/circle_background"
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/ll_container_notification"
+                    android:layout_marginEnd="@dimen/_5sdp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content">
-                    <ImageView
+                    <LinearLayout
+                        android:background="@drawable/bg_circle_out_line"
+                        android:id="@+id/ll_notification"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:src="@drawable/baseline_notifications_24"
-                        app:tint="@color/color_icon" />
-                </LinearLayout>
+                        android:padding="@dimen/_5sdp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent">
+
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:src="@drawable/baseline_notifications_24"
+                            app:tint="@color/color_icon" />
+                    </LinearLayout>
+                    <LinearLayout
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        android:layout_marginBottom="@dimen/_20sdp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        android:layout_width="@dimen/_15sdp"
+                        android:layout_height="@dimen/_15sdp"
+                        android:background="@drawable/circle_background"
+                        android:backgroundTint="@color/color_red"
+                        android:gravity="center"
+                        >
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/tv_count_notification"
+                            android:text="0"
+                            android:textSize="@dimen/_9sdp"
+                            android:textColor="@color/background"
+                            android:fontFamily="@font/inter_medium"/>
+                    </LinearLayout>
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
             </LinearLayout>
+
             <TextView
-                android:layout_below="@id/header"
                 android:id="@+id/tvSearch"
                 android:layout_width="300dp"
                 android:layout_height="40dp"
+                android:layout_below="@id/header"
+                android:layout_marginVertical="@dimen/_10sdp"
                 android:background="@drawable/bg_search_white"
                 android:drawablePadding="10dp"
+                android:fontFamily="@font/inter_medium"
                 android:gravity="center_vertical"
                 android:paddingHorizontal="10dp"
-                android:layout_marginVertical="@dimen/_10sdp"
                 android:text="@string/search"
                 android:textColor="@color/gray_medium"
-                android:fontFamily="@font/inter_medium"
                 android:textSize="@dimen/text_size_default"
                 app:drawableStartCompat="@drawable/search" />
+
             <androidx.cardview.widget.CardView
                 android:id="@+id/container_slider"
-                android:layout_below="@id/tvSearch"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/_150sdp"
+                android:layout_below="@id/tvSearch"
                 android:layout_marginTop="@dimen/_10sdp"
                 app:cardCornerRadius="@dimen/_10sdp">
 
@@ -115,14 +150,13 @@
             </androidx.cardview.widget.CardView>
 
             <LinearLayout
-                android:layout_marginTop="@dimen/_15sdp"
                 android:id="@+id/layout_flash_sale"
-                android:layout_below="@id/container_slider"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_below="@id/container_slider"
+                android:layout_marginTop="@dimen/_15sdp"
                 android:elevation="@dimen/_3sdp"
-                android:orientation="horizontal"
-              >
+                android:orientation="horizontal">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -130,7 +164,7 @@
                     android:layout_weight="1"
                     android:fontFamily="@font/inter_bold"
                     android:text="@string/flash_sale"
-                   android:textSize="@dimen/_13sdp" />
+                    android:textSize="@dimen/_13sdp" />
 
                 <LinearLayout
                     android:id="@+id/lnTimeSale"
@@ -192,11 +226,12 @@
                         android:textSize="14sp" />
                 </LinearLayout>
             </LinearLayout>
+
             <HorizontalScrollView
                 android:id="@+id/layout_category"
-                android:layout_below="@id/layout_flash_sale"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_below="@id/layout_flash_sale"
                 android:layout_marginTop="10dp"
                 tools:ignore="RtlSymmetry">
 
@@ -208,22 +243,25 @@
             </HorizontalScrollView>
 
             <androidx.core.widget.NestedScrollView
-                android:layout_below="@id/layout_category"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"
+                android:layout_below="@id/layout_category">
+
                 <LinearLayout
                     android:id="@+id/lnProduct"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
+
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/rvProducts"
-                        app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_marginBottom="@dimen/_50sdp"
+                        app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
                         app:spanCount="2"
-                        tools:listitem="@layout/item_product"
-                        android:layout_marginBottom="@dimen/_50sdp" />
+                        tools:listitem="@layout/item_product" />
+
                     <ProgressBar
                         android:id="@+id/progress_circular"
                         android:layout_width="match_parent"
@@ -237,7 +275,6 @@
         </RelativeLayout>
 
     </ScrollView>
-
 
 
 </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

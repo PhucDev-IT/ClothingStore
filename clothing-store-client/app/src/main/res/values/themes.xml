@@ -8,12 +8,14 @@
         <!--  Màu chữ chính.-->
         <item name="android:textColorPrimary">@color/text_primary</item>
         <item name="android:textColor">@color/text_primary</item>
-        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
-        <item name="android:statusBarColor">@android:color/transparent</item>
+
+        <item name="android:statusBarColor">@color/background</item>
+        <item name="android:windowLightStatusBar">true</item>
         <item name="bottomNavigationStyle">@style/Theme.Bottom.Navigation</item>
     </style>
 
     <style name="Theme.Clothing" parent="Base.Theme.Clothing" />
     
     <style name="Theme.Bottom.Navigation" parent="Theme.MaterialComponents.Light.NoActionBar"/>
+
 </resources>

@@ -122,4 +122,9 @@
 
     <string name="title_header_voucher">Mã giảm giá của tôi</string>
     <string name="label_info_detail">Thông tin chi tiết</string>
+
+    <string name="title_header_notification">Thông báo</string>
+
+    <string name="more">Xem thêm</string>
+    <string name="ellipsis">...</string>
 </resources>

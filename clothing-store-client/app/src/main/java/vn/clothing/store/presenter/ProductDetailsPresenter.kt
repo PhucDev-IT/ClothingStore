@@ -1,12 +1,17 @@
 package vn.clothing.store.presenter
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import vn.clothing.store.R
 import vn.clothing.store.common.AppManager
 import vn.clothing.store.common.CoreConstant
+import vn.clothing.store.database.AppDatabase.Companion.APPDATABASE
 import vn.clothing.store.interfaces.ProductDetailsContract
 import vn.clothing.store.models.CartModel
 import vn.clothing.store.models.Image
 import vn.clothing.store.models.ProductDetails
+import vn.clothing.store.models.ProductFavorite
 import vn.clothing.store.networks.ApiService.Companion.APISERVICE
 import vn.clothing.store.networks.request.CartRequestModel
 import vn.clothing.store.networks.response.CartResponseModel
@@ -66,5 +71,18 @@ class ProductDetailsPresenter(private var view: ProductDetailsContract.View?):Pr
                view?.onShowError(message)
            }
        })
+    }
+
+
+   override fun upsertProductFavorite(productFavorite: ProductFavorite){
+        CoroutineScope(Dispatchers.IO).launch {
+            APPDATABASE.productFavoriteDao().upsert(productFavorite)
+        }
+    }
+
+    override fun checkFavorite(productId: String) {
+        APPDATABASE.productFavoriteDao().getProductFavoriteById(productId).let {
+            view?.isProductIsFavorite(it != null)
+        }
     }
 }

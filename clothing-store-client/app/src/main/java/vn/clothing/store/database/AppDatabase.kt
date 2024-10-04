@@ -8,19 +8,25 @@ import androidx.room.TypeConverters
 import vn.clothing.store.MyApplication
 import vn.clothing.store.database.dao.AddressDao
 import vn.clothing.store.database.dao.CategoryDao
+import vn.clothing.store.database.dao.NotificationDao
+import vn.clothing.store.database.dao.ProductFavoriteDao
 import vn.clothing.store.database.dao.UserDao
 import vn.clothing.store.models.Category
 import vn.clothing.store.models.DeliveryInformation
+import vn.clothing.store.models.NotificationModel
+import vn.clothing.store.models.ProductFavorite
 import vn.clothing.store.models.User
 import vn.master.epass.database.core.Converters
 
 
-@Database(entities = [DeliveryInformation::class, User::class, Category::class], version = 2)
+@Database(entities = [DeliveryInformation::class, User::class, Category::class, NotificationModel::class, ProductFavorite::class], version = 2)
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun addressDao(): AddressDao
     abstract fun userDao(): UserDao
     abstract fun categoryDao(): CategoryDao
+    abstract fun notificationDao():NotificationDao
+    abstract fun productFavoriteDao():ProductFavoriteDao
 
     companion object {
         @Volatile

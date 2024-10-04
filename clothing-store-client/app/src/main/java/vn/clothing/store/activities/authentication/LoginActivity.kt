@@ -68,7 +68,7 @@ class LoginActivity : AppCompatActivity(), LoginContract.View {
         setListener()
 
         if(BuildConfig.DEBUG){
-            showDialogDebug()
+           // showDialogDebug()
         }
 
     }
