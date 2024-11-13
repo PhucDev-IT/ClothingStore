@@ -30,7 +30,7 @@ import image_router from './routers/images_route.js'
 import cart_router from './routers/cart_route.js'
 import address_route from './routers/address_route.js'
 import voucher_router from './routers/voucher_router.js'
-
+import notification_Router from './routers/notification_router.js'
 //Application config
 dotenv.config();
 const port = process.env.PORT || 8080
@@ -209,6 +209,7 @@ app.use('/api/orders',orderRouter);
 app.use('/api',cart_router);
 app.use('/api/address',address_route);
 app.use('/api/',voucher_router);
+app.use('/api', notification_Router);
 
 app.post('/upload-multiple', upload.array('images', 10), (req, res) => {
     try {
