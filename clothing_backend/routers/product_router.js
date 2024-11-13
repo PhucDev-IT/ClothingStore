@@ -31,13 +31,9 @@ const updateCategory = Joi.object({
 });
 
 //search product by like name
-router.get("/products_by_name", authenticateToken, authorizeRole(["admin", "user"]), async (req,res,next)=>{
+router.get("/products/search/", authenticateToken, authorizeRole(["admin", "user"]), async (req,res,next)=>{
     try {
         const searchQuery = req.query.name;
-
-        if (!searchQuery || searchQuery.trim() === "") {
-            return res.status(400).json(new Models.ResponseModel(false, new Models.ErrorResponseModel(2, "Thiếu từ khóa tìm kiếm", null), null));
-        }
 
         const query = `SELECT * FROM products WHERE LOWER(name) LIKE LOWER(?)`;
         const replacements = [`%${searchQuery}%`];
