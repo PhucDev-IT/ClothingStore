@@ -13,6 +13,8 @@ import sequelize from '../connection/mysql.js';
 import { authenticateToken, authorizeRole } from "../config/jwt_filter.js";
 import product_model from "../models/product_model.js";
 import { or, QueryTypes, Sequelize } from "sequelize";
+import Notification from "../models/notification_model.js";
+import notification_router from "./notification_router.js"
 
 // ----------Order-----------
 
@@ -106,14 +108,22 @@ router.post('/', authenticateToken, authorizeRole(["user"]), async (req, res, ne
         // Lưu các OrderItems vào cơ sở dữ liệu
         await order_model.OrderItem.bulkCreate(orderItems, { transaction });
 
+    
+         Notification.create({
+            title:"Đặt hàng thành công!",
+            content: `Bạn đã đặt hàng thành công. Mã đơn hàng ${order.id} đang được người bán chuẩn bị`,
+            type: "PAYMENT",
+            is_action: false,
+            is_read:false,
+            user_id: user_id
+         });
         // Commit transaction nếu tất cả thành công
         await transaction.commit();
-
         return res.status(200).json(new response_model.ResponseModel(true, null, order));
     } catch (error) {
         // Rollback nếu có lỗi
         await transaction.rollback();
-
+        logger.error("Lỗi: "+ error);
         const errorResponse = new response_model.ErrorResponseModel('INTERNAL_SERVER_ERROR', 'Error creating order', [error.message]);
         return res.status(500).json(new response_model.ResponseModel(false, errorResponse));
     }

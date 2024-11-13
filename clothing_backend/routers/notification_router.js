@@ -7,6 +7,16 @@ import logger from "../utils/logger.js";
 import Models from "../models/response/ResponseModel.js";
 import Notification from "../models/notification_model.js";
 
+const newNotification = async (notification) => {
+    try {
+        await Notification.create(notification);
+    } catch (error) {
+        console.error('Error new notification:', error);
+    }
+};
+
+
+
 //get all notification by user_id
 router.get('/notifications', authenticateToken, authorizeRole(["user"]), async (req,res,next)=>{
     try{
