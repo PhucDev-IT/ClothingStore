@@ -24,11 +24,7 @@ class ShoppingCartPresenter(private var view: ShoppingCartContract.View?) :
         APISERVICE.getService(AppManager.token).getAllCart().enqueue(object : BaseCallback<ResponseModel<CartResponseModel>>(){
             override fun onSuccess(model: ResponseModel<CartResponseModel>) {
                 view?.onHiddenLoading()
-                if(model.success && model.data != null){
-                    view?.onResultCarts(model.data!!)
-                }else{
-                    Log.w(TAG,"Fail: ${model.error?.message}")
-                }
+                view?.onResultCarts(model.data)
             }
 
             override fun onError(message: String) {

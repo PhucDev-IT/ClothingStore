@@ -16,5 +16,7 @@ data class NotificationModel(
     @SerializedName("is_action")
     var isAction: Boolean,
     @SerializedName("is_read")
-    var isRead: Boolean
+    var isRead: Boolean,
+    @SerializedName("user_id")
+    var userId:String
 )

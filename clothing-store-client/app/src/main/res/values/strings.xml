@@ -127,4 +127,6 @@
 
     <string name="more">Xem thêm</string>
     <string name="ellipsis">...</string>
+    <string name="content_logout">Bạn chắc chắn muốn đăng xuất?</string>
+    <string name="not_found_voucher">Ôi! Không tìm thấy mã giảm giá rồi ...</string>
 </resources>

@@ -10,24 +10,7 @@ abstract class BaseCallback<T>: Callback<T> {
     override fun onResponse(call: Call<T>, response: Response<T>) {
         // Response code not in range 200-300
         if (!response.isSuccessful) {
-            if (response.code() == 401) {
-                onError("401: Unauthorized Request. Please check API Key and try again.")
-                return
-            }
-            if (response.code() == 400) {
-                onError("400: Invalid Request. Please check request body and try again.")
-                return
-            }
-            // Error code
-            if (response.errorBody() == null) {
-                onError("Error code " + response.code())
-                return
-            }
-            try {
-                onError(response.errorBody()!!.string())
-            } catch (e: IOException) {
-                onError(e.message?:"Failure to server")
-            }
+            handleErrorResponse(response)
             return
         }
 
@@ -45,6 +28,22 @@ abstract class BaseCallback<T>: Callback<T> {
 
     }
 
+
+    private fun handleErrorResponse(response: Response<*>){
+        if(response.errorBody() == null){
+            when(response.code()){
+                401 -> onError("401: Unauthorized Request. Please check API Key and try again.")
+                400 -> onError("400: Invalid Request. Please check request body and try again.")
+                else -> onError("Error code " + response.code())
+            }
+            return
+        }
+        try {
+            onError(response.errorBody()!!.string())
+        } catch (e: IOException) {
+            onError(e.message?:"Failure to server")
+        }
+    }
 
     abstract fun onSuccess(model:T)
     abstract fun onError(message:String)

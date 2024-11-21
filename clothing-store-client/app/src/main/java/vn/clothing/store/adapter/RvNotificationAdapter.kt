@@ -40,7 +40,7 @@ class RvNotificationAdapter( private val onClick:Consumer<NotificationModel>): R
     override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
         holder.binding.tvTitle.text = list[position].title
         holder.binding.tvContent.text = list[position].content
-        holder.binding.tvTime.text = FormatCurrency.dateFormat.format(list[position].date.toString())
+        holder.binding.tvTime.text = FormatCurrency.dateFormat.format(list[position].date)
         Glide.with(holder.itemView.context).load(list[position].type).into(holder.binding.icon)
         if(list[position].isRead){
             holder.binding.viewRead.visibility = View.GONE

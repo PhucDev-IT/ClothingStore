@@ -50,7 +50,7 @@ class MainActivity : BaseActivity() {
         }
 
         if(BuildConfig.DEBUG){
-         //   showDialogDebug()
+        //    checkData()
         }
 
         binding.bottomNavigation.setOnNavigationItemSelectedListener { menuItem ->
@@ -104,6 +104,14 @@ class MainActivity : BaseActivity() {
 
     override fun onResume() {
         super.onResume()
+    }
+
+    private fun checkData(){
+        val url = MySharedPreferences.getStringValues(this, MySharedPreferences.PREF_KEY_URL)
+        if(url==null){
+            showDialogDebug()
+        }
+        APISERVICE.setBaseUrl(url!!)
     }
 
     private fun showDialogDebug() {

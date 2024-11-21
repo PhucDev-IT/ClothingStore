@@ -19,7 +19,6 @@ import vn.clothing.store.common.PopupDialog
 import vn.clothing.store.databinding.ActivityMyVoucherBinding
 import vn.clothing.store.models.VoucherModel
 import vn.clothing.store.networks.ApiService.Companion.APISERVICE
-import vn.clothing.store.networks.response.VoucherResponseModel
 import vn.mobile.banking.network.response.ResponseModel
 import vn.mobile.banking.network.rest.BaseCallback
 
@@ -72,10 +71,17 @@ class MyVoucherActivity : BaseActivity() {
 
     private fun loadVoucher(){
         onLoading()
-        APISERVICE.getService(AppManager.token).getAllVoucher().enqueue(object : BaseCallback<ResponseModel<VoucherResponseModel>>(){
-            override fun onSuccess(model: ResponseModel<VoucherResponseModel>) {
-                if(model.success && model.data?.vouchers!=null){
-                    adapter?.setData(model.data!!.vouchers!!)
+        APISERVICE.getService(AppManager.token).getAllVoucher().enqueue(object : BaseCallback<ResponseModel<List<VoucherModel>>>(){
+            override fun onSuccess(model: ResponseModel<List<VoucherModel>>) {
+                if(model.success && model.data!=null){
+                    if(model.data.isNullOrEmpty()){
+                        binding.llNotFound.visibility = View.VISIBLE
+                        binding.rvCoupons.visibility = View.GONE
+                    }else{
+                        binding.llNotFound.visibility = View.GONE
+                        binding.rvCoupons.visibility = View.VISIBLE
+                    }
+                    adapter?.setData(model.data!!)
                 }else{
                     CoreConstant.showToast(this@MyVoucherActivity,model.error?.message?:"",CoreConstant.ToastType.ERROR)
                 }

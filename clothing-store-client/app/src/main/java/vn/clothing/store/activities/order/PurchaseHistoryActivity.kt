@@ -115,7 +115,7 @@ class PurchaseHistoryActivity : BaseActivity(), PurchasedHistoryContract.View {
     }
 
     override fun onNotFoundItem() {
-        binding.icNotFound.visibility = View.VISIBLE
+        binding.llNotFound.visibility = View.VISIBLE
     }
 
     override fun onRequestSeenDetail(order: OrderResponseModel) {

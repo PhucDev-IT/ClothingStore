@@ -32,7 +32,6 @@ import vn.clothing.store.networks.response.CartResponseModel
 import vn.clothing.store.networks.response.LoginResponseModel
 import vn.clothing.store.networks.response.OrderDetailsResponseModel
 import vn.clothing.store.networks.response.PurchaseHistoryResponseModel
-import vn.clothing.store.networks.response.VoucherResponseModel
 import vn.mobile.banking.network.response.ResponseModel
 import vn.mobile.banking.network.rest.BaseCallback
 
@@ -137,9 +136,9 @@ interface IRequestService {
 
 
     @GET("/api/vouchers/my_voucher")
-    fun getAllVoucher():Call<ResponseModel<VoucherResponseModel>>
+    fun getAllVoucher():Call<ResponseModel<List<VoucherModel>>>
 
-    @GET("/api/notification")
+    @GET("/api/notifications")
     fun getNotification():Call<ResponseModel<List<NotificationModel>>>
 
     @PUT("/api/notification")

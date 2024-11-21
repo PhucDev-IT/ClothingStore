@@ -63,7 +63,6 @@ class ShoppingCartActivity : BaseActivity(),ShoppingCartContract.View {
     }
 
     override fun populateData() {
-        presenter?.getAllCarts()
     }
 
     override fun setListener() {
@@ -117,9 +116,16 @@ class ShoppingCartActivity : BaseActivity(),ShoppingCartContract.View {
         PopupDialog.showDialog(this,PopupDialog.PopupType.NOTIFICATION,null,message?:getString(R.string.has_error_please_retry)){}
     }
 
-    override fun onResultCarts(cart: CartResponseModel) {
-        adapter.setData(cart.listItem)
-        this.cart = cart
+    override fun onResultCarts(cart: CartResponseModel?) {
+        if(cart == null || cart.listItem.isNullOrEmpty()){
+            binding.lnNotCart.visibility = View.VISIBLE
+            binding.rvCart.visibility = View.GONE
+        }else{
+            binding.lnNotCart.visibility = View.GONE
+            binding.rvCart.visibility = View.VISIBLE
+            adapter.setData(cart.listItem)
+            this.cart = cart
+        }
     }
 
     //================================================
@@ -129,5 +135,10 @@ class ShoppingCartActivity : BaseActivity(),ShoppingCartContract.View {
     override fun onDestroy() {
         presenter?.onDestroy()
         super.onDestroy()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        presenter?.getAllCarts()
     }
 }

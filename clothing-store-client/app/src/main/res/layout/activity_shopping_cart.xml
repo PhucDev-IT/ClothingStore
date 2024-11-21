@@ -24,20 +24,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_above="@id/layout_bottom">
-                <!--    Skeleton-->
-                <com.facebook.shimmer.ShimmerFrameLayout
-                    android:visibility="gone"
-                    android:id="@+id/shimmer_layout"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
-                    <include layout="@layout/my_cart_skeleton"/>
-                </com.facebook.shimmer.ShimmerFrameLayout>
-
                 <!--    Chưa có sản phẩm trong giỏ hàng-->
                 <LinearLayout
                     android:id="@+id/lnNotCart"
                     android:visibility="gone"
-                    android:layout_marginTop="250dp"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:gravity="center"
@@ -56,6 +46,14 @@
                         android:fontFamily="@font/inter_bold"
                         android:text="@string/not_found_item_in_cart"/>
                 </LinearLayout>
+                <!--    Skeleton-->
+                <com.facebook.shimmer.ShimmerFrameLayout
+                    android:visibility="gone"
+                    android:id="@+id/shimmer_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+                    <include layout="@layout/my_cart_skeleton"/>
+                </com.facebook.shimmer.ShimmerFrameLayout>
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/rvCart"

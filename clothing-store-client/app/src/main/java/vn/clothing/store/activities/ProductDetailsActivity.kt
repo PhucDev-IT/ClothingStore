@@ -101,6 +101,7 @@ class ProductDetailsActivity : BaseActivity(), ProductDetailsContract.View {
 
         binding.btnIsLike.setOnClickListener {
             presenter?.upsertProductFavorite(ProductFavorite(product!!.id!!,product!!.name!!,product!!.price!!,product!!.imgPreview!!))
+            isFavorite = !isFavorite
             handleLikeProduct()
         }
     }
@@ -113,7 +114,7 @@ class ProductDetailsActivity : BaseActivity(), ProductDetailsContract.View {
 
 
     private fun handleLikeProduct(){
-        if(isFavorite){
+        if(!isFavorite){
             isFavorite = false
             binding.btnIsLike.setImageResource(R.drawable.icons8_heart_empty_30)
         }else{

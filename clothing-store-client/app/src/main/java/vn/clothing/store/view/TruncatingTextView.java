@@ -60,6 +60,7 @@ public class TruncatingTextView extends AppCompatTextView {
         }
 
         setText(fullText);
+
     }
 
     @Override

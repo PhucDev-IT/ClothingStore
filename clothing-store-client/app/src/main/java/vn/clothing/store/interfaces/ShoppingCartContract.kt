@@ -8,7 +8,7 @@ interface ShoppingCartContract {
         fun onShowLoading()
         fun onHiddenLoading()
         fun showError(message:String?)
-        fun onResultCarts(cart:CartResponseModel)
+        fun onResultCarts(cart:CartResponseModel?)
     }
 
     interface Presenter{

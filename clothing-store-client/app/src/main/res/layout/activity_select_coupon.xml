@@ -39,6 +39,28 @@
             android:text="Apply"/>
     </LinearLayout>
 
+    <!--    Chưa có sản phẩm trong giỏ hàng-->
+    <LinearLayout
+        android:id="@+id/ll_not_found"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical">
+        <ImageView
+            android:layout_width="@dimen/_50sdp"
+            android:layout_height="@dimen/_50sdp"
+            android:src="@drawable/ic_not_found_item"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/not_found_voucher"
+            android:textSize="@dimen/text_size_default"
+            android:fontFamily="@font/inter_regular"
+            android:layout_margin="@dimen/_10sdp"/>
+    </LinearLayout>
+
+
     <!--    Skeleton-->
     <com.facebook.shimmer.ShimmerFrameLayout
         android:visibility="gone"

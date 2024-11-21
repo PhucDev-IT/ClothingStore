@@ -49,7 +49,7 @@ android {
     flavorDimensions.add("dev")
     productFlavors{
         create("dev"){
-            buildConfigField("String","API_BASE_URL","\"http://192.168.201.21:3000/\"")
+            buildConfigField("String","API_BASE_URL","\"http://192.168.201.7:3000/\"")
         }
     }
 }
@@ -97,5 +97,10 @@ dependencies {
     annotationProcessor("androidx.room:room-compiler:$room_version")
     implementation("androidx.room:room-ktx:$room_version")
     ksp("androidx.room:room-compiler:$room_version")
+
+    implementation("commons-codec:commons-codec:1.14")
+
+    // SDK LIBRARY
+    implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.aar", "*.jar"))))
 
 }

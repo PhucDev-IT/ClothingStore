@@ -8,10 +8,13 @@ import android.view.View
 import android.view.ViewGroup
 import vn.clothing.store.R
 import vn.clothing.store.activities.MyVoucherActivity
+import vn.clothing.store.activities.authentication.LoginActivity
 import vn.clothing.store.activities.order.PurchaseHistoryActivity
 import vn.clothing.store.activities.settings.SettingsMainActivity
 import vn.clothing.store.adapter.RvDashboardItemViewUser
 import vn.clothing.store.common.AppManager
+import vn.clothing.store.common.PopupDialog
+import vn.clothing.store.database.AppDatabase.Companion.APPDATABASE
 import vn.clothing.store.databinding.FragmentUserBinding
 import vn.clothing.store.models.ItemDashboardViewUser
 
@@ -63,6 +66,7 @@ class UserFragment : Fragment() {
 
         setListener()
         initUi()
+
         return binding.root
     }
 
@@ -74,6 +78,15 @@ class UserFragment : Fragment() {
     private fun setListener() {
         binding.btnSetting.setOnClickListener {
             startActivity(Intent(requireActivity(), SettingsMainActivity::class.java))
+        }
+
+        binding.btnLogout.setOnClickListener {
+            PopupDialog.showDialog(requireContext(),
+                PopupDialog.PopupType.CONFIRM,getString(R.string.app_name),getString(R.string.content_logout)){
+                APPDATABASE.userDao().deleteAllUsers()
+                startActivity(Intent(requireContext(), LoginActivity::class.java))
+                requireActivity().finishAffinity()
+            }
         }
     }
 }

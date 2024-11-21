@@ -46,7 +46,7 @@ class MyAddressFragment : Fragment(), MyAddressContract.View {
         }
 
         binding.header.toolbar.setNavigationOnClickListener {
-           parentFragmentManager.popBackStack()
+           requireActivity().finish()
         }
     }
 

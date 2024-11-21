@@ -18,7 +18,6 @@ import vn.clothing.store.common.PopupDialog
 import vn.clothing.store.databinding.ActivitySelectCouponBinding
 import vn.clothing.store.models.VoucherModel
 import vn.clothing.store.networks.ApiService.Companion.APISERVICE
-import vn.clothing.store.networks.response.VoucherResponseModel
 import vn.mobile.banking.network.response.ResponseModel
 import vn.mobile.banking.network.rest.BaseCallback
 
@@ -67,10 +66,17 @@ class SelectCouponActivity : BaseActivity() {
 
     private fun getData() {
         onShowLoading()
-        APISERVICE.getService(AppManager.token).getAllVoucher().enqueue(object : BaseCallback<ResponseModel<VoucherResponseModel>>(){
-            override fun onSuccess(model: ResponseModel<VoucherResponseModel>) {
+        APISERVICE.getService(AppManager.token).getAllVoucher().enqueue(object : BaseCallback<ResponseModel<List<VoucherModel>>>(){
+            override fun onSuccess(model: ResponseModel<List<VoucherModel>>) {
                 if(model.success && model.data!=null){
-                    adapter?.setData(model.data!!.vouchers!!)
+                    if(model.data!!.isEmpty()){
+                        binding.llNotFound.visibility = View.VISIBLE
+                        binding.rvCoupons.visibility = View.GONE
+                    }else{
+                        binding.llNotFound.visibility = View.GONE
+                        binding.rvCoupons.visibility = View.VISIBLE
+                        adapter?.setData(model.data!!)
+                    }
                 }
                 onHideLoading()
             }
