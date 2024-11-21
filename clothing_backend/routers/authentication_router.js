@@ -81,8 +81,6 @@ const login_google_request = Joi.object({
 
 
 //log_login : id, user_id, device_id, fcm_token, time_login
-
-
 // use post to hash data in request
 // Step 1: hash password and compare to password in database
 // Step 2: IF password incorrect return message,else transfer step 3
