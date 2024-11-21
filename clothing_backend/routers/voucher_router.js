@@ -53,8 +53,8 @@ router.get('/vouchers/my_voucher',authenticateToken, authorizeRole(["user"]), as
             }],
             where: {
                 is_public: true,
-                startAt: { [Op.lte]: currentDate },  // Sửa: So sánh ngày bắt đầu nhỏ hơn hoặc bằng hiện tại
-                endAt: { [Op.gte]: currentDate }     // Sửa: So sánh ngày kết thúc lớn hơn hoặc bằng hiện tại
+                start_at: { [Op.lte]: currentDate },  // Sửa: So sánh ngày bắt đầu nhỏ hơn hoặc bằng hiện tại
+                end_at: { [Op.gte]: currentDate }     // Sửa: So sánh ngày kết thúc lớn hơn hoặc bằng hiện tại
             },
         });
 
