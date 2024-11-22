@@ -31,6 +31,7 @@ import vn.clothing.store.networks.request.RegisterRequestModel
 import vn.clothing.store.networks.response.CartResponseModel
 import vn.clothing.store.networks.response.LoginResponseModel
 import vn.clothing.store.networks.response.OrderDetailsResponseModel
+import vn.clothing.store.networks.response.OrderStatus
 import vn.clothing.store.networks.response.PurchaseHistoryResponseModel
 import vn.mobile.banking.network.response.ResponseModel
 import vn.mobile.banking.network.rest.BaseCallback
@@ -130,6 +131,10 @@ interface IRequestService {
 
     @GET("/api/orders/{id}")
     fun findOrder(@Path("id") id:String):Call<ResponseModel<OrderDetailsResponseModel>>
+
+    @PUT("/api/orders/order_status")
+    fun updateOrderStatus(@Body model:OrderStatus):Call<ResponseModel<OrderStatus>>
+
     //=================================================
     //  endregion
     //=================================================

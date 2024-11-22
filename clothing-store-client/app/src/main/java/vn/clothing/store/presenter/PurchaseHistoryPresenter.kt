@@ -40,6 +40,7 @@ class PurchaseHistoryPresenter(private var view: PurchasedHistoryContract.View?)
                         totalPage = model.data!!.pagination!!.totalPages!!
                         if(!model.data?.orders.isNullOrEmpty()) {
                             adapter.setData(model.data!!.orders!!)
+                            view?.onLoadedData(model.data!!.orders!!)
                         }else{
                             view?.onNotFoundItem()
                         }

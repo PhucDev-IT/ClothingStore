@@ -1,6 +1,7 @@
 package vn.clothing.store.activities.order
 
 import android.annotation.SuppressLint
+import android.app.Dialog
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
@@ -14,6 +15,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.gson.JsonObject
 import org.json.JSONObject
 import vn.clothing.store.R
@@ -26,6 +28,7 @@ import vn.clothing.store.common.PaymentMethod
 import vn.clothing.store.common.PopupDialog
 
 import vn.clothing.store.databinding.ActivityPayOrderBinding
+import vn.clothing.store.databinding.PopupSelectPaymentMethodBinding
 import vn.clothing.store.interfaces.PayOrderContract
 import vn.clothing.store.models.DeliveryInformation
 import vn.clothing.store.models.VoucherModel
@@ -49,8 +52,8 @@ class PayOrderActivity : BaseActivity(), PayOrderContract.View {
     private var adapter: RvPayOrderAdapter? = null
     private val FEESHIP = 20000f
     private var totalMoney: Double = 0.0
-    private var voucher:VoucherModel?=null
-    private var paymentMethod:PaymentMethod = PaymentMethod.ZALOPAY
+    private var voucher: VoucherModel? = null
+    private var paymentMethod: PaymentMethod = PaymentMethod.HOME
     private var handler = Handler(Looper.getMainLooper())
 
     override fun initView() {
@@ -80,7 +83,7 @@ class PayOrderActivity : BaseActivity(), PayOrderContract.View {
         binding.rvProduct.layoutManager =
             LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
 
-        val policy :StrictMode.ThreadPolicy = StrictMode.ThreadPolicy.Builder().permitAll().build()
+        val policy: StrictMode.ThreadPolicy = StrictMode.ThreadPolicy.Builder().permitAll().build()
         StrictMode.setThreadPolicy(policy)
         ZaloPaySDK.init(AppInfo.APP_ID, Environment.SANDBOX);
     }
@@ -100,13 +103,17 @@ class PayOrderActivity : BaseActivity(), PayOrderContract.View {
         }
 
         binding.btnSelectAddress.setOnClickListener {
-            startActivity(Intent(this,SettingsMainActivity::class.java))
+            startActivity(Intent(this, SettingsMainActivity::class.java))
         }
 
         binding.tvChooseVoucher.setOnClickListener {
             val intent = Intent(this, SelectCouponActivity::class.java)
-            intent.putExtra(IntentData.KEY_VOUCHER,voucher)
+            intent.putExtra(IntentData.KEY_VOUCHER, voucher)
             startActivityForResult(intent, REQUEST_SELECT_VOUCHER)
+        }
+
+        binding.llMethodPayment.setOnClickListener {
+            displayPopupPaymentMethod()
         }
     }
 
@@ -158,53 +165,69 @@ class PayOrderActivity : BaseActivity(), PayOrderContract.View {
             orderItems
         )
         val cartIds = cartItems.map { it.id!! }
-        if(paymentMethod == PaymentMethod.ZALOPAY){
-            payWithZaloPay(orderRequestModel,cartIds)
+
+        if (paymentMethod == PaymentMethod.HOME) {
+            presenter.payment(orderRequestModel, cartIds)
+        }else
+        if (paymentMethod == PaymentMethod.ZALOPAY) {
+            payWithZaloPay(orderRequestModel, cartIds)
         }
     }
 
-    private fun payWithZaloPay(orderRequestModel: OrderRequestModel, cardIds:List<Int>){
+    private fun payWithZaloPay(orderRequestModel: OrderRequestModel, cardIds: List<Int>) {
         onShowLoading()
         val orderApi = CreateOrder()
-        try{
-            val data:JSONObject = orderApi.createOrder(totalMoney.toInt().toString())
+        try {
+            val data: JSONObject = orderApi.createOrder(totalMoney.toInt().toString())
             val code = data.getString("returncode")
-            if(code == "1"){
+            if (code == "1") {
                 val token = data.getString("zptranstoken")
-                ZaloPaySDK.getInstance().payOrder(this@PayOrderActivity,token,"demozpdk://app", object : PayOrderListener{
-                    override fun onPaymentSucceeded(transactionId: String?, transToken: String?, appTransID: String?) {
-                        handler.post {
-                            onHideLoading()
-                            presenter.payment(orderRequestModel, cardIds)
+                ZaloPaySDK.getInstance().payOrder(
+                    this@PayOrderActivity,
+                    token,
+                    "demozpdk://app",
+                    object : PayOrderListener {
+                        override fun onPaymentSucceeded(
+                            transactionId: String?,
+                            transToken: String?,
+                            appTransID: String?
+                        ) {
+                            handler.post {
+                                onHideLoading()
+                                presenter.payment(orderRequestModel, cardIds)
+                            }
                         }
-                    }
 
-                    override fun onPaymentCanceled(zpTransToken: String?, appTransID: String?) {
-                        handler.post {
-                            onHideLoading()
-                            Toast.makeText(
-                                this@PayOrderActivity,
-                                "Hủy thanh toán",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                        override fun onPaymentCanceled(zpTransToken: String?, appTransID: String?) {
+                            handler.post {
+                                onHideLoading()
+                                Toast.makeText(
+                                    this@PayOrderActivity,
+                                    "Hủy thanh toán",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
                         }
-                    }
 
-                    override fun onPaymentError(zaloPayError: ZaloPayError?, zpTransToken: String?, appTransID: String?) {
-                        handler.post {
-                            onHideLoading()
-                            Toast.makeText(
-                                this@PayOrderActivity,
-                                "Lỗi thanh toán",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                        override fun onPaymentError(
+                            zaloPayError: ZaloPayError?,
+                            zpTransToken: String?,
+                            appTransID: String?
+                        ) {
+                            handler.post {
+                                onHideLoading()
+                                Toast.makeText(
+                                    this@PayOrderActivity,
+                                    "Lỗi thanh toán",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
                         }
-                    }
-                })
-            }else{
-                Toast.makeText(this@PayOrderActivity,"Khác 1",Toast.LENGTH_SHORT).show()
+                    })
+            } else {
+                Toast.makeText(this@PayOrderActivity, "Khác 1", Toast.LENGTH_SHORT).show()
             }
-        }catch (e:Exception){
+        } catch (e: Exception) {
             onHideLoading()
             e.printStackTrace();
         }
@@ -270,10 +293,11 @@ class PayOrderActivity : BaseActivity(), PayOrderContract.View {
     @Deprecated("This method has been deprecated in favor of using the Activity Result API\n      which brings increased type safety via an {@link ActivityResultContract} and the prebuilt\n      contracts for common intents available in\n      {@link androidx.activity.result.contract.ActivityResultContracts}, provides hooks for\n      testing, and allow receiving results in separate, testable classes independent from your\n      activity. Use\n      {@link #registerForActivityResult(ActivityResultContract, ActivityResultCallback)}\n      with the appropriate {@link ActivityResultContract} and handling the result in the\n      {@link ActivityResultCallback#onActivityResult(Object) callback}.")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if(resultCode == RESULT_OK){
-            when(requestCode){
+        if (resultCode == RESULT_OK) {
+            when (requestCode) {
                 REQUEST_SELECT_VOUCHER -> {
-                    val voucher = data?.getSerializableExtra(IntentData.KEY_VOUCHER) as VoucherModel?
+                    val voucher =
+                        data?.getSerializableExtra(IntentData.KEY_VOUCHER) as VoucherModel?
                     this.voucher = voucher
                     binding.tvChooseVoucher.text = voucher?.id
                 }
@@ -286,7 +310,43 @@ class PayOrderActivity : BaseActivity(), PayOrderContract.View {
         ZaloPaySDK.getInstance().onResult(intent)
     }
 
-    companion object{
+
+    private fun displayPopupPaymentMethod() {
+        val dialog = BottomSheetDialog(this)
+        val bindingDialog = PopupSelectPaymentMethodBinding.inflate(layoutInflater)
+        dialog.setContentView(bindingDialog.root)
+
+        when (paymentMethod) {
+            PaymentMethod.ZALOPAY -> {
+                bindingDialog.rdoZlp.isChecked = true
+            }
+
+            PaymentMethod.HOME -> bindingDialog.rdoHome.isChecked = true
+            PaymentMethod.MOMO -> bindingDialog.rdoMomo.isChecked = true
+        }
+
+        bindingDialog.rdoZlp.setOnClickListener {
+            paymentMethod = PaymentMethod.ZALOPAY
+            binding.tvMethodPayment.text = bindingDialog.rdoZlp.text
+            dialog.dismiss()
+        }
+
+        bindingDialog.rdoHome.setOnClickListener {
+            paymentMethod = PaymentMethod.HOME
+            binding.tvMethodPayment.text = bindingDialog.rdoHome.text
+            dialog.dismiss()
+        }
+
+        bindingDialog.rdoMomo.setOnClickListener {
+            paymentMethod = PaymentMethod.MOMO
+            binding.tvMethodPayment.text = bindingDialog.rdoMomo.text
+            dialog.dismiss()
+        }
+
+        dialog.show()
+    }
+
+    companion object {
         private const val REQUEST_SELECT_VOUCHER = 235
     }
 }

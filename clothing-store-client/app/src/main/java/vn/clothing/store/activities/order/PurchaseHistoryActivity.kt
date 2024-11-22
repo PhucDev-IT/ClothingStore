@@ -17,6 +17,7 @@ import vn.clothing.store.common.IntentData
 import vn.clothing.store.common.PopupDialog
 import vn.clothing.store.databinding.ActivityPurchaseHistoryBinding
 import vn.clothing.store.interfaces.PurchasedHistoryContract
+import vn.clothing.store.models.EOrderStatus
 import vn.clothing.store.networks.response.OrderResponseModel
 import vn.clothing.store.presenter.PurchaseHistoryPresenter
 
@@ -69,7 +70,7 @@ class PurchaseHistoryActivity : BaseActivity(), PurchasedHistoryContract.View {
                         0 ->  "PENDING"
                         1 -> "PACKING"
                         2 -> "DELIVERED"
-                        3-> "CANCELLED"
+                        3-> EOrderStatus.CANCELLED.name
                         else -> "PENDING"
                     }
                     presenter?.getFirstOrder(currentTab)
@@ -122,5 +123,9 @@ class PurchaseHistoryActivity : BaseActivity(), PurchasedHistoryContract.View {
         val intent = Intent(this,TrackOrderActivity::class.java)
         intent.putExtra(IntentData.KEY_ORDER,order)
         startActivity(intent)
+    }
+
+    override fun onLoadedData(data: List<OrderResponseModel>) {
+        binding.llNotFound.visibility = View.GONE
     }
 }

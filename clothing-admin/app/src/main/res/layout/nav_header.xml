@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+
+    <data>
+
+        <variable
+            name="viewModel"
+            type="vn.master.epass.viewmodel.MainViewModel" />
+    </data>
+
+    <RelativeLayout android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/_10sdp">
+
+        <RadioGroup
+            android:layout_alignParentEnd="true"
+            android:checkedButton="@+id/btn_bright"
+            android:id="@+id/toggle"
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:background="@drawable/toggle_out_line"
+            android:orientation="horizontal"
+            tools:ignore="UselessParent">
+
+            <RadioButton
+                android:layout_marginTop="1dp"
+                android:layout_marginBottom="1dp"
+                android:layout_marginStart="1dp"
+                android:id="@+id/btn_bright"
+                android:background="@drawable/toggle_widget_background"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:button="@null"
+                android:gravity="center"
+                android:text="Sáng"
+                android:textColor="@color/white" />
+
+            <RadioButton
+                android:layout_marginEnd="1dp"
+                android:layout_marginTop="1dp"
+                android:layout_marginBottom="1dp"
+                android:id="@+id/btn_dark"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/toggle_widget_background"
+                android:button="@null"
+                android:gravity="center"
+                android:text="Tối"
+                android:textColor="@color/white" />
+
+        </RadioGroup>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/layout_info"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/toggle">
+
+            <LinearLayout
+                android:padding="@dimen/_2sdp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                android:id="@+id/container_avt"
+                android:background="@drawable/circle_outline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/avatar"
+                    android:layout_width="@dimen/_70sdp"
+                    android:layout_height="@dimen/_70sdp"
+                    app:shapeAppearanceOverlay="@style/one_rounded" />
+            </LinearLayout>
+
+            <ImageView
+                android:id="@+id/ic_verified"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@{viewModel.user.isVerify?@drawable/baseline_verified_24:@drawable/baseline_cancel_24}"
+                android:layout_margin="@dimen/_5sdp"
+                app:layout_constraintEnd_toEndOf="@+id/container_avt"
+                app:layout_constraintBottom_toBottomOf="@id/container_avt" />
+            <TextView
+                android:id="@+id/name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{viewModel.user.displayName??@string/app_name}"
+                android:fontFamily="@font/aeonik_pro_bold"
+                android:textSize="@dimen/text_size_medium"
+                app:layout_constraintStart_toEndOf="@+id/container_avt"
+                app:layout_constraintTop_toTopOf="parent"
+                android:layout_marginTop="@dimen/_20sdp"
+                android:layout_marginHorizontal="@dimen/_10sdp"
+                android:singleLine="true"
+                android:ellipsize="marquee"
+                android:marqueeRepeatLimit ="marquee_forever"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:scrollHorizontally="true"
+                android:maxLines="1"
+                android:textAllCaps="true"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Thử nghiệm"
+                app:layout_constraintStart_toEndOf="@+id/container_avt"
+                app:layout_constraintTop_toTopOf="@id/name"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:layout_marginStart="@dimen/_10sdp"
+                android:fontFamily="@font/aeonik_pro_regular"
+                android:textSize="@dimen/text_size_small"/>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <TextView
+            android:id="@+id/tv_isVerify"
+            android:layout_marginVertical="@dimen/_10sdp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/layout_info"
+            android:textColor="@{viewModel.user.isVerify?@color/success : @color/color_red}"
+            android:text="@{viewModel.user.isVerify ? @string/verified : @string/not_verify}"
+            android:fontFamily="@font/aeonik_pro_regular"
+            />
+        <LinearLayout
+            android:layout_below="@id/layout_info"
+            android:layout_alignParentEnd="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/_10sdp"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Quota:"
+                android:fontFamily="@font/aeonik_pro_regular"
+                />
+            <TextView
+                android:id="@+id/tv_quota"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{String.valueOf(viewModel.user.quota)}"
+                android:textColor="@color/success"
+                android:layout_marginStart="@dimen/_5sdp"
+                android:fontFamily="@font/aeonik_pro_bold"
+                />
+        </LinearLayout>
+    </RelativeLayout>
+</layout>

@@ -14,7 +14,7 @@ android {
         minSdk = 24
         targetSdk = 35
         versionCode = 1
-        versionName = "1.0"
+        versionName = "1.0.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -22,6 +22,7 @@ android {
     buildTypes {
         release {
             isMinifyEnabled = true
+            isShrinkResources = true
             isDebuggable = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -49,7 +50,7 @@ android {
     flavorDimensions.add("dev")
     productFlavors{
         create("dev"){
-            buildConfigField("String","API_BASE_URL","\"http://192.168.201.7:3000/\"")
+            buildConfigField("String","API_BASE_URL","\"http://192.168.201.5:3000/\"")
         }
     }
 }
@@ -68,7 +69,6 @@ dependencies {
     //Demo app
     implementation("com.github.stfalcon-studio:StfalconImageViewer:v1.0.1")
     implementation("me.relex:circleindicator:2.1.6")
-    implementation("com.facebook.shimmer:shimmer:0.5.0")
     implementation ("com.intuit.sdp:sdp-android:1.1.1")
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
     implementation ("com.karumi:dexter:6.2.3")

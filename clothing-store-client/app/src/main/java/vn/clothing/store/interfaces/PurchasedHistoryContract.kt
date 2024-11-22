@@ -8,6 +8,7 @@ interface PurchasedHistoryContract {
         fun onHideLoading()
         fun onShowError(message:String)
         fun onRequestSeenDetail(order:OrderResponseModel)
+        fun onLoadedData(data:List<OrderResponseModel>)
         fun onNotFoundItem()
     }
 

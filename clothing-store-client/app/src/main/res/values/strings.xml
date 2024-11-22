@@ -129,4 +129,9 @@
     <string name="ellipsis">...</string>
     <string name="content_logout">Bạn chắc chắn muốn đăng xuất?</string>
     <string name="not_found_voucher">Ôi! Không tìm thấy mã giảm giá rồi ...</string>
+
+    <string name="rdo_pay_home">Thanh toán tại nhà</string>
+    <string name="rdo_pay_zalopay">Ví điện tử ZaloPay</string>
+    <string name="rdo_pay_momo">Ví điện tử MOMO</string>
+
 </resources>
