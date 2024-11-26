@@ -45,6 +45,10 @@ const User = sequelize.define('user', {
     is_active :{
         type: DataTypes.BOOLEAN,
         allowNull: true
+    },
+    deviceToken:{
+        type: DataTypes.STRING,
+        allowNull: true
     }
 }, {
 
