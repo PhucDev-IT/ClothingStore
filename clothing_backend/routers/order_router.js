@@ -255,7 +255,7 @@ LIMIT :limit OFFSET :offset;
     }
 });
 
-//get order by id
+//get order by id - user
 router.get('/:id', authenticateToken, authorizeRole(["user"]), async (req, res, next) => {
     try {
         const user_id = req.user.id;
@@ -311,7 +311,86 @@ router.get('/:id', authenticateToken, authorizeRole(["user"]), async (req, res, 
     }
 });
 
+//Lấy tất cả order với trạng thái đơn hàng(order_statuses(status)) và phân trang(lấy thêm thông tin user[id, name] ứng với order đó) - role:admin
+router.get("/", authenticateToken, authorizeRole(["admin"]), async (req, res, next) =>{
+    const page = parseInt(req.query.page) || 1;  
+    const limit = parseInt(req.query.limit) || 10;  
+    const offset = (page - 1) * limit;
+    logger.info(`=====> ADMIN GET ALL ORDERS <============`);
+    try {
+        // Get the total number of orders (for pagination)
+        const totalOrders = await order_model.Order.count(); // Count all orders
 
+        // Fetch all orders with the associated user information and order status with pagination
+        const orders = await sequelize.query(`
+            SELECT 
+                o.id AS order_id,
+                o.total,
+                o.real_total,
+                o.fee_ship,
+                os.status,
+                o.order_date,
+                o.delivery_information,
+                u.id AS user_id,
+                u.full_name AS user_name,
+                COUNT(oi.id) AS item_count,
+                (SELECT p.img_preview 
+                 FROM products p 
+                 INNER JOIN order_items oi2 ON p.id = oi2.product_id 
+                 WHERE oi2.order_id = o.id 
+                 ORDER BY oi2.id ASC 
+                 LIMIT 1) AS first_product_image,
+                (SELECT p.name
+                 FROM products p 
+                 INNER JOIN order_items oi2 ON p.id = oi2.product_id 
+                 WHERE oi2.order_id = o.id 
+                 ORDER BY oi2.id ASC 
+                 LIMIT 1) AS first_product_name
+            FROM orders o
+            INNER JOIN order_items oi ON o.id = oi.order_id
+            INNER JOIN users u ON o.user_id = u.id
+            INNER JOIN (
+                SELECT os_inner.order_id, os_inner.status
+                FROM order_statuses os_inner
+                INNER JOIN (
+                    SELECT order_id, MAX(createdAt) AS latest_status_time
+                    FROM order_statuses
+                    GROUP BY order_id
+                ) latest_status ON os_inner.order_id = latest_status.order_id 
+                                 AND os_inner.createdAt = latest_status.latest_status_time
+            ) os ON o.id = os.order_id
+            GROUP BY o.id, u.id, os.status
+            ORDER BY o.order_date DESC
+            LIMIT :limit OFFSET :offset;
+        `, {
+            replacements: {
+                limit: limit,
+                offset: offset
+            },
+            type: QueryTypes.SELECT
+        });
+
+        // Calculate total pages for pagination
+        const totalPages = Math.ceil(totalOrders / limit);
+
+        // Return the response with order data and pagination info
+        res.status(200).json({
+            success: true,
+            data: {
+                orders: orders,
+                pagination: {
+                    totalItems: totalOrders,
+                    totalPages: totalPages,
+                    currentPage: page,
+                    itemsPerPage: limit
+                }
+            }
+        });
+    } catch (err) {
+        logger.error("Error fetching order:", err);
+        return res.status(500).json(new response_model.ResponseModel(false, new response_model.ErrorResponseModel(1, "Lỗi hệ thống", err.message), null));
+    }
+});
 
 
 export default router;

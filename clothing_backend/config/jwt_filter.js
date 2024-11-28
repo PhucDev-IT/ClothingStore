@@ -37,7 +37,6 @@ export const authenticateToken = (req, res, next) => {
 export const authorizeRole = (requiredRoles) => {
     return async (req, res, next) => {
         try {
-           
             const user = req.user;
             // Lấy tất cả các quyền (roles) của người dùng từ database
             const userRoles = await user.getRoles(); // giả sử bạn có quan hệ giữa User và Role
