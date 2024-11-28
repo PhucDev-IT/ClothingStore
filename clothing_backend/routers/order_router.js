@@ -82,7 +82,7 @@ const order_request = Joi.object({
 
 
 //Update status order
-router.put('/order_status',authenticateToken, authorizeRole(["user"]), async (req, res, next) => {
+router.post('/order_status',authenticateToken, authorizeRole(["user"]), async (req, res, next) => {
     const { error, value } = order_status.validate(req.body, { abortEarly: false });
     if (error) {
         const formattedErrors = error ? formatValidationError(error.details) : formatValidationError(error.details);
