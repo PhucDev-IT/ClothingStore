@@ -1,10 +1,9 @@
-package vn.mobile.banking.network.rest
+package vn.mobile.clothing.network.rest
 
 import com.google.gson.Gson
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import okhttp3.Response
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory

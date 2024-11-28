@@ -1,4 +1,4 @@
-package vn.mobile.banking.network.response
+package vn.mobile.clothing.network.response
 
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName

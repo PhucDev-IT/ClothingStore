@@ -1,8 +1,8 @@
-package vn.clothing.store.networks
+package vn.mobile.clothing.network
 
 import com.google.gson.GsonBuilder
-import vn.clothing.store.BuildConfig
-import vn.mobile.banking.network.rest.RetrofitClient
+import vn.mobile.clothing.BuildConfig
+import vn.mobile.clothing.network.rest.RetrofitClient
 
 
 class ApiService private constructor(){
@@ -14,10 +14,10 @@ class ApiService private constructor(){
         private val GSON = GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create()
 
         @Volatile
-        private var instance:ApiService?=null
-        val APISERVICE =ApiService.getInstance()
+        private var instance: ApiService?=null
+        val APISERVICE = getInstance()
 
-        private fun getInstance():ApiService{
+        private fun getInstance(): ApiService {
             if(instance == null){
                 synchronized(ApiService::class){
                     instance = ApiService()
@@ -28,7 +28,7 @@ class ApiService private constructor(){
     }
 
 
-    fun getService(token:String?=null):IRequestService{
+    fun getService(token:String?=null): IRequestService {
         if(token!=null) TOKEN = token
         return RetrofitClient.buildService(GSON, BASE_URL,TOKEN).create(IRequestService::class.java)
     }

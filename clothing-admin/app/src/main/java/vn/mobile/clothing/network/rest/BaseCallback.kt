@@ -1,4 +1,4 @@
-package vn.mobile.banking.network.rest
+package vn.mobile.clothing.network.rest
 
 import retrofit2.Call
 import retrofit2.Callback

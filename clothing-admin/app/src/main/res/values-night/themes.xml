@@ -1,7 +1,16 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Base.Theme.Clothingadmin" parent="Theme.Material3.DayNight.NoActionBar">
+    <style name="Base.Theme.Clothing" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your dark theme here. -->
         <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="android:textColorPrimary">@color/text_primary</item>
+        <item name="android:textColor">@color/text_primary</item>
+
+
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="bottomNavigationStyle">@style/Theme.Bottom.Navigation</item>
     </style>
+
+    <style name="Theme.Bottom.Navigation" parent="Theme.MaterialComponents.DayNight.NoActionBar"/>
 </resources>

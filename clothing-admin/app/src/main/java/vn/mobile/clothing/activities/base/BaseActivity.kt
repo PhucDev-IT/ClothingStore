@@ -1,18 +1,18 @@
-package vn.clothing.store.activities.common
+package vn.mobile.clothing.activities.base
 
 import android.os.Bundle
 import android.view.View
+
 import android.widget.Toast
-import androidx.activity.enableEdgeToEdge
+
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.karumi.dexter.Dexter
 import com.karumi.dexter.MultiplePermissionsReport
 import com.karumi.dexter.PermissionToken
-import com.karumi.dexter.listener.PermissionRequest
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener
-import vn.clothing.store.R
+
 
 abstract class BaseActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,7 +47,7 @@ abstract class BaseActivity : AppCompatActivity() {
                 }
 
                 override fun onPermissionRationaleShouldBeShown(
-                    list: List<PermissionRequest>,
+                    list: List<com.karumi.dexter.listener.PermissionRequest>,
                     permissionToken: PermissionToken
                 ) {
                     permissionToken.continuePermissionRequest()

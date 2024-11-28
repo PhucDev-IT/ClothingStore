@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:orientation="horizontal"
+    android:padding="@dimen/_10sdp"
+    android:gravity="center"
+    android:background="@color/background"
+    android:layout_height="wrap_content">
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/imgProduct"
+        android:layout_width="@dimen/_80sdp"
+        android:layout_height="@dimen/_90sdp"
+        app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Rounded"
+        app:srcCompat="@drawable/welcome_img2"
+        android:scaleType="centerCrop"/>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingTop="5sp"
+        android:paddingHorizontal="@dimen/_10sdp"
+        android:orientation="vertical">
+        <TextView
+            android:id="@+id/nameProduct"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Aó thun tuy dài nhưng không phế"
+            android:textSize="@dimen/text_size_medium"
+            android:lines="1"
+            android:ellipsize="end"
+            android:fontFamily="@font/inter_bold"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_5sdp"
+            android:orientation="horizontal">
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+                <TextView
+                    android:id="@+id/tvClassify"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/label_color"
+                    android:textSize="@dimen/text_size_default"
+                    android:ellipsize="end"
+                    android:lines="1"
+                    android:fontFamily="@font/inter_medium"
+                    android:textColor="@color/gray"/>
+                <TextView
+                    android:id="@+id/tvSize"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/label_size"
+                    android:textSize="@dimen/text_size_default"
+                    android:ellipsize="end"
+                    android:fontFamily="@font/inter_medium"
+                    android:textColor="@color/gray"/>
+                <TextView
+                    android:id="@+id/tvPrice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="50.000đ"
+                    android:textColor="@color/color_red"
+                    android:fontFamily="@font/inter_bold"/>
+            </LinearLayout>
+
+           <TextView
+               android:id="@+id/tvQuantity"
+               android:layout_width="wrap_content"
+               android:layout_height="wrap_content"
+               android:text="x2"
+               android:textColor="@color/gray"
+               android:textSize="@dimen/text_size_default"
+               android:layout_gravity="bottom"/>
+        </LinearLayout>
+
+    </LinearLayout>
+
+
+</LinearLayout>

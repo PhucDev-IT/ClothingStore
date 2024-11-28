@@ -1,4 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-  
+    <group >
+        <item android:id="@+id/nav_home"
+            android:icon="@drawable/baseline_dashboard_24"
+            android:title="@string/nav_home"/>
+        <item android:id="@+id/nav_order"
+            android:icon="@drawable/baseline_fire_truck_24"
+            android:title="@string/nav_order"/>
+
+        <item android:id="@+id/nav_settings"
+            android:icon="@drawable/baseline_settings_24"
+            android:title="@string/nav_settings"/>
+
+        <item android:id="@+id/nav_notification"
+            android:icon="@drawable/baseline_notifications_active_24"
+            android:title="@string/nav_notification"/>
+
+    </group>
+
+    <item
+        android:title="">
+        <menu>
+            <item
+                android:id="@+id/nav_logout"
+                android:icon="@drawable/baseline_exit_to_app_24"
+                android:title="@string/nav_log_out"/>
+        </menu>
+    </item>
 </menu>

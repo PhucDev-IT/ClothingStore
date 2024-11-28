@@ -1,3 +1,65 @@
 <resources>
-    <string name="app_name">clothing.admin</string>
+    <string name="app_name">Clothing Store Admin</string>
+
+    <string name="nav_home">Bảng điều khiển</string>
+    <string name="nav_settings">Cài đặt</string>
+    <string name="nav_notification">Thông báo</string>
+    <string name="nav_log_out">Đăng xuất</string>
+    <string name="nav_order">Đơn hàng</string>
+    <!--    COMMON-->
+    <string name="cancel">Hủy</string>
+    <string name="label_ok">Xác nhận</string>
+    <string name="has_error_please_retry">Có lỗi xảy ra, vui lòng thử lại!</string>
+    <string name="channel_name">Thông báo</string>
+    <string name="channel_description">Thông báo OTP</string>
+    <string name="required_permission_notification">Vui lòng cấp quyền truy cập thông báo</string>
+    <string name="required_filed">Trường này là bắt buộc</string>
+    <string name="label_finish">Hoàn thành</string>
+    <string name="can_not_success">Không thành công</string>
+    <string name="success">Thành công</string>
+
+    <!--    ONBOARDING-->
+    <string name="label_skip">Bỏ qua</string>
+    <string name="onboarding_1"><font color="#704F38">Seamless</font> Shopping \nExperience</string>
+    <string name="onboarding_2"><font color="#704F38">Swift</font> and <font color="#704F38">Reliable</font>\nDelivery</string>
+    <string name="welcome_text">The <font color="#704F38">Fashion App</font> That \nMakes You Look Your Best</string>
+    <string name="let_get_start">Bắt đầu</string>
+    <string name="sign_in">Đăng nhập</string>
+    <string name="have_not_account">Bạn chưa có tài khoản? </string>
+
+    <string name="lorem_ipsum">
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam in scelerisque sem. Mauris
+        volutpat, dolor id interdum ullamcorper, risus dolor egestas lectus, sit amet mattis purus
+        dui nec risus. Maecenas non sodales nisi, vel dictum dolor. Class aptent taciti sociosqu a
+    </string>
+
+    <!--    Order-->
+    <string name="title_header_order">Lịch sử mua hàng</string>
+    <string name="tab_item_pending">Chờ xác nhận</string>
+    <string name="tab_item_processing">Đang xử lý</string>
+    <string name="tab_item_history">Đã mua</string>
+    <string name="tab_item_review">Đánh giá</string>
+    <string name="tab_item_canceled">Đã hủy</string>
+    <string name="str_quantity">x%s sản phẩm</string>
+    <string name="label_info_detail">Thông tin chi tiết</string>
+    <string name="label_color">Màu sắc: %s</string>
+    <string name="label_size">Size: %s</string>
+    <!--   LOGIN -->
+    <string name="hi_welcome_back">Xin chào! Chào mừng bạn trở lại, chúng tôi đã nhớ bạn</string>
+    <string name="label_password">Mật khẩu</string>
+    <string name="forgot_pass"><u>Quên mật khẩu?</u></string>
+    <string name="or_other_login">Hoặc</string>
+    <string name="login_with_google">Đăng nhập với Google</string>
+    <string name="haven_account">Bạn chưa có tài khoản? </string>
+    <string name="sign_up">Đăng ký</string>
+    <string name="label_create_account">Tạo tài khoản</string>
+    <string name="content_sign_up">Điền thông tin của bạn xuống bên dưới, hoặc đăng ký với tài khoản xã hội</string>
+    <string name="has_account">Bạn đã có tài khoản? </string>
+    <string name="loading">Đang xử lý …</string>
+    <string name="account_empty">Tài khoản hoặc mật khẩu không được để trống</string>
+    <string name="verify_otp">Xác thực mã OTP</string>
+    <string name="guide_input_otp">Nhập mã OTP được gửi đến thiết bị của bạn xuống dưới</string>
+    <string name="enter_otp">Nhập mã OTP:</string>
+    <string name="re_send">Gửi lại</string>
+
 </resources>

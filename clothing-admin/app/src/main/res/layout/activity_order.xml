@@ -1,10 +1,82 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".activities.OrderActivity">
+    >
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <data>
+        <import type="android.view.View" />
+        <variable
+            name="viewModel"
+            type="vn.mobile.clothing.viewmodel.OrderViewModel" />
+    </data>
+ <LinearLayout
+     android:id="@+id/main"
+     android:layout_width="match_parent"
+     android:layout_height="match_parent"
+     android:orientation="vertical"
+     android:background="@color/background">
+     <include layout="@layout/layout_header"
+         android:id="@+id/header"/>
+
+     <com.google.android.material.tabs.TabLayout
+         android:id="@+id/tabLayout"
+         android:background="@color/background"
+         android:layout_width="match_parent"
+         android:layout_height="wrap_content">
+         <com.google.android.material.tabs.TabItem
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:text="@string/tab_item_pending"/>
+         <com.google.android.material.tabs.TabItem
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:text="@string/tab_item_processing"/>
+         <com.google.android.material.tabs.TabItem
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:text="@string/tab_item_history"/>
+         <com.google.android.material.tabs.TabItem
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:text="@string/tab_item_review"/>
+     </com.google.android.material.tabs.TabLayout>
+
+     <com.facebook.shimmer.ShimmerFrameLayout
+         android:visibility="@{viewModel.isLoading ? View.VISIBLE : View.GONE}"
+         android:layout_marginTop="@dimen/_10sdp"
+         android:id="@+id/shimmer_layout"
+         android:layout_width="match_parent"
+         android:layout_height="match_parent">
+
+         <include layout="@layout/my_cart_skeleton" />
+     </com.facebook.shimmer.ShimmerFrameLayout>
+
+
+     <LinearLayout
+         android:id="@+id/ll_not_found"
+         android:visibility="gone"
+         android:layout_width="match_parent"
+         android:layout_height="match_parent"
+         android:gravity="center"
+         android:orientation="vertical">
+         <ImageView
+             android:layout_width="@dimen/_50sdp"
+             android:layout_height="@dimen/_50sdp"
+             android:src="@drawable/ic_not_found_item"/>
+         <TextView
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:text="Chưa có đơn hàng mới"
+             android:textSize="@dimen/text_size_default"
+             android:fontFamily="@font/inter_regular"
+             android:layout_margin="@dimen/_10sdp"/>
+     </LinearLayout>
+
+     <androidx.recyclerview.widget.RecyclerView
+         android:id="@+id/rv_orders"
+         android:layout_marginTop="@dimen/_10sdp"
+         android:layout_width="match_parent"
+         android:layout_height="wrap_content"/>
+ </LinearLayout>
+</layout>

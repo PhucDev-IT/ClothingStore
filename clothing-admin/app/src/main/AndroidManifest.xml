@@ -2,7 +2,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <application
+        android:name=".MyApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -10,10 +14,32 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Clothingadmin"
+        android:usesCleartextTraffic="true"
+        android:theme="@style/Theme.Clothing"
         tools:targetApi="31">
         <activity
+            android:name=".activities.OrderActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.TrackOrderActivity"
+            android:exported="false" />
+        <activity
             android:name=".MainActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.onboarding.OnboardingActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.onboarding.WelcomeScreenActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.authentication.SignUpActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.authentication.LoginActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.onboarding.SplashScreenActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
