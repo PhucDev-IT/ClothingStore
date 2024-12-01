@@ -5,11 +5,11 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/black"
+    android:background="@color/white"
     tools:context=".activities.onboarding.SplashScreenActivity">
     <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="@dimen/_150sdp"
+        android:layout_height="@dimen/_150sdp"
         android:src="@drawable/playstore_icon"
         android:layout_centerInParent="true"/>
 </RelativeLayout>

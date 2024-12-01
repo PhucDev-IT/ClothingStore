@@ -17,11 +17,16 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.gson.JsonObject
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import vn.clothing.store.R
 import vn.clothing.store.activities.common.BaseActivity
 import vn.clothing.store.activities.settings.SettingsMainActivity
 import vn.clothing.store.adapter.RvPayOrderAdapter
+import vn.clothing.store.common.AppManager
 import vn.clothing.store.common.CoreConstant
 import vn.clothing.store.common.IntentData
 import vn.clothing.store.common.PaymentMethod
@@ -31,11 +36,13 @@ import vn.clothing.store.databinding.ActivityPayOrderBinding
 import vn.clothing.store.databinding.PopupSelectPaymentMethodBinding
 import vn.clothing.store.interfaces.PayOrderContract
 import vn.clothing.store.models.DeliveryInformation
+import vn.clothing.store.models.NotificationModel
 import vn.clothing.store.models.VoucherModel
 import vn.clothing.store.networks.request.OrderItemRequestModel
 import vn.clothing.store.networks.request.OrderRequestModel
 import vn.clothing.store.networks.response.CartResponseModel
 import vn.clothing.store.presenter.PayOrderPresenter
+import vn.clothing.store.service.PushNotification
 import vn.clothing.store.utils.FormatCurrency
 import vn.clothing.store.zalopay.Api.CreateOrder
 import vn.clothing.store.zalopay.Constant.AppInfo
@@ -43,6 +50,7 @@ import vn.zalopay.sdk.Environment
 import vn.zalopay.sdk.ZaloPayError
 import vn.zalopay.sdk.ZaloPaySDK
 import vn.zalopay.sdk.listeners.PayOrderListener
+import java.util.Date
 
 class PayOrderActivity : BaseActivity(), PayOrderContract.View {
     private lateinit var binding: ActivityPayOrderBinding
@@ -89,7 +97,6 @@ class PayOrderActivity : BaseActivity(), PayOrderContract.View {
     }
 
     override fun populateData() {
-        presenter.getDefaultAddress()
         initUi()
     }
 
@@ -176,60 +183,62 @@ class PayOrderActivity : BaseActivity(), PayOrderContract.View {
 
     private fun payWithZaloPay(orderRequestModel: OrderRequestModel, cardIds: List<Int>) {
         onShowLoading()
-        val orderApi = CreateOrder()
-        try {
-            val data: JSONObject = orderApi.createOrder(totalMoney.toInt().toString())
-            val code = data.getString("returncode")
-            if (code == "1") {
-                val token = data.getString("zptranstoken")
-                ZaloPaySDK.getInstance().payOrder(
-                    this@PayOrderActivity,
-                    token,
-                    "demozpdk://app",
-                    object : PayOrderListener {
-                        override fun onPaymentSucceeded(
-                            transactionId: String?,
-                            transToken: String?,
-                            appTransID: String?
-                        ) {
-                            handler.post {
-                                onHideLoading()
-                                presenter.payment(orderRequestModel, cardIds)
+        CoroutineScope(Dispatchers.IO).launch {
+            val orderApi = CreateOrder()
+            try {
+                val data: JSONObject = orderApi.createOrder(totalMoney.toInt().toString())
+                val code = data.getString("returncode")
+                if (code == "1") {
+                    val token = data.getString("zptranstoken")
+                    ZaloPaySDK.getInstance().payOrder(
+                        this@PayOrderActivity,
+                        token,
+                        "demozpdk://app",
+                        object : PayOrderListener {
+                            override fun onPaymentSucceeded(
+                                transactionId: String?,
+                                transToken: String?,
+                                appTransID: String?
+                            ) {
+                                handler.post {
+                                    onHideLoading()
+                                    presenter.payment(orderRequestModel, cardIds)
+                                }
                             }
-                        }
 
-                        override fun onPaymentCanceled(zpTransToken: String?, appTransID: String?) {
-                            handler.post {
-                                onHideLoading()
-                                Toast.makeText(
-                                    this@PayOrderActivity,
-                                    "Hủy thanh toán",
-                                    Toast.LENGTH_SHORT
-                                ).show()
+                            override fun onPaymentCanceled(zpTransToken: String?, appTransID: String?) {
+                                handler.post {
+                                    onHideLoading()
+                                    Toast.makeText(
+                                        this@PayOrderActivity,
+                                        "Hủy thanh toán",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
                             }
-                        }
 
-                        override fun onPaymentError(
-                            zaloPayError: ZaloPayError?,
-                            zpTransToken: String?,
-                            appTransID: String?
-                        ) {
-                            handler.post {
-                                onHideLoading()
-                                Toast.makeText(
-                                    this@PayOrderActivity,
-                                    "Lỗi thanh toán",
-                                    Toast.LENGTH_SHORT
-                                ).show()
+                            override fun onPaymentError(
+                                zaloPayError: ZaloPayError?,
+                                zpTransToken: String?,
+                                appTransID: String?
+                            ) {
+                                handler.post {
+                                    onHideLoading()
+                                    Toast.makeText(
+                                        this@PayOrderActivity,
+                                        "Lỗi thanh toán",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
                             }
-                        }
-                    })
-            } else {
-                Toast.makeText(this@PayOrderActivity, "Khác 1", Toast.LENGTH_SHORT).show()
+                        })
+                } else {
+                    Toast.makeText(this@PayOrderActivity, "Lỗi dịch vụ nhà cung cấp", Toast.LENGTH_SHORT).show()
+                }
+            } catch (e: Exception) {
+                onHideLoading()
+                e.printStackTrace();
             }
-        } catch (e: Exception) {
-            onHideLoading()
-            e.printStackTrace();
         }
     }
 
@@ -241,7 +250,9 @@ class PayOrderActivity : BaseActivity(), PayOrderContract.View {
     }
 
     override fun onHideLoading() {
-        PopupDialog.closeDialog()
+        handler.post {
+            PopupDialog.closeDialog()
+        }
     }
 
     override fun onShowPopup(message: String, type: PopupDialog.PopupType) {
@@ -249,7 +260,7 @@ class PayOrderActivity : BaseActivity(), PayOrderContract.View {
     }
 
     override fun onPaymentSuccess(orderId: String) {
-        CoreConstant.showToast(this, getString(R.string.success), CoreConstant.ToastType.SUCCESS)
+        showNotification()
         startActivity(Intent(this, PurchaseHistoryActivity::class.java))
         finish()
     }
@@ -311,6 +322,11 @@ class PayOrderActivity : BaseActivity(), PayOrderContract.View {
     }
 
 
+    private fun showNotification(){
+        val notification = NotificationModel("1","Đặt hàng thành công","Cảm ơn đã tin tưởng và mua hàng của chúng tôi, shop sẽ sớm xác nhận và gửi hàng cho bạn",Date(),null,true,false,AppManager.user?.id)
+        PushNotification.sendNotification(this,notification)
+    }
+
     private fun displayPopupPaymentMethod() {
         val dialog = BottomSheetDialog(this)
         val bindingDialog = PopupSelectPaymentMethodBinding.inflate(layoutInflater)
@@ -346,6 +362,13 @@ class PayOrderActivity : BaseActivity(), PayOrderContract.View {
         dialog.show()
     }
 
+
+    override fun onResume() {
+        super.onResume()
+        if(address == null){
+            presenter.getDefaultAddress()
+        }
+    }
     companion object {
         private const val REQUEST_SELECT_VOUCHER = 235
     }

@@ -5,8 +5,10 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import kotlinx.coroutines.CoroutineScope
@@ -23,7 +25,9 @@ import vn.clothing.store.utils.MySharedPreferences
 
 @SuppressLint("CustomSplashScreen")
 class SplashScreenActivity : AppCompatActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        setModeColor()
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_splash_screen)
@@ -32,14 +36,9 @@ class SplashScreenActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-
-
-    }
-
-    override fun onStart() {
-        super.onStart()
         initUi()
     }
+
 
 
     private fun initUi(){
@@ -52,6 +51,15 @@ class SplashScreenActivity : AppCompatActivity() {
                 finish()
             }
         }, 2000)
+    }
+
+    private fun setModeColor(){
+        val currentMode = AppCompatDelegate.getDefaultNightMode()
+        val savedMode = MySharedPreferences.getIntValues(this, MySharedPreferences.PREF_KEY_THEME_MODE)
+
+        if (currentMode != savedMode) {
+            AppCompatDelegate.setDefaultNightMode(savedMode)
+        }
     }
 
 

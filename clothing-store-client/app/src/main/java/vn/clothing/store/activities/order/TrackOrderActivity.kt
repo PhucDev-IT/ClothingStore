@@ -3,6 +3,7 @@ package vn.clothing.store.activities.order
 import android.annotation.SuppressLint
 import android.app.Dialog
 import android.graphics.Color
+import android.graphics.PorterDuff
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.util.Log
@@ -16,6 +17,7 @@ import android.widget.RadioGroup
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -121,34 +123,38 @@ class TrackOrderActivity : BaseActivity() {
         }
 
         if(!orderDetails.orderStatus.isNullOrEmpty()){
-            binding.llOrdered.visibility = View.GONE
             binding.lnCancelOrder.visibility = View.GONE
-            binding.llPacking.visibility = View.GONE
-            binding.llShipping.visibility = View.GONE
-            binding.llDelivered.visibility = View.GONE
-
+            binding.btnCancelOrder.visibility = View.GONE
+            val color = ContextCompat.getColor(this, R.color.colorPrimary)
             for(model in orderDetails.orderStatus!!){
                 when(model.status){
                     EOrderStatus.PENDING.name ->{
+                        binding.btnCancelOrder.visibility = View.VISIBLE
                         binding.llOrdered.visibility = View.VISIBLE
+                        binding.imgCircleDaDatHang.setColorFilter(color, PorterDuff.Mode.SRC_IN)
                         binding.tvTimeOrderDate.text = FormatCurrency.dateTimeFormat.format(model.updatedAt)
                     }
                     EOrderStatus.CANCELLED.name ->{
-                        binding.btnCancelOrder.visibility = View.GONE
                         binding.lnCancelOrder.visibility = View.VISIBLE
                         binding.tvTimeCancel.text = FormatCurrency.dateTimeFormat.format(model.updatedAt)
                         binding.tvReasonCancel.text = binding.tvReasonCancel.text.toString() + model.note
                     }
                     EOrderStatus.PACKING.name ->{
-                        binding.llPacking.visibility = View.VISIBLE
+                        binding.imgCirclePackaging.setColorFilter(color, PorterDuff.Mode.SRC_IN)
+                        binding.lineBottomDaDatHang.setBackgroundColor(color)
+                        binding.lineTopPackaging.setBackgroundColor(color)
                         binding.tvTimePackagingOrder.text = FormatCurrency.dateTimeFormat.format(model.updatedAt)
                     }
                     EOrderStatus.SHIPPING.name ->{
-                        binding.llShipping.visibility = View.VISIBLE
+                        binding.lineTopTransport.setBackgroundColor(color)
+                        binding.lineBottomPackaging.setBackgroundColor(color)
+                        binding.imgCircleTransport.setColorFilter(color, PorterDuff.Mode.SRC_IN)
                         binding.tvTimeTransport.text = FormatCurrency.dateTimeFormat.format(model.updatedAt)
                     }
                     EOrderStatus.DELIVERED.name ->{
-                        binding.llDelivered.visibility = View.VISIBLE
+                        binding.imgCircleDelivered.setColorFilter(color, PorterDuff.Mode.SRC_IN)
+                        binding.lineTopDelivered.setBackgroundColor(color)
+                        binding.lineBottomTransport.setBackgroundColor(color)
                         binding.tvTimeDelivered.text = FormatCurrency.dateTimeFormat.format(model.updatedAt)
                     }
                 }

@@ -50,7 +50,7 @@ android {
     flavorDimensions.add("dev")
     productFlavors{
         create("dev"){
-            buildConfigField("String","API_BASE_URL","\"http://192.168.201.5:3000/\"")
+            buildConfigField("String","API_BASE_URL","\"http://192.168.201.6:3000/\"")
         }
     }
 }
@@ -69,6 +69,7 @@ dependencies {
     //Demo app
     implementation("com.github.stfalcon-studio:StfalconImageViewer:v1.0.1")
     implementation("me.relex:circleindicator:2.1.6")
+    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
     implementation ("com.intuit.sdp:sdp-android:1.1.1")
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
     implementation ("com.karumi:dexter:6.2.3")

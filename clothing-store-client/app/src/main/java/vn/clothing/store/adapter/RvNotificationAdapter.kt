@@ -42,7 +42,7 @@ class RvNotificationAdapter( private val onClick:Consumer<NotificationModel>): R
         holder.binding.tvContent.text = list[position].content
         holder.binding.tvTime.text = FormatCurrency.dateFormat.format(list[position].date)
         Glide.with(holder.itemView.context).load(list[position].type).into(holder.binding.icon)
-        if(list[position].isRead){
+        if(list[position].isRead == true){
             holder.binding.viewRead.visibility = View.GONE
         }else{
             holder.binding.viewRead.visibility = View.VISIBLE

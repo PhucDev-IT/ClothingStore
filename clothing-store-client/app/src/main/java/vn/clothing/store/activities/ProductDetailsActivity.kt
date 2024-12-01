@@ -2,6 +2,7 @@ package vn.clothing.store.activities
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.ImageView
@@ -44,6 +45,7 @@ class ProductDetailsActivity : BaseActivity(), ProductDetailsContract.View {
     private var price : Float = 1000000000f
     private var productDetails:List<ProductDetails>?=null
     private var isFavorite = false
+    private val TAG = "ProductDetailsActivity"
 
     override fun initView() {
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
@@ -135,12 +137,17 @@ class ProductDetailsActivity : BaseActivity(), ProductDetailsContract.View {
     }
 
     private fun showImages(){
-        val imageList = ArrayList<SlideModel>() // Create image list
-        images.map {
-            imageList.add(SlideModel(it, ScaleTypes.CENTER_CROP))
+        try{
+            val imageList = ArrayList<SlideModel>() // Create image list
+            images.map {
+                imageList.add(SlideModel(it, ScaleTypes.CENTER_CROP))
+            }
+            binding.imgProduct.setImageList(imageList)
+            binding.imgProduct.setSlideAnimation(AnimationTypes.ZOOM_OUT)
+        }catch (e:Exception){
+            Log.e(TAG,"Lỗi hiển thị ảnh")
+
         }
-        binding.imgProduct.setImageList(imageList)
-        binding.imgProduct.setSlideAnimation(AnimationTypes.ZOOM_OUT)
     }
 
     private fun upDownQuantity() {

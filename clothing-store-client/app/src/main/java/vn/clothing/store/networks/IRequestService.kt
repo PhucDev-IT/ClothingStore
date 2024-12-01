@@ -132,7 +132,7 @@ interface IRequestService {
     @GET("/api/orders/{id}")
     fun findOrder(@Path("id") id:String):Call<ResponseModel<OrderDetailsResponseModel>>
 
-    @PUT("/api/orders/order_status")
+    @POST("/api/orders/order_status")
     fun updateOrderStatus(@Body model:OrderStatus):Call<ResponseModel<OrderStatus>>
 
     //=================================================

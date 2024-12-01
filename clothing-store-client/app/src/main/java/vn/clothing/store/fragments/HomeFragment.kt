@@ -161,7 +161,25 @@ class HomeFragment : Fragment(), HomeContract.View {
        adapterProduct?.setData(products)
     }
 
+    override fun onCountNotification(count: Int) {
+      if(count > 0){
+          binding.llCounterNotification.visibility = View.VISIBLE
+          if(count > 40){
+              binding.tvCountNotification.text = "99+"
+          }else{
+              binding.tvCountNotification.text = count.toString()
+          }
+      }else{
+          binding.llCounterNotification.visibility = View.GONE
+      }
+    }
+
     //================================================
     //  endregion HomeContract.View
     //===============================================
+
+    override fun onResume() {
+        super.onResume()
+        presenter?.countNotification()
+    }
 }

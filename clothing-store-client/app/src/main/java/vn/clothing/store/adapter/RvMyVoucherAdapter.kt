@@ -14,6 +14,7 @@ import androidx.appcompat.widget.AppCompatButton
 import androidx.core.content.ContextCompat
 import androidx.core.util.Consumer
 import vn.clothing.store.R
+import vn.clothing.store.models.TypeVoucher
 import vn.clothing.store.models.VoucherModel
 
 class RvMyVoucherAdapter(private val onClick:Consumer<String>):RecyclerView.Adapter<RvMyVoucherAdapter.viewHolder>() {
@@ -28,15 +29,15 @@ class RvMyVoucherAdapter(private val onClick:Consumer<String>):RecyclerView.Adap
 
 
     class viewHolder(itemView:View):RecyclerView.ViewHolder(itemView){
-        var idVoucher:TextView
-        var tvContent:TextView
         var tvTitle:TextView
+        var tvContent:TextView
+        var tvDiscount:TextView
         var btnSelect:AppCompatButton
 
         init {
-            idVoucher = itemView.findViewById(R.id.idVoucher)
+            tvTitle = itemView.findViewById(R.id.tv_title)
             tvContent = itemView.findViewById(R.id.tvContent)
-            tvTitle = itemView.findViewById(R.id.tvTitle)
+            tvDiscount = itemView.findViewById(R.id.tv_discount)
             btnSelect = itemView.findViewById(R.id.btn_select)
         }
     }
@@ -51,9 +52,16 @@ class RvMyVoucherAdapter(private val onClick:Consumer<String>):RecyclerView.Adap
     @SuppressLint("ResourceAsColor", "NotifyDataSetChanged")
     override fun onBindViewHolder(holder: viewHolder, position: Int) {
         holder.itemView.apply {
-            holder.idVoucher.text = list[position].id
             holder.tvContent.text = list[position].description
             holder.tvTitle.text = list[position].title
+
+            holder.tvDiscount.text =  if(list[position].type == TypeVoucher.FREESHIP.name){
+                "Miễn phí vận chuyển"
+            }else if(list[position].type == TypeVoucher.DISCOUNTMONEY.name){
+                "Giảm giá ${list[position].discount}"
+            }else{
+                "Giảm giá ${list[position].discount}%"
+            }
 
             holder.btnSelect.setOnClickListener {
                 onClick.accept(list[position].id!!)

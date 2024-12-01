@@ -39,6 +39,7 @@ abstract class BaseCallback<T>: Callback<T> {
             return
         }
         try {
+
             onError(response.errorBody()!!.string())
         } catch (e: IOException) {
             onError(e.message?:"Failure to server")

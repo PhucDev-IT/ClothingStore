@@ -121,7 +121,7 @@ class LoginPresenter(private var view: LoginContract.View?) : LoginContract.Pres
     override fun loginSystem(email: String, password: String) {
         view?.onShowLoading()
         Utils.getTokenFCM { token->
-            val login = LoginRequest(email,password,token,"1")
+            val login = LoginRequest(email,password,token,UUID.randomUUID().toString())
             APISERVICE.getService().login(login).enqueue(object: BaseCallback<ResponseModel<LoginResponseModel>>(){
                 override fun onSuccess(model: ResponseModel<LoginResponseModel>) {
 

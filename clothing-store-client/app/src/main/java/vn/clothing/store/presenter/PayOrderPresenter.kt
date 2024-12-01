@@ -9,6 +9,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import retrofit2.await
 import vn.clothing.store.common.AppManager
+import vn.clothing.store.common.PaymentMethod
 import vn.clothing.store.common.PopupDialog
 import vn.clothing.store.database.AppDatabase
 import vn.clothing.store.database.AppDatabase.Companion.APPDATABASE
@@ -18,6 +19,7 @@ import vn.clothing.store.models.Order
 import vn.clothing.store.networks.ApiService.Companion.APISERVICE
 import vn.clothing.store.networks.request.DeleteCartRequest
 import vn.clothing.store.networks.request.OrderRequestModel
+import vn.clothing.store.networks.response.OrderStatus
 import vn.mobile.banking.network.response.ResponseModel
 import vn.mobile.banking.network.rest.BaseCallback
 
@@ -64,6 +66,7 @@ class PayOrderPresenter(private var view: PayOrderContract.View?) : PayOrderCont
             }
         }
     }
+
 
     override fun payment(orderRequestModel: OrderRequestModel, cartIds:List<Int>) {
         view?.onShowLoading()

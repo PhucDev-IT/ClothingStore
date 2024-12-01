@@ -14,6 +14,7 @@ import vn.mobile.clothing.network.request.LoginRequest
 import vn.mobile.clothing.network.request.RegisterRequestModel
 import vn.mobile.clothing.network.response.LoginResponseModel
 import vn.mobile.clothing.network.response.OrderDetailsResponseModel
+import vn.mobile.clothing.network.response.OrderStatus
 import vn.mobile.clothing.network.response.PurchaseHistoryResponseModel
 import vn.mobile.clothing.network.response.ResponseModel
 
@@ -38,5 +39,6 @@ interface IRequestService {
     fun getOrders(@Query("status") status:String, @Query("limit") limit:Int, @Query("page") page:Int):Call<ResponseModel<PurchaseHistoryResponseModel>>
     @GET("/api/orders/{id}")
     fun findOrder(@Path("id") id:String):Call<ResponseModel<OrderDetailsResponseModel>>
-
+    @POST("/api/orders/order_status")
+    fun updateOrderStatus(@Body model: OrderStatus):Call<ResponseModel<OrderStatus>>
 }

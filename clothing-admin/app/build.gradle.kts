@@ -67,6 +67,8 @@ dependencies {
     //ViewModel
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.5")
 
+    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
+
     implementation("me.relex:circleindicator:2.1.6")
     implementation ("com.karumi:dexter:6.2.3")
     implementation("com.facebook.shimmer:shimmer:0.5.0")

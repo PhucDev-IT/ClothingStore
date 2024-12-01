@@ -10,6 +10,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.util.Consumer
 import androidx.recyclerview.widget.RecyclerView
 import vn.clothing.store.R
+import vn.clothing.store.models.TypeVoucher
 import vn.clothing.store.models.VoucherModel
 
 class RvSelectedVoucherAdapter(  private var idVoucherOld: String?,private val onClick:Consumer<VoucherModel?>): RecyclerView.Adapter<RvSelectedVoucherAdapter.viewHolder>() {
@@ -24,15 +25,15 @@ class RvSelectedVoucherAdapter(  private var idVoucherOld: String?,private val o
 
 
     class viewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        var idVoucher: TextView
-        var tvContent: TextView
-        var tvTitle: TextView
-        var btnSelect: AppCompatButton
+        var tvTitle:TextView
+        var tvContent:TextView
+        var tvDiscount:TextView
+        var btnSelect:AppCompatButton
 
         init {
-            idVoucher = itemView.findViewById(R.id.idVoucher)
+            tvTitle = itemView.findViewById(R.id.tv_title)
             tvContent = itemView.findViewById(R.id.tvContent)
-            tvTitle = itemView.findViewById(R.id.tvTitle)
+            tvDiscount = itemView.findViewById(R.id.tv_discount)
             btnSelect = itemView.findViewById(R.id.btn_select)
         }
     }
@@ -48,9 +49,17 @@ class RvSelectedVoucherAdapter(  private var idVoucherOld: String?,private val o
     @SuppressLint("ResourceAsColor", "NotifyDataSetChanged")
     override fun onBindViewHolder(holder: viewHolder, position: Int) {
         holder.itemView.apply {
-            holder.idVoucher.text = list[position].id
-            holder.tvContent.text = list[position].description
             holder.tvTitle.text = list[position].title
+
+            holder.tvDiscount.text =  if(list[position].type == TypeVoucher.FREESHIP.name){
+                "Miễn phí vận chuyển"
+            }else if(list[position].type == TypeVoucher.DISCOUNTMONEY.name){
+                "Giảm giá ${list[position].discount}"
+            }else{
+                "Giảm giá ${list[position].discount}%"
+            }
+            holder.tvContent.text = list[position].description
+
             holder.btnSelect.text = "Sử dụng"
 
             if (idVoucherOld == list[position].id) {

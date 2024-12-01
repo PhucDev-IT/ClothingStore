@@ -33,6 +33,7 @@ import vn.mobile.clothing.models.TypeVoucher
 import vn.mobile.clothing.network.ApiService.Companion.APISERVICE
 import vn.mobile.clothing.network.response.OrderDetailsResponseModel
 import vn.mobile.clothing.network.response.OrderResponseModel
+import vn.mobile.clothing.network.response.OrderStatus
 import vn.mobile.clothing.network.response.ResponseModel
 import vn.mobile.clothing.network.rest.BaseCallback
 import vn.mobile.clothing.utils.FormatCurrency
@@ -82,8 +83,11 @@ class TrackOrderActivity : BaseActivity() {
     override fun setListener() {
         binding.header.toolbar.setNavigationOnClickListener { finish() }
 
-        binding.btnCancelOrder.setOnClickListener {
-            //openDialogCancelOrder()
+        binding.btnCancel.setOnClickListener {
+            openDialogCancelOrder()
+        }
+        binding.btnConfirm.setOnClickListener {
+            confirmOrder()
         }
     }
 
@@ -130,8 +134,11 @@ class TrackOrderActivity : BaseActivity() {
                         binding.llOrdered.visibility = View.VISIBLE
                         binding.tvTimeOrderDate.text = FormatCurrency.dateTimeFormat.format(model.updatedAt)
                     }
+                    EOrderStatus.PACKING.name ->{
+
+                    }
                     EOrderStatus.CANCELLED.name ->{
-                        binding.btnCancelOrder.visibility = View.GONE
+                        binding.llControl.visibility = View.GONE
                         binding.lnCancelOrder.visibility = View.VISIBLE
                         binding.tvTimeCancel.text = FormatCurrency.dateTimeFormat.format(model.updatedAt)
                         binding.tvReasonCancel.text = binding.tvReasonCancel.text.toString() + model.note
@@ -170,57 +177,86 @@ class TrackOrderActivity : BaseActivity() {
         })
     }
 
-//    private fun openDialogCancelOrder(){
-//        val dialog = Dialog(this)
-//        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-//        dialog.setContentView(R.layout.custom_dialog_cancel_order)
-//
-//        val window: Window = dialog.window ?: return
-//
-//        window.setLayout(WindowManager.LayoutParams.MATCH_PARENT,WindowManager.LayoutParams.WRAP_CONTENT)
-//        window.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-//
-//        val windowAttribute:WindowManager.LayoutParams = window.attributes
-//        windowAttribute.gravity = Gravity.BOTTOM
-//        window.attributes = windowAttribute
-//
-//        val radioGroup = dialog.findViewById<RadioGroup>(R.id.radioGroup)
-//        val btnConfirm = dialog.findViewById<Button>(R.id.btnConfirm)
-//
-//        btnConfirm?.setOnClickListener {
-//            val checkedRadioButtonId = radioGroup?.checkedRadioButtonId
-//
-//            if (checkedRadioButtonId != -1 && checkedRadioButtonId!=null && order.orderId != null) {
-//                val orderStatus = OrderStatus().apply {
-//                    orderId = order.orderId
-//                    status = EOrderStatus.CANCELLED.name
-//                    note = radioGroup.findViewById<RadioButton>(checkedRadioButtonId).text.toString()
-//                }
-//                PopupDialog.showDialogLoading(this@TrackOrderActivity)
-//                APISERVICE.getService(AppManager.token).updateOrderStatus(orderStatus).enqueue(object : BaseCallback<ResponseModel<OrderStatus>>(){
-//                    override fun onSuccess(model: ResponseModel<OrderStatus>) {
-//                        if(model.success && model.data!=null){
-//                            Toast.makeText(this@TrackOrderActivity,"Hủy đơn hàng thành công",Toast.LENGTH_SHORT).show()
-//                        }else{
-//                            Toast.makeText(this@TrackOrderActivity,"Có lỗi xảy ra",Toast.LENGTH_SHORT).show()
-//                        }
-//                        binding.btnCancelOrder.visibility = View.GONE
-//                        dialog.dismiss()
-//                        PopupDialog.closeDialog()
-//                    }
-//
-//                    override fun onError(message: String) {
-//                        PopupDialog.closeDialog()
-//                        dialog.dismiss()
-//                        PopupDialog.showDialog(this@TrackOrderActivity,PopupDialog.PopupType.NOTIFICATION,getString(R.string.can_not_success),message){}
-//                    }
-//                })
-//            } else {
-//                Toast.makeText(this, "Chọn lý do trước khi tiếp tục", Toast.LENGTH_SHORT).show()
-//            }
-//        }
-//        dialog.show()
-//
-//    }
+
+    private fun confirmOrder(){
+        val status = OrderStatus().apply {
+            orderId = order.orderId
+            status = EOrderStatus.PACKING.name
+            note = "Đơn hàng đã được xác nhận"
+        }
+        PopupDialog.showDialogLoading(this)
+        APISERVICE.getService(AppManager.token).updateOrderStatus(status).enqueue(object : BaseCallback<ResponseModel<OrderStatus>>(){
+            override fun onSuccess(model: ResponseModel<OrderStatus>) {
+                PopupDialog.closeDialog()
+                if(model.success && model.data!=null){
+                    CoreConstant.showToast(this@TrackOrderActivity,"Xác nhận thành công",CoreConstant.ToastType.SUCCESS)
+                    binding.llControl.visibility = View.GONE
+                }else{
+                    CoreConstant.showToast(this@TrackOrderActivity,"Có lỗi xảy ra: ${model.error?.message}",CoreConstant.ToastType.ERROR)
+                }
+            }
+
+            override fun onError(message: String) {
+                PopupDialog.closeDialog()
+                PopupDialog.showDialog(this@TrackOrderActivity,PopupDialog.PopupType.NOTIFICATION,null,message,{})
+            }
+        })
+    }
+
+
+
+
+    private fun openDialogCancelOrder(){
+        val dialog = Dialog(this)
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        dialog.setContentView(R.layout.custom_dialog_cancel_order)
+
+        val window: Window = dialog.window ?: return
+
+        window.setLayout(WindowManager.LayoutParams.MATCH_PARENT,WindowManager.LayoutParams.WRAP_CONTENT)
+        window.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+
+        val windowAttribute:WindowManager.LayoutParams = window.attributes
+        windowAttribute.gravity = Gravity.BOTTOM
+        window.attributes = windowAttribute
+
+        val radioGroup = dialog.findViewById<RadioGroup>(R.id.radioGroup)
+        val btnConfirm = dialog.findViewById<Button>(R.id.btnConfirm)
+
+        btnConfirm?.setOnClickListener {
+            val checkedRadioButtonId = radioGroup?.checkedRadioButtonId
+
+            if (checkedRadioButtonId != -1 && checkedRadioButtonId!=null && order.orderId != null) {
+                val orderStatus = OrderStatus().apply {
+                    orderId = order.orderId
+                    status = EOrderStatus.CANCELLED.name
+                    note = radioGroup.findViewById<RadioButton>(checkedRadioButtonId).text.toString()
+                }
+                PopupDialog.showDialogLoading(this@TrackOrderActivity)
+                APISERVICE.getService(AppManager.token).updateOrderStatus(orderStatus).enqueue(object : BaseCallback<ResponseModel<OrderStatus>>(){
+                    override fun onSuccess(model: ResponseModel<OrderStatus>) {
+                        if(model.success && model.data!=null){
+                            Toast.makeText(this@TrackOrderActivity,"Hủy đơn hàng thành công",Toast.LENGTH_SHORT).show()
+                        }else{
+                            Toast.makeText(this@TrackOrderActivity,"Có lỗi xảy ra",Toast.LENGTH_SHORT).show()
+                        }
+                        binding.llControl.visibility = View.GONE
+                        dialog.dismiss()
+                        PopupDialog.closeDialog()
+                    }
+
+                    override fun onError(message: String) {
+                        PopupDialog.closeDialog()
+                        dialog.dismiss()
+                        PopupDialog.showDialog(this@TrackOrderActivity,PopupDialog.PopupType.NOTIFICATION,getString(R.string.can_not_success),message){}
+                    }
+                })
+            } else {
+                Toast.makeText(this, "Chọn lý do trước khi tiếp tục", Toast.LENGTH_SHORT).show()
+            }
+        }
+        dialog.show()
+
+    }
 
 }

@@ -27,7 +27,7 @@ object Utils {
             .setContentTitle(title)
             .setContentText(text)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setSmallIcon(R.drawable.playstore_icon)
+            .setSmallIcon(R.mipmap.ic_launcher_round)
             .setLargeIcon(bitmap)
             .setColor(context.resources.getColor(R.color.colorPrimary))
             .build()

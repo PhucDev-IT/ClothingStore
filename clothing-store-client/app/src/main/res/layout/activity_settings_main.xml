@@ -23,6 +23,24 @@
         android:background="@drawable/bg_bottom_line"
         android:padding="@dimen/_10sdp"/>
 
+    <LinearLayout
+        android:id="@+id/ll_select_color_system"
+        android:layout_below="@id/tv_shipping_address"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/_10sdp"
+        android:layout_marginHorizontal="@dimen/_10sdp"
+        android:background="@drawable/bg_bottom_line"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/setting_nav_color_system"
+            android:fontFamily="@font/inter_regular"
+            android:textSize="@dimen/text_size_default" />
+
+
+    </LinearLayout>
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/btn_logout"
         android:layout_width="match_parent"

@@ -9,14 +9,14 @@ import java.util.Date
 data class NotificationModel(
     @PrimaryKey
     var id: String,
-    var title: String,
-    var content: String,
-    var date: Date,
-    var type: String,
+    var title: String?,
+    var content: String?,
+    var date: Date?,
+    var type: String?,
     @SerializedName("is_action")
-    var isAction: Boolean,
+    var isAction: Boolean?,
     @SerializedName("is_read")
-    var isRead: Boolean,
+    var isRead: Boolean?,
     @SerializedName("user_id")
-    var userId:String
+    var userId:String?
 )

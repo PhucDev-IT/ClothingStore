@@ -103,7 +103,7 @@
 
     <!--    Settings-->
     <string name="setting_nav_address">Địa chỉ nhận hàng</string>
-    <string name="setting_nav_color_system">Màu giao diện</string>
+    <string name="setting_nav_color_system">Màu hệ thống</string>
     <string name="title_header_settings">Cài đặt</string>
     <string name="title_info_contact">Thông tin liên hệ</string>
     <string name="header_address_delivery">Thông tin nhận hàng</string>

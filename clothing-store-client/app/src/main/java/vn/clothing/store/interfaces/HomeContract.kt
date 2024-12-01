@@ -11,11 +11,13 @@ interface HomeContract {
         fun onShowToast(message:String?, type:CoreConstant.ToastType)
         fun onShowCategories(categories: List<Category>)
         fun onResultProducts(products:List<Product>)
+        fun onCountNotification(count:Int)
     }
 
     interface Presenter{
         fun loadData()
         fun getCategories()
         fun getProductByCategory(categoryId:Int)
+        fun countNotification()
     }
 }

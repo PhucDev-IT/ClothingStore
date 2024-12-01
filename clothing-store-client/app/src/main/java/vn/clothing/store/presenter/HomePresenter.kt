@@ -89,4 +89,9 @@ class HomePresenter(private var view: HomeContract.View?) : HomeContract.Present
             }
         }
     }
+
+
+    override fun countNotification() {
+        view?.onCountNotification(1)
+    }
 }

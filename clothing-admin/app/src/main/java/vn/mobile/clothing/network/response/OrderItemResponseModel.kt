@@ -33,7 +33,6 @@ class OrderItemResponseModel {
 }
 
 class OrderStatus {
-    var id: String? = null
     @SerializedName("order_id")
     var orderId:String?=null
     var status: String? = null
