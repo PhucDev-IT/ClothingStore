@@ -61,7 +61,7 @@ router.get("/products", async (req, res, next) => {
 });
 
 //find product by id - return additional details
-router.put("products/:id", async (req, res, next) => {
+router.put("/products/:id", async (req, res, next) => {
     try {
         const id = req.params.id;
         logger.info("id = "+id);
@@ -106,8 +106,9 @@ router.get("/p", async (req, res, next) => {
 });
 
 //Update
-router.put("/:id",authenticateToken,authorizeRole(["admin"]),async (req, res, next) => { }
-);
+router.put("/:id",authenticateToken,authorizeRole(["admin"]),async (req, res, next) => { 
+
+});
 
 //Add new
 //Need to check Joi
