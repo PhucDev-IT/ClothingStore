@@ -140,6 +140,61 @@ router.post('/login', async (req, res, next) => {
 
 });
 
+//Login with admin
+router.post('/admin/login',async (req, res, next) => {
+    const { error } = await loginRequest.validate(req.body);
+    if (error) {
+        const formattedErrors = formatValidationError(error.details);
+        return res.json(new Models.ResponseModel(false, new Models.ErrorResponseModel(1, "Validation Error", formattedErrors), null));
+    }
+    try {
+        const { email, password, device_id, fcm_token } = req.body;
+        // Tìm người dùng dựa trên user_name
+        const user = await User.findOne({ where: { email } });
+        
+
+        if (!user) {
+            return res.json(new Models.ResponseModel(false, new Models.ErrorResponseModel(1, "Người dùng không tồn tại", null), null));
+        }
+        // So sánh mật khẩu đã nhập với chuỗi hash lấy từ cơ sở dữ liệu
+        const passwordMatch = await bcrypt.compare(password, user.password);
+        if (passwordMatch) {
+
+            LogLogin.create({
+                device_id: device_id,
+                fcm_token: fcm_token,
+                time_login: new Date(),
+                user_id : user.id
+            });
+
+            //Get roles
+            const roles = await user.getRoles();
+            const roleNames = roles.map(role => role.name);
+
+            if (!roleNames.includes("admin")) {
+                return res.status(403).json(new Models.ResponseModel(false, new Models.ErrorResponseModel(1, "Người dùng không có quyền admin", null), null));
+            }
+            
+            const token = jwt.sign({ email: user.email, roles: roleNames }, process.env.TOKEN_SECRET, { expiresIn: '5d' });
+            const userWithRoles = {
+                ...user.toJSON(),
+                roles: roleNames
+            };
+
+            var response = new LoginResponse(userWithRoles, token)
+            return res.status(200).json(new Models.ResponseModel(true, null, response));
+
+        } else {
+            return res.json(new Models.ResponseModel(false, new Models.ErrorResponseModel(1, "Tên người dùng hoặc mật khẩu không chính xác", null), null));
+
+        }
+
+    } catch (err) {
+        return res.json(new Models.ResponseModel(false, new Models.ErrorResponseModel(1, "Lỗi hệ thống", err.message), null));
+
+    }
+})
+
 //Step 1: you must validate data from request 
 //If information missing , you need to response with error
 //Step 2: Check user exist

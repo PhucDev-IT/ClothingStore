@@ -4,7 +4,7 @@ const router = express.Router(); // Sử dụng express.Router()
 import { formatValidationError } from "../utils/exception.js";
 import { authenticateToken, authorizeRole } from "../config/jwt_filter.js";
 import logger from "../utils/logger.js";
-import Voucher from "../models/voucher_model.js";
+import voucher_model from "../models/voucher_model.js";
 import Models from "../models/response/ResponseModel.js";
 import User from "../models/user_model.js";
 import { Op } from 'sequelize';

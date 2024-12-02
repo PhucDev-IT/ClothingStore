@@ -43,5 +43,29 @@ const Voucher = sequelize.define('voucher', {
 });
 
 
+const VoucherUser = sequelize.define("user_has_voucher",{
+    id: {
+        type: DataTypes.STRING,
+        primaryKey: true,
+        defaultValue: () => uuidv4(),
+    },
+    quantity : {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+    },
+    voucher_id:{
+        type: DataTypes.STRING,
+        allowNull: false, 
+    },
+    user_id :{
+        type: DataTypes.STRING,
+        allowNull: true,
+    },
+    condition:{
+        type: DataTypes.STRING,
+        allowNull: false, 
+    },
+})
 
-export default Voucher;
+
+export default {Voucher,VoucherUser};
