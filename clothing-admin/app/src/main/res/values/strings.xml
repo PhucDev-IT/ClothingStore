@@ -3,6 +3,7 @@
 
     <string name="nav_home">Bảng điều khiển</string>
     <string name="nav_settings">Cài đặt</string>
+    <string name="nav_voucher">Mã giảm giá</string>
     <string name="nav_notification">Thông báo</string>
     <string name="nav_log_out">Đăng xuất</string>
     <string name="nav_order">Đơn hàng</string>
@@ -62,4 +63,17 @@
     <string name="enter_otp">Nhập mã OTP:</string>
     <string name="re_send">Gửi lại</string>
 
+
+    <!--    VOUCHER-->
+    <string name="title">Tiêu đề</string>
+    <string name="description">Mô tả</string>
+    <string name="classify">Phân loại</string>
+    <string name="discount">Giảm giá</string>
+    <string name="start_at">Bắt đầu</string>
+    <string name="end_at">Kết thúc</string>
+    <string name="status">Trạng thái</string>
+    <string name="rdo_active">Mở</string>
+    <string name="rdo_disable">Đóng</string>
+    <string name="quantity">Số lượng</string>
+    <string name="condition">Điều kiện</string>
 </resources>

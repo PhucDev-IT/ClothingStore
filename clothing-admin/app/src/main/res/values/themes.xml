@@ -8,7 +8,6 @@
         <!--  Màu chữ chính.-->
         <item name="android:textColorPrimary">@color/text_primary</item>
         <item name="android:textColor">@color/text_primary</item>
-
         <item name="android:statusBarColor">@color/background</item>
         <item name="android:windowLightStatusBar">true</item>
         <item name="bottomNavigationStyle">@style/Theme.Bottom.Navigation</item>

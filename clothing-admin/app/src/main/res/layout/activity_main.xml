@@ -24,7 +24,7 @@
                 android:id="@+id/toolbar"
                 app:navigationIconTint="@color/colorPrimary"
                 app:navigationIcon="@drawable/baseline_menu_24"
-                android:background="@color/transparent"
+                android:background="@color/background"
                 />
 
             <FrameLayout

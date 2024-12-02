@@ -8,6 +8,10 @@
             android:icon="@drawable/baseline_fire_truck_24"
             android:title="@string/nav_order"/>
 
+        <item android:id="@+id/nav_voucher"
+            android:icon="@drawable/baseline_discount_24"
+            android:title="@string/nav_voucher"/>
+
         <item android:id="@+id/nav_settings"
             android:icon="@drawable/baseline_settings_24"
             android:title="@string/nav_settings"/>

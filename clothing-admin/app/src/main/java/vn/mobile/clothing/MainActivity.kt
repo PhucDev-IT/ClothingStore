@@ -12,6 +12,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import com.google.android.material.navigation.NavigationView
+import vn.mobile.clothing.activities.AddVoucherActivity
 import vn.mobile.clothing.activities.OrderActivity
 import vn.mobile.clothing.activities.base.BaseActivity
 import vn.mobile.clothing.databinding.ActivityMainBinding
@@ -68,7 +69,10 @@ class MainActivity : BaseActivity() , NavigationView.OnNavigationItemSelectedLis
               //  startActivity(intent)
             }
 
-
+            R.id.nav_voucher->{
+                startActivity(Intent(this@MainActivity,AddVoucherActivity::class.java))
+                return false
+            }
 
             R.id.nav_notification -> {
 //                val intent = Intent(this,NotificationActivity::class.java)

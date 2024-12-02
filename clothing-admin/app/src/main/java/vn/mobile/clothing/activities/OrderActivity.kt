@@ -56,7 +56,9 @@ class OrderActivity : BaseActivity() {
     }
 
     override fun setListener() {
-
+        binding.header.toolbar.setNavigationOnClickListener {
+            finish()
+        }
 
         viewModel.orders.observe(this@OrderActivity){orders->
             orders?.let { adapter.setData(it) }
