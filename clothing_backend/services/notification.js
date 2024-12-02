@@ -1,16 +1,6 @@
-import admin from 'firebase-admin';
-import { default as User } from '../models/user_model.js'; // Thêm .js vào đường dẫn
-
-// Firebase Admin SDK Singleton
-let firebaseAdminApp;
-if (!admin.apps.length) {
-  const serviceAccount = new URL('../path-to-service-account-file.json', import.meta.url);
-  firebaseAdminApp = admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-  });
-} else {
-  firebaseAdminApp = admin.app();
-}
+// notification_service.js
+import admin from './firebase_admin.js';
+import { default as User } from '../models/user_model.js';
 
 // Hàm gửi thông báo
 export const sendNotification = async (userId, notification) => {
@@ -37,11 +27,14 @@ export const sendNotification = async (userId, notification) => {
 
     // Gửi thông báo Firebase
     const response = await admin.messaging().send(message);
-    console.log('Thông báo đã được gửi thành công:', response);
+    console.log(`Thông báo gửi thành công tới người dùng ${userId}:`, response);
     return response;
 
   } catch (error) {
-    console.error(`Lỗi khi gửi thông báo cho người dùng ${userId}:`, error.message);
+    console.error(`Lỗi khi gửi thông báo tới người dùng ${userId}:`, error.message);
+    if (error.errorInfo) {
+      console.error('Chi tiết lỗi Firebase:', error.errorInfo);
+    }
     throw error;
   }
 };

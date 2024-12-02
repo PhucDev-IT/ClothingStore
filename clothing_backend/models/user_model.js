@@ -46,10 +46,7 @@ const User = sequelize.define('user', {
         type: DataTypes.BOOLEAN,
         allowNull: true
     },
-    deviceToken:{
-        type: DataTypes.STRING,
-        allowNull: true
-    }
+
 }, {
 
     timestamps: true //Tự động thêm các trường createdAt và updatedAt

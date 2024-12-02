@@ -15,7 +15,7 @@ import product_model from "../models/product_model.js";
 import { or, QueryTypes, Sequelize } from "sequelize";
 import Notification from "../models/notification_model.js";
 import notification_router from "./notification_router.js"
-
+import notificationQueue from '../queues/notificationQueue.js';
 // ----------Order-----------
 
 
@@ -82,7 +82,7 @@ const order_request = Joi.object({
 
 
 //Update status order
-router.put('/order_status',authenticateToken, authorizeRole(["user"]), async (req, res, next) => {
+router.post('/order_status',authenticateToken, authorizeRole(["user","admin"]), async (req, res, next) => {
     const { error, value } = order_status.validate(req.body, { abortEarly: false });
     if (error) {
         const formattedErrors = error ? formatValidationError(error.details) : formatValidationError(error.details);
@@ -155,6 +155,12 @@ router.post('/', authenticateToken, authorizeRole(["user"]), async (req, res, ne
             is_read:false,
             user_id: user_id
          });
+         const notification = {
+            title: 'Đặt hàng thành công',
+            body: `Đơn hàng của bạn với ID ${order.id} đã được xử lý thành công!`,
+          };
+        //await notificationQueue.add({user_id,notification})
+         
         // Commit transaction nếu tất cả thành công
         await transaction.commit();
         return res.status(200).json(new response_model.ResponseModel(true, null, order));

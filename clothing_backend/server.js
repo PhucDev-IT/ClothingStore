@@ -13,7 +13,7 @@ import address_model from './models/address_model.js';
 import User from './models/user_model.js';
 import cart_model from './models/cart_model.js';
 import order_model from './models/order_model.js';
-import Voucher from './models/voucher_model.js';
+import voucher_model from './models/voucher_model.js';
 import product_model from './models/product_model.js';
 import Notification from './models/notification_model.js';
 import Image from './models/image_model.js';
@@ -123,15 +123,18 @@ async function syncDatabase() {
         order_model.Order.hasMany(order_model.OrderStatus,{foreignKey:"order_id"});
         order_model.OrderStatus.belongsTo(order_model.Order,{foreignKey:"order_id"});
 
-        Voucher.hasMany(order_model.Order, { foreignKey: 'voucher_id' });
-        order_model.Order.belongsTo(Voucher, { foreignKey: 'voucher_id' });
+        voucher_model.Voucher.hasMany(order_model.Order, { foreignKey: 'voucher_id' });
+        order_model.Order.belongsTo(voucher_model.Voucher, { foreignKey: 'voucher_id' });
         //Product - ProductDetail
         product_model.Product.hasMany(product_model.ProductDetails, { foreignKey: 'product_id' });
 
 
         //Voucher
-        User.belongsToMany(Voucher, { through: 'voucher_user', foreignKey: 'user_id' });
-        Voucher.belongsToMany(User, { through: 'voucher_user', foreignKey: 'voucher_id' });
+        User.hasMany(voucher_model.VoucherUser, {foreignKey: 'user_id'} );
+        voucher_model.Voucher.hasMany(voucher_model.Voucher,{foreignKey: "voucher_id"});
+
+        voucher_model.Voucher.belongsTo(User, {  foreignKey: 'user_id' });
+        voucher_model.Voucher.belongsTo(voucher_model.Voucher, {  foreignKey: 'voucher_id' });
 
 
         await sequelize.sync({ force: is_reset_database }); // Sử dụng { force: true } để xóa và tạo lại bảng
