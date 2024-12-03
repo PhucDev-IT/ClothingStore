@@ -209,7 +209,7 @@ app.use('/api/auth', authentication);
 
 app.use('/api',productRouter)
 app.use('/api',image_router)
-app.use('/api/orders',orderRouter);
+app.use('/api',orderRouter);
 app.use('/api',cart_router);
 app.use('/api/address',address_route);
 app.use('/api/',voucher_router);

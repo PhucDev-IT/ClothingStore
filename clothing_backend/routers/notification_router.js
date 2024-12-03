@@ -15,7 +15,22 @@ const newNotification = async (notification) => {
     }
 };
 
-
+// count number of unread messages by user_id
+router.get('/notifications/unread/:id', async(req, res, next) =>{
+    const { id } = req.params;
+    try {
+        // Đếm số lượng thông báo chưa đọc của userId
+        const unreadCount = await Notification.count({
+            where: {
+                user_id: id,    // Tìm thông báo theo user_id
+                is_read: 0 // Lọc các thông báo chưa đọc
+            }
+        });
+        return res.json(new Models.ResponseModel(true, null, { unreadCount }));
+    } catch (error) {
+        return res.status(500).json(new Models.ResponseModel(false, new Models.ErrorResponseModel(1, "Lỗi hệ thống", error.message), null));
+    }
+});
 
 //get all notification by user_id
 router.get('/notifications', authenticateToken, authorizeRole(["user"]), async (req,res,next)=>{

@@ -82,7 +82,7 @@ const order_request = Joi.object({
 
 
 //Update status order
-router.post('/order_status',authenticateToken, authorizeRole(["user","admin"]), async (req, res, next) => {
+router.post('/orders/order_status',authenticateToken, authorizeRole(["user","admin"]), async (req, res, next) => {
     const { error, value } = order_status.validate(req.body, { abortEarly: false });
     if (error) {
         const formattedErrors = error ? formatValidationError(error.details) : formatValidationError(error.details);
@@ -106,7 +106,7 @@ router.post('/order_status',authenticateToken, authorizeRole(["user","admin"]), 
 });
 
 
-router.post('/', authenticateToken, authorizeRole(["user"]), async (req, res, next) => {
+router.post('/orders', authenticateToken, authorizeRole(["user"]), async (req, res, next) => {
     const { error, value } = order_request.validate(req.body, { abortEarly: false });
     if (error) {
         const formattedErrors = error ? formatValidationError(error.details) : formatValidationError(error.details);
@@ -174,7 +174,7 @@ router.post('/', authenticateToken, authorizeRole(["user"]), async (req, res, ne
 });
 
 //get all
-router.get('/my_orders/:status', authenticateToken, authorizeRole(["user"]), async (req, res, next) => {
+router.get('/orders/my_orders/:status', authenticateToken, authorizeRole(["user"]), async (req, res, next) => {
     const user_id = req.user.id;
     const status = req.params.status;
     const page = parseInt(req.query.page) || 1;  // Trang hiện tại
@@ -262,7 +262,7 @@ LIMIT :limit OFFSET :offset;
 });
 
 //get order by id - user
-router.get('/:id', authenticateToken, authorizeRole(["user"]), async (req, res, next) => {
+router.get('/orders/:id', authenticateToken, authorizeRole(["user"]), async (req, res, next) => {
     try {
         const user_id = req.user.id;
         const orderId = req.params.id;
@@ -318,7 +318,7 @@ router.get('/:id', authenticateToken, authorizeRole(["user"]), async (req, res, 
 });
 
 //Lấy tất cả order với trạng thái đơn hàng(order_statuses(status)) và phân trang(lấy thêm thông tin user[id, name] ứng với order đó) - role:admin
-router.get("/", authenticateToken, authorizeRole(["admin"]), async (req, res, next) =>{
+router.get("/admin/orders", authenticateToken, authorizeRole(["admin"]), async (req, res, next) =>{
     const page = parseInt(req.query.page) || 1;  
     const limit = parseInt(req.query.limit) || 10;  
     const offset = (page - 1) * limit;
@@ -398,5 +398,29 @@ router.get("/", authenticateToken, authorizeRole(["admin"]), async (req, res, ne
     }
 });
 
+//  Thống kê số lượng đơn hàng: Pending, Packing, Delivered trong 1 kết quả trả về 
+router.get("/admin/statistical/order", async(req, res, next) =>{
+    try {
+        // Thống kê số lượng đơn hàng theo trạng thái
+        const countSta = await order_model.OrderStatus.findAll({
+            attributes: [
+                'status',
+                [Sequelize.fn('COUNT', Sequelize.col('id')), 'order_count']
+            ],
+            group: ['status'],
+        });
+
+        // Định dạng kết quả trả về
+        const result = countSta.map(item => ({
+            status: item.status,
+            order_count: parseInt(item.dataValues.order_count, 10)
+        }));
+
+        // Trả về kết quả
+        return res.status(200).json(new response_model.ResponseModel(true, null,result));
+    } catch (error) {
+        return res.status(500).json(new response_model.ResponseModel(false, new response_model.ErrorResponseModel(1, "Lỗi hệ thống", err.message), null));
+    }
+});
 
 export default router;
