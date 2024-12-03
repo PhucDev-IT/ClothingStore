@@ -41,6 +41,10 @@ router.get('/vouchers',authenticateToken, authorizeRole(["admin"]), async (req, 
 
 
 // get all voucher by user_id (phân trang - user) - lấy các voucher có thời hạn(start_at <= current_date <= end_at), is_public = true
+
+/*
+1. Select with condition: [ is_public = true ,(start_at <= current_date <= end_at), quantity > 0 , condition = all or user_id = seft ]
+*/
 router.get('/vouchers/my_voucher',authenticateToken, authorizeRole(["user"]), async (req, res, next)=>{
     try{
         const user_id = req.user.id;  
@@ -95,7 +99,12 @@ router.get('/voucher/:id', authenticateToken, authorizeRole(["user", "admin"]), 
 });
 
 
-//User_id is array
+/*
+1. user_id = array
+2. condition = enum (all, new_user, Only)
+ - If user_id.lenght  <= 0 => user_id = null, condition = all
+ - Else user_id = user_id[index], condition = only
+*/
 router.post('/voucher', authenticateToken, authorizeRole(["admin"]), async (req, res, next) => {
     try {
         const { title, description, discount, type, start_at, end_at, is_public, user_id, quantity = 1, condition = "all" } = req.body;

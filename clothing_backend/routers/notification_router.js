@@ -16,7 +16,7 @@ const newNotification = async (notification) => {
 };
 
 // count number of unread messages by user_id
-router.get('/notifications/unread/:id', async(req, res, next) =>{
+router.get('/notifications/count/:id', async(req, res, next) =>{
     const { id } = req.params;
     try {
         // Đếm số lượng thông báo chưa đọc của userId
@@ -32,6 +32,11 @@ router.get('/notifications/unread/:id', async(req, res, next) =>{
     }
 });
 
+
+//========================================
+//1. Get 10-20 first notifications 
+
+//=========================================
 //get all notification by user_id
 router.get('/notifications', authenticateToken, authorizeRole(["user"]), async (req,res,next)=>{
     try{
@@ -47,6 +52,10 @@ router.get('/notifications', authenticateToken, authorizeRole(["user"]), async (
     }
 });
 
+//=============================
+// only update is_read
+// => Get id from user => search notification by id => re update [not receive each data]
+//============================
 router.put('/notification/:id', authenticateToken, authorizeRole(["admin"]),async (req,res,next)=>{
     try{
         const notificationId = req.params.id;

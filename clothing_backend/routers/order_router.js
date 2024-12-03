@@ -317,6 +317,10 @@ router.get('/orders/:id', authenticateToken, authorizeRole(["user"]), async (req
     }
 });
 
+
+//===========================
+// 1. Get order by status
+//========================
 //Lấy tất cả order với trạng thái đơn hàng(order_statuses(status)) và phân trang(lấy thêm thông tin user[id, name] ứng với order đó) - role:admin
 router.get("/admin/orders", authenticateToken, authorizeRole(["admin"]), async (req, res, next) =>{
     const page = parseInt(req.query.page) || 1;  
@@ -399,7 +403,7 @@ router.get("/admin/orders", authenticateToken, authorizeRole(["admin"]), async (
 });
 
 //  Thống kê số lượng đơn hàng: Pending, Packing, Delivered trong 1 kết quả trả về 
-router.get("/admin/statistical/order", async(req, res, next) =>{
+router.get("/admin/orders/statistical", async(req, res, next) =>{
     try {
         // Thống kê số lượng đơn hàng theo trạng thái
         const countSta = await order_model.OrderStatus.findAll({
