@@ -8,6 +8,7 @@ import voucher_model from "../models/voucher_model.js";
 import Models from "../models/response/ResponseModel.js";
 import User from "../models/user_model.js";
 import { Op } from 'sequelize';
+import sequelize from '../connection/mysql.js';
 
 //get all voucher (phân trang - admin) 
 router.get('/vouchers',authenticateToken, authorizeRole(["admin"]), async (req, res, next) =>{
@@ -49,24 +50,22 @@ router.get('/vouchers/my_voucher',authenticateToken, authorizeRole(["user"]), as
     try{
         const user_id = req.user.id;  
         const currentDate = new Date(); 
-        const vouchers = await voucher_model.Voucher.findAll({
-            include: [{
-                model: User,
-                where: { id: user_id },
-                attributes: [] 
-            }],
-            where: {
-                is_public: true,
-                start_at: { [Op.lte]: currentDate },  // Sửa: So sánh ngày bắt đầu nhỏ hơn hoặc bằng hiện tại
-                end_at: { [Op.gte]: currentDate }     // Sửa: So sánh ngày kết thúc lớn hơn hoặc bằng hiện tại
-            },
-            order: [['createdAt', 'DESC']],
-        });
-
-    
+        const vouchers = await sequelize.query(
+            `SELECT v.*, vu.quantity 
+             FROM vouchers v
+             JOIN user_has_vouchers vu ON v.id = vu.voucher_id
+             WHERE vu.user_id = :user_id
+             AND vu.quantity > 0
+             AND v.is_public = true
+             AND v.start_at <= :currentDate
+             AND v.end_at >= :currentDate
+             ORDER BY v.createdAt DESC`, 
+            {
+                replacements: { user_id: user_id, currentDate: currentDate },
+                type: sequelize.QueryTypes.SELECT
+            }
+        );
         return res.status(200).json(new Models.ResponseModel(true, null, vouchers));
-
-    
     } catch (error) {
         logger.error('Error fetching user vouchers:', error);
         return res.status(500).json(new Models.ResponseModel(false, new Models.ErrorResponseModel(1, "Lỗi hệ thống", error.message), null));
@@ -107,8 +106,16 @@ router.get('/voucher/:id', authenticateToken, authorizeRole(["user", "admin"]), 
 */
 router.post('/voucher', authenticateToken, authorizeRole(["admin"]), async (req, res, next) => {
     try {
-        const { title, description, discount, type, start_at, end_at, is_public, user_id, quantity = 1, condition = "all" } = req.body;
+        const { title, description, discount, type, start_at, end_at, is_public, user_id = [], quantity = 1, condition = "all" } = req.body;
 
+        // Nếu user_id không có hoặc rỗng, gán user_id = null và condition = 'all'
+        let finalCondition = condition;
+        let finalUserId = null;
+        
+        if (user_id.length > 0) {
+            finalCondition = "only";  // Nếu có user_id, điều chỉnh condition thành 'only'
+            finalUserId = user_id[0]; // Lấy user_id đầu tiên trong mảng
+        }
         // Tạo voucher mới
         const voucher = await voucher_model.Voucher.create({
             title,
@@ -120,42 +127,42 @@ router.post('/voucher', authenticateToken, authorizeRole(["admin"]), async (req,
             is_public,
         });
 
-        // Kiểm tra nếu có user_id được chỉ định
-        if (user_id && user_id.length > 0) {
-            // Gán voucher cho các user được chỉ định
-            const users = await User.findAll({
-                where: {
-                    id: user_id, // Lọc theo danh sách user_id
+                // Kiểm tra nếu có user_id được chỉ định
+                if (finalUserId) {
+                    // Gán voucher cho các user được chỉ định (chỉ gán cho user_id đã chọn)
+                    const users = await User.findAll({
+                        where: {
+                            id: user_id, // Lọc theo danh sách user_id
+                        }
+                    });
+        
+                    if (users.length === 0) {
+                        return res.json(new Models.ResponseModel(false, new Models.ErrorResponseModel(1, "Không tìm thấy người dùng", null), null));
+                    }
+        
+                    // Gán voucher cho từng user được chỉ định
+                    await Promise.all(users.map(user => {
+                        return voucher_model.VoucherUser.create({
+                            user_id: user.id,
+                            voucher_id: voucher.id,
+                            quantity,   
+                            condition: finalCondition
+                        });
+                    }));
+        
+                } else {
+                    // Nếu không có user_id, gán voucher cho tất cả người dùng
+                    const allUsers = await User.findAll(); // Lấy tất cả người dùng
+        
+                    await Promise.all(allUsers.map(user => {
+                        return voucher_model.VoucherUser.create({
+                            user_id: user.id,
+                            voucher_id: voucher.id,
+                            quantity,   
+                            condition: finalCondition   
+                        });
+                    }));
                 }
-            });
-
-            if (users.length === 0) {
-                return res.json(new Models.ResponseModel(false, new Models.ErrorResponseModel(1, "No users found with provided IDs", null), null));
-            }
-
-            // Gán voucher cho tất cả người dùng chỉ định
-            await Promise.all(users.map(user => {
-                return voucher_model.VoucherUser.create({
-                    user_id: user.id,
-                    voucher_id: voucher.id,
-                    quantity,   
-                    condition  
-                });
-            }));
-
-        } else {
-            // Nếu user_id rỗng, gán voucher cho tất cả người dùng
-            const allUsers = await User.findAll(); // Lấy tất cả người dùng
-
-            await Promise.all(allUsers.map(user => {
-                return voucher_model.VoucherUser.create({
-                    user_id: user.id,
-                    voucher_id: voucher.id,
-                    quantity,   
-                    condition   
-                });
-            }));
-        }
 
         return res.status(200).json(new Models.ResponseModel(true, null, voucher));
 

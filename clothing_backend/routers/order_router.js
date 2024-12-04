@@ -322,17 +322,39 @@ router.get('/orders/:id', authenticateToken, authorizeRole(["user"]), async (req
 // 1. Get order by status
 //========================
 //Lấy tất cả order với trạng thái đơn hàng(order_statuses(status)) và phân trang(lấy thêm thông tin user[id, name] ứng với order đó) - role:admin
-router.get("/admin/orders", authenticateToken, authorizeRole(["admin"]), async (req, res, next) =>{
+router.get("/admin/orders/:status", authenticateToken, authorizeRole(["admin"]), async (req, res, next) =>{
     const page = parseInt(req.query.page) || 1;  
     const limit = parseInt(req.query.limit) || 10;  
     const offset = (page - 1) * limit;
-    logger.info(`=====> ADMIN GET ALL ORDERS <============`);
+    const status = req.params.status||null;
+    logger.info(`=====> ADMIN GET ALL ORDERS BY STATUS <============`);
     try {
-        // Get the total number of orders (for pagination)
-        const totalOrders = await order_model.Order.count(); // Count all orders
+        // Đếm tổng số đơn hàng theo trạng thái
+        const totalOrdersQuery = `
+            SELECT COUNT(DISTINCT o.id) AS total
+            FROM orders o
+            INNER JOIN (
+                SELECT os_inner.order_id, os_inner.status
+                FROM order_statuses os_inner
+                INNER JOIN (
+                    SELECT order_id, MAX(createdAt) AS latest_status_time
+                    FROM order_statuses
+                    GROUP BY order_id
+                ) latest_status ON os_inner.order_id = latest_status.order_id 
+                                 AND os_inner.createdAt = latest_status.latest_status_time
+            ) os ON o.id = os.order_id
+            ${status ? 'WHERE os.status = :status' : ''}
+        `;
 
-        // Fetch all orders with the associated user information and order status with pagination
-        const orders = await sequelize.query(`
+        const totalOrdersResult = await sequelize.query(totalOrdersQuery, {
+            replacements: { status },
+            type: QueryTypes.SELECT
+        });
+
+        const totalOrders = totalOrdersResult[0]?.total || 0;
+
+        // Lấy danh sách đơn hàng với phân trang và trạng thái
+        const ordersQuery = `
             SELECT 
                 o.id AS order_id,
                 o.total,
@@ -369,28 +391,28 @@ router.get("/admin/orders", authenticateToken, authorizeRole(["admin"]), async (
                 ) latest_status ON os_inner.order_id = latest_status.order_id 
                                  AND os_inner.createdAt = latest_status.latest_status_time
             ) os ON o.id = os.order_id
+            ${status ? 'WHERE os.status = :status' : ''}
             GROUP BY o.id, u.id, os.status
             ORDER BY o.order_date DESC
             LIMIT :limit OFFSET :offset;
-        `, {
-            replacements: {
-                limit: limit,
-                offset: offset
-            },
+        `;
+
+        const orders = await sequelize.query(ordersQuery, {
+            replacements: { status, limit, offset },
             type: QueryTypes.SELECT
         });
 
-        // Calculate total pages for pagination
+        // Tính toán số trang
         const totalPages = Math.ceil(totalOrders / limit);
 
-        // Return the response with order data and pagination info
+        // Trả về kết quả
         res.status(200).json({
             success: true,
             data: {
-                orders: orders,
+                orders,
                 pagination: {
                     totalItems: totalOrders,
-                    totalPages: totalPages,
+                    totalPages,
                     currentPage: page,
                     itemsPerPage: limit
                 }

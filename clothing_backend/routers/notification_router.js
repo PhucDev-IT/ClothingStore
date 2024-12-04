@@ -44,6 +44,7 @@ router.get('/notifications', authenticateToken, authorizeRole(["user"]), async (
         const notifications = await Notification.findAll({
             where: { user_id: userId },
             order: [['createdAt', 'DESC']], 
+            limit: 15,
         });
         return res.status(200).json(new Models.ResponseModel(true, null, notifications));
     }catch (error) {
@@ -56,23 +57,35 @@ router.get('/notifications', authenticateToken, authorizeRole(["user"]), async (
 // only update is_read
 // => Get id from user => search notification by id => re update [not receive each data]
 //============================
-router.put('/notification/:id', authenticateToken, authorizeRole(["admin"]),async (req,res,next)=>{
+router.post('/notifications', authenticateToken, authorizeRole(["user", "admin"]),async (req,res,next)=>{
     try{
-        const notificationId = req.params.id;
-        const { title, content, type, is_action, is_read } = req.body;
+        const { id } = req.body;
+        const userId = req.user.id;
+        if (!id || !Array.isArray(id) || id.length === 0) {
+            return res.status(400).json(new Models.ResponseModel(false, new Models.ErrorResponseModel(2, "Chưa chọn thông báo cụ thể", null), null));
+        }else{
 
-        const notification = await Notification.findByPk(notificationId);
-        if (!notification) {
-            return res.status(404).json(new Models.ResponseModel(false, new Models.ErrorResponseModel(2, "Notification không tồn tại", null), null));
+            // Nếu có id, cập nhật các thông báo cụ thể của người dùng
+            const notifications = await Notification.findAll({
+                where: { id: id, user_id: userId }, // Lọc thông báo của user_id hiện tại
+            });
+            if (notifications.length === 0) {
+                return res.status(404).json(new Models.ResponseModel(false, new Models.ErrorResponseModel(2, "Không có thông báo", null), null));
+            }
+            // Cập nhật tất cả thông báo trong mảng notificationID
+            await Promise.all(
+                notifications.map(notification => {
+                    return notification.update({
+                        is_read: 1
+                    });
+                })
+            );
+            return res.status(200).json(new Models.ResponseModel(true, null, notifications));
         }
-        await notification.update({
-            is_read: is_read !== undefined ? is_read : notification.is_read 
-        });
-        return res.status(200).json(new Models.ResponseModel(true, null, notification));
     }
-catch (error) {
-        logger.error('Error updating notification:', error);
-        return res.status(500).json(new Models.ResponseModel(false, new Models.ErrorResponseModel(1, "Lỗi hệ thống", error.message), null));
+    catch (error) {
+            logger.error('Error updating notification:', error);
+            return res.status(500).json(new Models.ResponseModel(false, new Models.ErrorResponseModel(1, "Lỗi hệ thống", error.message), null));
     }
 });
 
