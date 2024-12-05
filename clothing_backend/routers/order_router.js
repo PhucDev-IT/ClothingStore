@@ -425,7 +425,7 @@ router.get("/admin/orders/:status", authenticateToken, authorizeRole(["admin"]),
 });
 
 //  Thống kê số lượng đơn hàng: Pending, Packing, Delivered trong 1 kết quả trả về 
-router.get("/admin/orders/statistical", async(req, res, next) =>{
+router.get("/admin/order/statistical", authenticateToken, authorizeRole(["admin"]) ,async(req, res, next) =>{
     try {
         // Thống kê số lượng đơn hàng theo trạng thái
         const countSta = await order_model.OrderStatus.findAll({
@@ -438,8 +438,8 @@ router.get("/admin/orders/statistical", async(req, res, next) =>{
 
         // Định dạng kết quả trả về
         const result = countSta.map(item => ({
-            status: item.status,
-            order_count: parseInt(item.dataValues.order_count, 10)
+            status: item.get('status'),
+            order_count: parseInt(item.get('order_count'), 10), 
         }));
 
         // Trả về kết quả
