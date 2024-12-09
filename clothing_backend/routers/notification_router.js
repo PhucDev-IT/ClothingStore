@@ -26,7 +26,7 @@ router.get('/notifications/count/:id', async(req, res, next) =>{
                 is_read: 0 // Lọc các thông báo chưa đọc
             }
         });
-        return res.json(new Models.ResponseModel(true, null, { unreadCount }));
+        return res.json(new Models.ResponseModel(true, null, unreadCount ));
     } catch (error) {
         return res.status(500).json(new Models.ResponseModel(false, new Models.ErrorResponseModel(1, "Lỗi hệ thống", error.message), null));
     }
@@ -57,17 +57,18 @@ router.get('/notifications', authenticateToken, authorizeRole(["user"]), async (
 // only update is_read
 // => Get id from user => search notification by id => re update [not receive each data]
 //============================
-router.post('/notifications', authenticateToken, authorizeRole(["user", "admin"]),async (req,res,next)=>{
+router.post('/notifications/mark', authenticateToken, authorizeRole(["user", "admin"]),async (req,res,next)=>{
     try{
-        const { id } = req.body;
+        const { ids } = req.body;
+        console.log(ids)
         const userId = req.user.id;
-        if (!id || !Array.isArray(id) || id.length === 0) {
+        if (!ids || !Array.isArray(ids) || ids.length === 0) {
             return res.status(400).json(new Models.ResponseModel(false, new Models.ErrorResponseModel(2, "Chưa chọn thông báo cụ thể", null), null));
         }else{
 
             // Nếu có id, cập nhật các thông báo cụ thể của người dùng
             const notifications = await Notification.findAll({
-                where: { id: id, user_id: userId }, // Lọc thông báo của user_id hiện tại
+                where: { id: ids, user_id: userId }, // Lọc thông báo của user_id hiện tại
             });
             if (notifications.length === 0) {
                 return res.status(404).json(new Models.ResponseModel(false, new Models.ErrorResponseModel(2, "Không có thông báo", null), null));
@@ -80,7 +81,7 @@ router.post('/notifications', authenticateToken, authorizeRole(["user", "admin"]
                     });
                 })
             );
-            return res.status(200).json(new Models.ResponseModel(true, null, notifications));
+            return res.status(200).json(new Models.ResponseModel(true, null, true));
         }
     }
     catch (error) {

@@ -36,7 +36,7 @@ const Notification = sequelize.define('notification', {
         allowNull: false,
     },   
     is_read:{
-        type:DataTypes.STRING,
+        type:DataTypes.BOOLEAN,
         allowNull:false,
         defaultValue:()=>false
     }

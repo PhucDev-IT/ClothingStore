@@ -6,7 +6,7 @@ import order_model from '../models/order_model.js';
 import upload from "../config/upload.js";
 import response_model from '../models/response/ResponseModel.js'
 import logger from "../utils/logger.js";
-import Voucher from "../models/voucher_model.js";
+import voucher_model from "../models/voucher_model.js";
 import address_model from "../models/address_model.js";
 import User from "../models/user_model.js";
 import sequelize from '../connection/mysql.js';
@@ -277,7 +277,7 @@ router.get('/orders/:id', authenticateToken, authorizeRole(["user"]), async (req
                     attributes: ['id', 'img_preview', 'name']
                 },
                 {
-                    model: Voucher, // Bao gồm cả Voucher nếu cần
+                    model: voucher_model.Voucher, // Bao gồm cả Voucher nếu cần
                     attributes: ['id', 'discount', "type"]
                 },
                 {
@@ -317,6 +317,30 @@ router.get('/orders/:id', authenticateToken, authorizeRole(["user"]), async (req
     }
 });
 
+//  Thống kê số lượng đơn hàng: Pending, Packing, Delivered trong 1 kết quả trả về 
+router.get("/admin/orders/statistical", authenticateToken, authorizeRole(["admin"]) ,async(req, res, next) =>{
+    try {
+        // Thống kê số lượng đơn hàng theo trạng thái
+        const countSta = await order_model.OrderStatus.findAll({
+            attributes: [
+                'status',
+                [Sequelize.fn('COUNT', Sequelize.col('id')), 'order_count']
+            ],
+            group: ['status'],
+        });
+
+        // Định dạng kết quả trả về
+        const result = countSta.map(item => ({
+            status: item.get('status'),
+            order_count: parseInt(item.get('order_count'), 10), 
+        }));
+
+        // Trả về kết quả
+        return res.status(200).json(new response_model.ResponseModel(true, null,result));
+    } catch (error) {
+        return res.status(500).json(new response_model.ResponseModel(false, new response_model.ErrorResponseModel(1, "Lỗi hệ thống", err.message), null));
+    }
+});
 
 //===========================
 // 1. Get order by status
@@ -424,29 +448,5 @@ router.get("/admin/orders/:status", authenticateToken, authorizeRole(["admin"]),
     }
 });
 
-//  Thống kê số lượng đơn hàng: Pending, Packing, Delivered trong 1 kết quả trả về 
-router.get("/admin/order/statistical", authenticateToken, authorizeRole(["admin"]) ,async(req, res, next) =>{
-    try {
-        // Thống kê số lượng đơn hàng theo trạng thái
-        const countSta = await order_model.OrderStatus.findAll({
-            attributes: [
-                'status',
-                [Sequelize.fn('COUNT', Sequelize.col('id')), 'order_count']
-            ],
-            group: ['status'],
-        });
-
-        // Định dạng kết quả trả về
-        const result = countSta.map(item => ({
-            status: item.get('status'),
-            order_count: parseInt(item.get('order_count'), 10), 
-        }));
-
-        // Trả về kết quả
-        return res.status(200).json(new response_model.ResponseModel(true, null,result));
-    } catch (error) {
-        return res.status(500).json(new response_model.ResponseModel(false, new response_model.ErrorResponseModel(1, "Lỗi hệ thống", err.message), null));
-    }
-});
 
 export default router;
