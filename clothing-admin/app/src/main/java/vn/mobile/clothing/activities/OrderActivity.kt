@@ -18,6 +18,7 @@ import vn.mobile.clothing.adapters.RvPurchasedHistoryAdapter
 import vn.mobile.clothing.common.IntentData
 import vn.mobile.clothing.databinding.ActivityMainBinding
 import vn.mobile.clothing.databinding.ActivityOrderBinding
+import vn.mobile.clothing.models.EOrderStatus
 import vn.mobile.clothing.viewmodel.OrderViewModel
 
 class OrderActivity : BaseActivity() {
@@ -52,7 +53,7 @@ class OrderActivity : BaseActivity() {
     }
 
     override fun populateData() {
-        viewModel.getFirstOrder(currentTab)
+
     }
 
     override fun setListener() {
@@ -82,11 +83,13 @@ class OrderActivity : BaseActivity() {
                     currentTab = when (it.position) {
                         0 ->  "PENDING"
                         1 -> "PACKING"
-                        2 -> "DELIVERED"
-                        3-> "CANCELLED"
+                        2 -> EOrderStatus.SHIPPING.name
+                        3 -> EOrderStatus.DELIVERED.name
                         else -> "PENDING"
                     }
                 }
+                adapter.clearData()
+                viewModel.getFirstOrder(currentTab)
             }
 
             override fun onTabUnselected(tab: TabLayout.Tab?) {}

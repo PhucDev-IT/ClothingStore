@@ -46,7 +46,7 @@ android {
     flavorDimensions.add("dev")
     productFlavors{
         create("dev"){
-            buildConfigField("String","API_BASE_URL","\"http://192.168.201.6:3000/\"")
+            buildConfigField("String","API_BASE_URL","\"http://192.168.201.5:3000/\"")
         }
     }
 }
@@ -65,7 +65,7 @@ dependencies {
     //Demoapp
 
     //ViewModel
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.5")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7")
 
     implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
 
@@ -84,7 +84,7 @@ dependencies {
     implementation("com.squareup.okhttp3:logging-interceptor")
 
     //Firebase
-    implementation("com.google.firebase:firebase-messaging:24.0.1")
+    implementation("com.google.firebase:firebase-messaging:24.1.0")
 
     val room_version = "2.6.1"
     annotationProcessor("androidx.room:room-compiler:$room_version")

@@ -38,6 +38,8 @@
     <string name="title_header_order">Lịch sử mua hàng</string>
     <string name="tab_item_pending">Chờ xác nhận</string>
     <string name="tab_item_processing">Đang xử lý</string>
+    <string name="tab_item_shipping">Đang giao hàng</string>
+    <string name="tab_item_delivered">Đã giao</string>
     <string name="tab_item_history">Đã mua</string>
     <string name="tab_item_review">Đánh giá</string>
     <string name="tab_item_canceled">Đã hủy</string>

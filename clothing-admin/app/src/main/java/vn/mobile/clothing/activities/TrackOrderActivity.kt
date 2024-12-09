@@ -46,6 +46,7 @@ class TrackOrderActivity : BaseActivity() {
     }
     private lateinit var binding: ActivityTrackOrderBinding
     private lateinit var order: OrderResponseModel
+    private var isShowControlButton = true
 
     override fun initView() {
         enableEdgeToEdge()
@@ -128,15 +129,19 @@ class TrackOrderActivity : BaseActivity() {
             binding.llShipping.visibility = View.GONE
             binding.llDelivered.visibility = View.GONE
 
-            for(model in orderDetails.orderStatus!!){
+            val sortedOrderStatus = orderDetails.orderStatus!!
+                .filter { it.updatedAt != null } // Lọc bỏ phần tử có `updatedAt` là null
+                .sortedBy { it.updatedAt } // Sắp xếp tăng dần theo `updatedAt`
+
+            for(model in sortedOrderStatus){
                 when(model.status){
                     EOrderStatus.PENDING.name ->{
+                        binding.llControl.visibility = View.VISIBLE
+                        binding.btnConfirm.text = "Xác nhận"
                         binding.llOrdered.visibility = View.VISIBLE
                         binding.tvTimeOrderDate.text = FormatCurrency.dateTimeFormat.format(model.updatedAt)
                     }
-                    EOrderStatus.PACKING.name ->{
 
-                    }
                     EOrderStatus.CANCELLED.name ->{
                         binding.llControl.visibility = View.GONE
                         binding.lnCancelOrder.visibility = View.VISIBLE
@@ -144,26 +149,36 @@ class TrackOrderActivity : BaseActivity() {
                         binding.tvReasonCancel.text = binding.tvReasonCancel.text.toString() + model.note
                     }
                     EOrderStatus.PACKING.name ->{
+                        binding.llControl.visibility = View.VISIBLE
+                        binding.btnConfirm.text = "Giao hàng"
                         binding.llPacking.visibility = View.VISIBLE
                         binding.tvTimePackagingOrder.text = FormatCurrency.dateTimeFormat.format(model.updatedAt)
                     }
                     EOrderStatus.SHIPPING.name ->{
+                        binding.llControl.visibility = View.VISIBLE
+                        binding.btnConfirm.text = "Thành công"
                         binding.llShipping.visibility = View.VISIBLE
                         binding.tvTimeTransport.text = FormatCurrency.dateTimeFormat.format(model.updatedAt)
                     }
                     EOrderStatus.DELIVERED.name ->{
+                        binding.llControl.visibility = View.GONE
                         binding.llDelivered.visibility = View.VISIBLE
                         binding.tvTimeDelivered.text = FormatCurrency.dateTimeFormat.format(model.updatedAt)
                     }
                 }
             }
         }
+        if(!isShowControlButton){
+            binding.llControl.visibility = View.GONE
+        }
     }
 
 
     private fun loadData(){
+        PopupDialog.showDialogLoading(this)
         APISERVICE.getService(AppManager.token).findOrder(order.orderId!!).enqueue(object : BaseCallback<ResponseModel<OrderDetailsResponseModel>>(){
             override fun onSuccess(model: ResponseModel<OrderDetailsResponseModel>) {
+                PopupDialog.closeDialog()
                 if(model.success && model.data!=null){
                     onResultData(model.data!!)
                 }else{
@@ -172,6 +187,7 @@ class TrackOrderActivity : BaseActivity() {
             }
 
             override fun onError(message: String) {
+                PopupDialog.closeDialog()
               PopupDialog.showDialog(this@TrackOrderActivity,PopupDialog.PopupType.NOTIFICATION,getString(R.string.can_not_success),message){}
             }
         })
@@ -179,18 +195,32 @@ class TrackOrderActivity : BaseActivity() {
 
 
     private fun confirmOrder(){
-        val status = OrderStatus().apply {
+        var note = "Đơn hàng đã được xác nhận"
+        var status :String = if(binding.btnConfirm.text.toString() == "Xác nhận"){
+            EOrderStatus.PACKING.name
+        }else if(binding.btnConfirm.text.toString() == "Giao hàng"){
+            note = "Đơn hàng của bạn đang được vận chuyển"
+            EOrderStatus.SHIPPING.name
+        }else if(binding.btnConfirm.text.toString() == "Thành công"){
+            note = "Giao hàng thành công, trải nghiệm chất lượng sản phẩm"
+            EOrderStatus.DELIVERED.name
+        }else{
+            "Unknown error"
+        }
+        val orderStatus = OrderStatus().apply {
             orderId = order.orderId
-            status = EOrderStatus.PACKING.name
-            note = "Đơn hàng đã được xác nhận"
+            this.status = status
+            this.note = note
         }
         PopupDialog.showDialogLoading(this)
-        APISERVICE.getService(AppManager.token).updateOrderStatus(status).enqueue(object : BaseCallback<ResponseModel<OrderStatus>>(){
+        APISERVICE.getService(AppManager.token).updateOrderStatus(orderStatus).enqueue(object : BaseCallback<ResponseModel<OrderStatus>>(){
             override fun onSuccess(model: ResponseModel<OrderStatus>) {
                 PopupDialog.closeDialog()
                 if(model.success && model.data!=null){
+                    isShowControlButton = false
                     CoreConstant.showToast(this@TrackOrderActivity,"Xác nhận thành công",CoreConstant.ToastType.SUCCESS)
                     binding.llControl.visibility = View.GONE
+                    loadData()
                 }else{
                     CoreConstant.showToast(this@TrackOrderActivity,"Có lỗi xảy ra: ${model.error?.message}",CoreConstant.ToastType.ERROR)
                 }

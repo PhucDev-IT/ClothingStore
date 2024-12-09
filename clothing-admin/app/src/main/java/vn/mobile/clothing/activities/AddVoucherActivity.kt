@@ -15,6 +15,7 @@ import vn.mobile.clothing.R
 import vn.mobile.clothing.activities.base.BaseActivity
 import vn.mobile.clothing.databinding.ActivityAddVoucherBinding
 import vn.mobile.clothing.models.TypeVoucher
+import vn.mobile.clothing.models.VoucherModel
 import vn.mobile.clothing.utils.FormatCurrency
 import java.util.Calendar
 import java.util.Date
@@ -130,7 +131,15 @@ class AddVoucherActivity : BaseActivity(), View.OnClickListener {
         if(!checkData()) return
         val start = convertViewToDate(binding.tvStartAt.text.toString())
         val end = convertViewToDate(binding.tvEndAt.text.toString())
-
+        val voucher = VoucherModel().apply {
+            title = binding.edtTitle.text.toString()
+            description = binding.edtDescription.text.toString()
+            discount = binding.edtDiscount.text.toString().trim().toDouble()
+            type = typeVoucherSelected
+            this.startAt = start
+            this.endAt = end
+            isPublic = binding.rdoOpen.isChecked
+        }
 
     }
 

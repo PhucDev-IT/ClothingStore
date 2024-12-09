@@ -35,11 +35,12 @@
          <com.google.android.material.tabs.TabItem
              android:layout_width="wrap_content"
              android:layout_height="wrap_content"
-             android:text="@string/tab_item_history"/>
+             android:text="@string/tab_item_shipping"/>
          <com.google.android.material.tabs.TabItem
              android:layout_width="wrap_content"
              android:layout_height="wrap_content"
-             android:text="@string/tab_item_review"/>
+             android:text="@string/tab_item_delivered"/>
+
      </com.google.android.material.tabs.TabLayout>
 
      <com.facebook.shimmer.ShimmerFrameLayout
