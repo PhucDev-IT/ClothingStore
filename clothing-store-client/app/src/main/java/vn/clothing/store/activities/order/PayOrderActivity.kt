@@ -163,10 +163,18 @@ class PayOrderActivity : BaseActivity(), PayOrderContract.View {
                 )
             )
         }
+
+        val discount: Double = if (voucher?.type == TypeVoucher.DISCOUNTPERCENT.name) {
+            totalMoney * (voucher?.discount?.toDouble() ?: 0.0) / 100
+        } else {
+            voucher?.discount?.toDouble() ?: 0.0
+        }
+
         val deliveryDetails = "${address!!.fullName}|${address!!.numberPhone}|${address!!.details}"
         val orderRequestModel = OrderRequestModel(
             totalMoney,
             totalMoney + FEESHIP,
+            discount,
             deliveryDetails,
             null,
             feeShip = FEESHIP,

@@ -6,6 +6,11 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.github.mikephil.charting.animation.Easing
+import com.github.mikephil.charting.data.PieData
+import com.github.mikephil.charting.data.PieDataSet
+import com.github.mikephil.charting.data.PieEntry
+import com.github.mikephil.charting.utils.ColorTemplate
 import vn.clothing.store.R
 import vn.clothing.store.activities.MyVoucherActivity
 import vn.clothing.store.activities.authentication.LoginActivity
@@ -17,6 +22,10 @@ import vn.clothing.store.common.PopupDialog
 import vn.clothing.store.database.AppDatabase.Companion.APPDATABASE
 import vn.clothing.store.databinding.FragmentUserBinding
 import vn.clothing.store.models.ItemDashboardViewUser
+import vn.clothing.store.networks.ApiService
+import vn.clothing.store.networks.response.StatisticalCommonResModel
+import vn.mobile.banking.network.response.ResponseModel
+import vn.mobile.banking.network.rest.BaseCallback
 
 class UserFragment : Fragment() {
     private lateinit var _binding: FragmentUserBinding
@@ -88,5 +97,57 @@ class UserFragment : Fragment() {
                 requireActivity().finishAffinity()
             }
         }
+    }
+
+    private fun setUpChart(model:StatisticalCommonResModel){
+        binding.chart.setUsePercentValues(false)
+        binding.chart.description.isEnabled = false
+        binding.chart.setExtraOffsets(5f, 10f, 5f, 5f)
+        binding.chart.dragDecelerationFrictionCoef = 0.99f
+
+        binding.chart.isDrawHoleEnabled = true
+        binding.chart.setHoleColor(R.color.white)
+        binding.chart.holeRadius = 58f
+        binding.chart.transparentCircleRadius = 61f
+
+        binding.chart.animateY(1000,Easing.EaseInOutQuad)
+
+        val yVals = arrayListOf<PieEntry>()
+        yVals.add(PieEntry(model.total, "Thanh toán"))
+        yVals.add(PieEntry(model.discount, "Mã giảm giá"))
+
+        val dataSet = PieDataSet(yVals,"Thống kê")
+
+        dataSet.sliceSpace = 2f
+        dataSet.selectionShift = 5f
+        dataSet.setColors(ColorTemplate.MATERIAL_COLORS,255)
+
+        val pieData = PieData(dataSet)
+        pieData.setValueTextSize(10f)
+        pieData.setValueTextColor(R.color.colorPrimary)
+
+        binding.chart.data = pieData
+        binding.chart.invalidate()
+
+    }
+
+
+    private fun statistical(){
+        ApiService.APISERVICE.getService(AppManager.token).statisticalCommon(AppManager.user?.id?:"").enqueue(object: BaseCallback<ResponseModel<StatisticalCommonResModel>>(){
+            override fun onSuccess(model: ResponseModel<StatisticalCommonResModel>) {
+                if(model.success && model.data!=null){
+                    setUpChart(model.data!!)
+                }
+            }
+
+            override fun onError(message: String) {
+
+            }
+        })
+    }
+
+    override fun onResume() {
+        super.onResume()
+        statistical()
     }
 }

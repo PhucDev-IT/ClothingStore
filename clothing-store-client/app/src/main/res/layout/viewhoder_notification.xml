@@ -35,6 +35,7 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:layout_gravity="end"
+            android:textColor="@color/gray"
             android:id="@+id/tv_time"
             android:layout_marginTop="@dimen/_5sdp"
             android:fontFamily="@font/inter_medium"

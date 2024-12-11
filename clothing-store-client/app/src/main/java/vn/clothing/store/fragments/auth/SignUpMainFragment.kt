@@ -2,6 +2,7 @@ package vn.clothing.store.fragments.auth
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Patterns
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -53,7 +54,28 @@ class SignUpMainFragment : Fragment() , SignUpContract.View{
             binding.edtEmail.error = getString(R.string.required_filed)
         }else if(password.isBlank()){
             binding.edtPass.error = getString(R.string.required_filed)
-        }else{
+        }
+        else if(!Patterns.EMAIL_ADDRESS.matcher(email).matches()){
+            CoreConstant.showToast(
+                requireContext(),
+                "Email không đúng định dạng",
+                CoreConstant.ToastType.ERROR
+            )
+        }
+        else if(password.length < 8){
+            CoreConstant.showToast(
+                requireContext(),
+                "Mật khẩu phải có ít nhất 8 ký tự",
+                CoreConstant.ToastType.ERROR
+            )
+        }else if(!binding.ckbAgree.isChecked){
+            CoreConstant.showToast(
+                requireContext(),
+                "Bạn chưa đồng ý với điều khoản",
+                CoreConstant.ToastType.ERROR
+            )
+        }
+        else{
            val request = RegisterRequestModel(email,password,fullName)
             presenter?.requestSignUp(request)
         }

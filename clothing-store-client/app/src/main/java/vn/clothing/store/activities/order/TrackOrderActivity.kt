@@ -201,6 +201,7 @@ class TrackOrderActivity : BaseActivity() {
 
             if (checkedRadioButtonId != -1 && checkedRadioButtonId!=null && order.orderId != null) {
                 val orderStatus = OrderStatus().apply {
+                    userId = AppManager.user?.id
                     orderId = order.orderId
                     status = EOrderStatus.CANCELLED.name
                     note = radioGroup.findViewById<RadioButton>(checkedRadioButtonId).text.toString()

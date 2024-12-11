@@ -35,6 +35,8 @@ class OrderStatus {
     var id: String? = null
     @SerializedName("order_id")
     var orderId:String?=null
+    @SerializedName("user_id")
+    var userId:String?=null
     var status: String? = null
     var note: String? = null
     var updatedAt: Date? = null

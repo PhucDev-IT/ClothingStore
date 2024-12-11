@@ -50,7 +50,7 @@ class MainActivity : BaseActivity() {
         }
 
         if(BuildConfig.DEBUG){
-           //checkData()
+           checkData()
         }
 
         binding.bottomNavigation.setOnNavigationItemSelectedListener { menuItem ->

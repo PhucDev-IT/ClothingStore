@@ -6,6 +6,7 @@ data class OrderRequestModel(
     var total: Double,
     @SerializedName("real_total")
     var realTotal: Double,
+    var discount: Double,
     @SerializedName("delivery_information")
     var shippingAddress: String,
     @SerializedName("voucher_id")

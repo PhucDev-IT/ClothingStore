@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.util.Patterns
 import android.view.LayoutInflater
 import android.view.Window
 import android.view.WindowManager
@@ -68,7 +69,7 @@ class LoginActivity : AppCompatActivity(), LoginContract.View {
         setListener()
 
         if(BuildConfig.DEBUG){
-            //showDialogDebug()
+            showDialogDebug()
         }
 
     }
@@ -99,7 +100,14 @@ class LoginActivity : AppCompatActivity(), LoginContract.View {
                 getString(R.string.account_empty),
                 CoreConstant.ToastType.ERROR
             )
-        } else {
+        }else if(!Patterns.EMAIL_ADDRESS.matcher(userName).matches()){
+            CoreConstant.showToast(
+                this,
+                "Email không đúng định dạng",
+                CoreConstant.ToastType.ERROR
+            )
+        }
+        else {
             presenter?.loginSystem(userName, password)
         }
     }
