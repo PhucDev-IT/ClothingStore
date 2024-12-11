@@ -6,7 +6,7 @@ import Joi from 'joi';
 const router = express.Router(); // Sử dụng express.Router()
 import User from '../models/user_model.js';
 import { formatValidationError } from '../utils/exception.js'
-
+import { authenticateToken, authorizeRole } from "../config/jwt_filter.js";
 import dotenv from 'dotenv';
 import Models from '../models/response/ResponseModel.js';
 import logger from '../utils/logger.js';
@@ -100,7 +100,7 @@ router.post('/login', async (req, res, next) => {
         const { email, password, device_id, fcm_token } = req.body;
         // Tìm người dùng dựa trên user_name
         const user = await User.findOne({ where: { email } });
-        
+
 
         if (!user) {
             return res.json(new Models.ResponseModel(false, new Models.ErrorResponseModel(1, "Người dùng không tồn tại", null), null));
@@ -113,7 +113,7 @@ router.post('/login', async (req, res, next) => {
                 device_id: device_id,
                 fcm_token: fcm_token,
                 time_login: new Date(),
-                user_id : user.id
+                user_id: user.id
             });
 
             //Get roles
@@ -141,7 +141,7 @@ router.post('/login', async (req, res, next) => {
 });
 
 //Login with admin
-router.post('/admin/login',async (req, res, next) => {
+router.post('/admin/login', async (req, res, next) => {
     const { error } = await loginRequest.validate(req.body);
     if (error) {
         const formattedErrors = formatValidationError(error.details);
@@ -151,7 +151,7 @@ router.post('/admin/login',async (req, res, next) => {
         const { email, password, device_id, fcm_token } = req.body;
         // Tìm người dùng dựa trên user_name
         const user = await User.findOne({ where: { email } });
-        
+
 
         if (!user) {
             return res.json(new Models.ResponseModel(false, new Models.ErrorResponseModel(1, "Người dùng không tồn tại", null), null));
@@ -164,7 +164,7 @@ router.post('/admin/login',async (req, res, next) => {
                 device_id: device_id,
                 fcm_token: fcm_token,
                 time_login: new Date(),
-                user_id : user.id
+                user_id: user.id
             });
 
             //Get roles
@@ -174,7 +174,7 @@ router.post('/admin/login',async (req, res, next) => {
             if (!roleNames.includes("admin")) {
                 return res.status(403).json(new Models.ResponseModel(false, new Models.ErrorResponseModel(1, "Người dùng không có quyền admin", null), null));
             }
-            
+
             const token = jwt.sign({ email: user.email, roles: roleNames }, process.env.TOKEN_SECRET, { expiresIn: '5d' });
             const userWithRoles = {
                 ...user.toJSON(),
@@ -283,12 +283,24 @@ router.post('/login_google', async (req, res, next) => {
 
 });
 
+
+router.get("/find_user", authenticateToken, authorizeRole(["admin"]), async (req, res, next) => {
+    const email = req.query.email;
+    const user = await User.findOne({ where: { email } });
+
+    if (!user) {
+        return res.json(new Models.ResponseModel(false, new Models.ErrorResponseModel(1, "Người dùng không tồn tại", null), null));
+    }
+    return res.status(200).json(new Models.ResponseModel(true, null, user));
+
+})
+
 // Hàm băm mật khẩu
 async function hashPassword(password) {
     try {
         const salt = await bcrypt.genSalt();
         const hash = await bcrypt.hash(password, salt);
-    
+
         return hash;
     } catch (err) {
         console.error('Error hashing password:', err);

@@ -11,7 +11,7 @@ import { Op } from 'sequelize';
 import sequelize from '../connection/mysql.js';
 
 //get all voucher (phân trang - admin) 
-router.get('/vouchers',authenticateToken, authorizeRole(["admin"]), async (req, res, next) =>{
+router.get('/admin/vouchers',authenticateToken, authorizeRole(["admin"]), async (req, res, next) =>{
     try{
         const page = parseInt(req.query.page) || 1; 
         const limit = parseInt(req.query.limit) || 20; 
@@ -65,6 +65,7 @@ router.get('/vouchers',authenticateToken, authorizeRole(["user"]), async (req, r
                 type: sequelize.QueryTypes.SELECT
             }
         );
+       
         return res.status(200).json(new Models.ResponseModel(true, null, vouchers));
     } catch (error) {
         logger.error('Error fetching user vouchers:', error);
@@ -104,16 +105,25 @@ router.get('/voucher/:id', authenticateToken, authorizeRole(["user", "admin"]), 
 */
 router.post('/vouchers', authenticateToken, authorizeRole(["admin"]), async (req, res, next) => {
     try {
-        const { title, description, discount, type, start_at, end_at, is_public, user_id = [], quantity = 1, condition = "all" } = req.body;
+        const {
+            title,
+            description,
+            discount,
+            type,
+            start_at,
+            end_at,
+            is_public,
+            user_id = null, // Mặc định là null nếu không được truyền
+            quantity = 1,
+            condition = "all"
+        } = req.body;
 
-        // Nếu user_id không có hoặc rỗng, gán user_id = null và condition = 'all'
+        // Xác định condition và kiểm tra user_id
         let finalCondition = condition;
-        let finalUserId = null;
-        
-        if (user_id.length > 0) {
-            finalCondition = "only";  // Nếu có user_id, điều chỉnh condition thành 'only'
-            finalUserId = user_id[0]; // Lấy user_id đầu tiên trong mảng
+        if (user_id) {
+            finalCondition = "only"; // Nếu có user_id, condition được đặt là 'only'
         }
+
         // Tạo voucher mới
         const voucher = await voucher_model.Voucher.create({
             title,
@@ -125,45 +135,36 @@ router.post('/vouchers', authenticateToken, authorizeRole(["admin"]), async (req
             is_public,
         });
 
-                // Kiểm tra nếu có user_id được chỉ định
-                if (finalUserId) {
-                    // Gán voucher cho các user được chỉ định (chỉ gán cho user_id đã chọn)
-                    const users = await User.findAll({
-                        where: {
-                            id: user_id, // Lọc theo danh sách user_id
-                        }
-                    });
+        if (!voucher) {
+            return res.status(500).json(new Models.ResponseModel(false, new Models.ErrorResponseModel(1, "Không thể tạo voucher", null), null));
+        }
+
+        // Kiểm tra nếu có user_id được chỉ định
+        if (user_id) {
+            // Lấy thông tin user từ cơ sở dữ liệu
+            const user = await User.findByPk(user_id);
+            if (!user) {
+                return res.status(404).json(new Models.ResponseModel(false, new Models.ErrorResponseModel(1, "Người dùng không tồn tại", null), null));
+            }
+
+            // Gán voucher cho user chỉ định
+            await voucher_model.VoucherUser.create({
+                user_id: user.id,
+                voucher_id: voucher.id,
+                quantity,
+                condition: finalCondition
+            });
+        } else {
         
-                    if (users.length === 0) {
-                        return res.json(new Models.ResponseModel(false, new Models.ErrorResponseModel(1, "Không tìm thấy người dùng", null), null));
-                    }
-        
-                    // Gán voucher cho từng user được chỉ định
-                    await Promise.all(users.map(user => {
-                        return voucher_model.VoucherUser.create({
-                            user_id: user.id,
-                            voucher_id: voucher.id,
-                            quantity,   
-                            condition: finalCondition
-                        });
-                    }));
-        
-                } else {
-                    // Nếu không có user_id, gán voucher cho tất cả người dùng
-                    const allUsers = await User.findAll(); // Lấy tất cả người dùng
-        
-                    await Promise.all(allUsers.map(user => {
-                        return voucher_model.VoucherUser.create({
-                            user_id: user.id,
-                            voucher_id: voucher.id,
-                            quantity,   
-                            condition: finalCondition   
-                        });
-                    }));
-                }
+           await voucher_model.VoucherUser.create({
+                user_id: null,
+                voucher_id: voucher.id,
+                quantity,
+                condition: finalCondition
+            });
+        }
 
         return res.status(200).json(new Models.ResponseModel(true, null, voucher));
-
     } catch (error) {
         logger.error('Error adding voucher:', error);
         return res.status(500).json(new Models.ResponseModel(false, new Models.ErrorResponseModel(1, "Lỗi hệ thống", error.message), null));
