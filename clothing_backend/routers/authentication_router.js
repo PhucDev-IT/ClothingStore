@@ -109,7 +109,7 @@ router.post('/login', async (req, res, next) => {
         const passwordMatch = await bcrypt.compare(password, user.password);
         if (passwordMatch) {
 
-            LogLogin.create({
+           await LogLogin.create({
                 device_id: device_id,
                 fcm_token: fcm_token,
                 time_login: new Date(),

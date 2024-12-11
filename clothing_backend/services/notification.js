@@ -1,18 +1,19 @@
 // notification_service.js
 import admin from './firebase_admin.js';
 import { default as User } from '../models/user_model.js';
+import LogLogin from '../models/log_login.js';
 
 // Hàm gửi thông báo
 export const sendNotification = async (userId, notification) => {
   try {
     // Tìm người dùng trong cơ sở dữ liệu
-    const user = await User.findOne({ where: { id: userId } });
+    const logLogin = await LogLogin.findOne({ where: { user_id: userId } });
 
-    if (!user) {
+    if (!logLogin) {
       throw new Error(`Người dùng với ID ${userId} không tồn tại.`);
     }
 
-    if (!user.deviceToken) {
+    if (!logLogin.fcm_token) {
       throw new Error(`Người dùng với ID ${userId} không có deviceToken.`);
     }
 
@@ -22,9 +23,8 @@ export const sendNotification = async (userId, notification) => {
         title: notification.title,
         body: notification.body,
       },
-      token: user.deviceToken,
+      token: logLogin.fcm_token,
     };
-
     // Gửi thông báo Firebase
     const response = await admin.messaging().send(message);
     console.log(`Thông báo gửi thành công tới người dùng ${userId}:`, response);

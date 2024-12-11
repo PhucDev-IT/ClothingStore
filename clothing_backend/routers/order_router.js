@@ -14,8 +14,8 @@ import { authenticateToken, authorizeRole } from "../config/jwt_filter.js";
 import product_model from "../models/product_model.js";
 import { or, QueryTypes, Sequelize } from "sequelize";
 import Notification from "../models/notification_model.js";
-import notification_router from "./notification_router.js"
-import notificationQueue from '../queues/notificationQueue.js';
+
+import { sendNotification } from '../services/notification.js';
 // ----------Order-----------
 
 
@@ -54,6 +54,10 @@ const order_status = Joi.object({
         "any.required": "status là bắt buộc",
         "string.base": "status : status bắt buộc"
     }),
+    user_id: Joi.string().required().messages({
+        "any.required": "user_id là bắt buộc",
+        "string.base": "user_id : user_id bắt buộc"
+    }),
     note: Joi.string().allow(null, '').empty(true).optional(),
 })
 
@@ -75,6 +79,7 @@ const order_request = Joi.object({
         "any.required": "fee_ship là bắt buộc",
         "string.base": "fee_ship : Phí vận chuyển"
     }),
+    discount: Joi.number().allow(null).default(0.0).optional(),
 
     voucher_id: Joi.string().allow(null, '').empty(true).optional(),
     list_item: Joi.array().items(order_item_request).required()
@@ -96,6 +101,21 @@ router.post('/orders/order_status',authenticateToken, authorizeRole(["user","adm
         note:value.note,
         status: value.status
        })
+
+       await Notification.create({
+        title:"Cập nhật đơn hàng",
+        content: value.note,
+        type: "PAYMENT",
+        is_action: false,
+        is_read:false,
+        user_id: value.user_id
+     });
+
+     const notification = {
+        title: 'Cập nhật đơn hàng',
+        body: value.note,
+      };
+      await sendNotification(value.user_id, notification);
 
         return res.status(200).json(new response_model.ResponseModel(true, null, order));
     } catch (error) {
@@ -121,6 +141,7 @@ router.post('/orders', authenticateToken, authorizeRole(["user"]), async (req, r
         const order = await order_model.Order.create({
             total: value.total,
             real_total: value.real_total,
+            discount: value.discount,
             delivery_information: value.delivery_information,
             voucher_id: value.voucher_id,
             user_id: user_id,
@@ -147,7 +168,7 @@ router.post('/orders', authenticateToken, authorizeRole(["user"]), async (req, r
         await order_model.OrderItem.bulkCreate(orderItems, { transaction });
 
     
-         Notification.create({
+        await Notification.create({
             title:"Đặt hàng thành công!",
             content: `Bạn đã đặt hàng thành công. Mã đơn hàng ${order.id} đang được người bán chuẩn bị`,
             type: "PAYMENT",
@@ -159,10 +180,11 @@ router.post('/orders', authenticateToken, authorizeRole(["user"]), async (req, r
             title: 'Đặt hàng thành công',
             body: `Đơn hàng của bạn với ID ${order.id} đã được xử lý thành công!`,
           };
-        //await notificationQueue.add({user_id,notification})
-         
+          await sendNotification(user_id, notification);
         // Commit transaction nếu tất cả thành công
         await transaction.commit();
+
+
         return res.status(200).json(new response_model.ResponseModel(true, null, order));
     } catch (error) {
         // Rollback nếu có lỗi
@@ -448,5 +470,37 @@ router.get("/admin/orders/:status", authenticateToken, authorizeRole(["admin"]),
     }
 });
 
+router.get('/orders/statistical/:id', async(req,res,next)=>{
+    try{
+        const userId = req.params.id;
+        // Tính tổng tiền của các đơn hàng có trạng thái "delivered" cho user cụ thể
+        const deliveredOrders = await order_model.Order.findAll({
+            attributes: [
+                [sequelize.fn('SUM', sequelize.col('real_total')), 'realTotalAmount'],
+                [sequelize.fn('SUM', sequelize.col('discount')), 'totalVoucherUsed'],
+            ],
+            include: [{
+                model: order_model.OrderStatus,
+                where: {
+                    status: 'DELIVERED'
+                },
+                attributes: []
+            }],
+            where: {
+                user_id: userId
+            },
+            raw: true
+        });
+
+    
+
+        const total = deliveredOrders[0]?.realTotalAmount || 0;
+        const discount = deliveredOrders[0]?.totalVoucherUsed || 0;
+        return res.status(200).json(new response_model.ResponseModel(true, null,{total,discount}));
+    }catch (err) {
+        logger.error("Error fetching order:", err);
+        return res.status(500).json(new response_model.ResponseModel(false, new response_model.ErrorResponseModel(1, "Lỗi hệ thống", err.message), null));
+    }
+})
 
 export default router;

@@ -23,8 +23,10 @@ const Order = sequelize.define('order', {
         type: DataTypes.FLOAT,
         allowNull: false,
     },
-
-   
+    discount:{
+        type: DataTypes.FLOAT,
+        allowNull: false,
+    },
     voucher_id:{
         type: DataTypes.STRING,
         allowNull: true,
