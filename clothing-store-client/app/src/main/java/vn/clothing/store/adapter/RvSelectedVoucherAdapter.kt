@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.widget.AppCompatButton
 import androidx.core.content.ContextCompat
@@ -28,13 +29,15 @@ class RvSelectedVoucherAdapter(  private var idVoucherOld: String?,private val o
         var tvTitle:TextView
         var tvContent:TextView
         var tvDiscount:TextView
-        var btnSelect:AppCompatButton
+        var tvActions:TextView
+        var btnSelect:LinearLayout
 
         init {
             tvTitle = itemView.findViewById(R.id.tv_title)
             tvContent = itemView.findViewById(R.id.tvContent)
             tvDiscount = itemView.findViewById(R.id.tv_discount)
             btnSelect = itemView.findViewById(R.id.btn_select)
+            tvActions = itemView.findViewById(R.id.tv_action)
         }
     }
 
@@ -60,7 +63,7 @@ class RvSelectedVoucherAdapter(  private var idVoucherOld: String?,private val o
             }
             holder.tvContent.text = list[position].description
 
-            holder.btnSelect.text = "Sử dụng"
+            holder.tvActions.text = "Sử dụng"
 
             if (idVoucherOld == list[position].id) {
                 idVoucherOld = null
@@ -82,13 +85,13 @@ class RvSelectedVoucherAdapter(  private var idVoucherOld: String?,private val o
             }
 
             if (pos == position) {
-                holder.btnSelect.text = "Bỏ chọn"
-                holder.btnSelect.setTextColor(ContextCompat.getColor(context, R.color.white))
+                holder.tvActions.text = "Bỏ chọn"
+                holder.tvActions.setTextColor(ContextCompat.getColor(context, R.color.white))
                 holder.btnSelect.backgroundTintList = ContextCompat.getColorStateList(context, R.color.colorPrimary)
             } else {
-                holder.btnSelect.text = "Sử dụng"
+                holder.tvActions.text = "Sử dụng"
                 holder.btnSelect.backgroundTintList = ContextCompat.getColorStateList(context, R.color.gray_light)
-                holder.btnSelect.setTextColor(
+                holder.tvActions.setTextColor(
                     ContextCompat.getColor(
                         context,
                         R.color.colorPrimary

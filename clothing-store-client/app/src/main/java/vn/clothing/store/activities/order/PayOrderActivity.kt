@@ -37,6 +37,7 @@ import vn.clothing.store.databinding.PopupSelectPaymentMethodBinding
 import vn.clothing.store.interfaces.PayOrderContract
 import vn.clothing.store.models.DeliveryInformation
 import vn.clothing.store.models.NotificationModel
+import vn.clothing.store.models.TypeVoucher
 import vn.clothing.store.models.VoucherModel
 import vn.clothing.store.networks.request.OrderItemRequestModel
 import vn.clothing.store.networks.request.OrderRequestModel
@@ -186,7 +187,7 @@ class PayOrderActivity : BaseActivity(), PayOrderContract.View {
         CoroutineScope(Dispatchers.IO).launch {
             val orderApi = CreateOrder()
             try {
-                val data: JSONObject = orderApi.createOrder(totalMoney.toInt().toString())
+                val data: JSONObject = orderApi.createOrder(calculateRealTotal().toInt().toString())
                 val code = data.getString("returncode")
                 if (code == "1") {
                     val token = data.getString("zptranstoken")
@@ -301,6 +302,7 @@ class PayOrderActivity : BaseActivity(), PayOrderContract.View {
     // endregion PayOrderContract.View
     //=====================================
 
+    @SuppressLint("SetTextI18n")
     @Deprecated("This method has been deprecated in favor of using the Activity Result API\n      which brings increased type safety via an {@link ActivityResultContract} and the prebuilt\n      contracts for common intents available in\n      {@link androidx.activity.result.contract.ActivityResultContracts}, provides hooks for\n      testing, and allow receiving results in separate, testable classes independent from your\n      activity. Use\n      {@link #registerForActivityResult(ActivityResultContract, ActivityResultCallback)}\n      with the appropriate {@link ActivityResultContract} and handling the result in the\n      {@link ActivityResultCallback#onActivityResult(Object) callback}.")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
@@ -310,10 +312,45 @@ class PayOrderActivity : BaseActivity(), PayOrderContract.View {
                     val voucher =
                         data?.getSerializableExtra(IntentData.KEY_VOUCHER) as VoucherModel?
                     this.voucher = voucher
-                    binding.tvChooseVoucher.text = voucher?.id
+                    reCalculateWithVoucher()
                 }
             }
         }
+    }
+
+
+    @SuppressLint("SetTextI18n")
+    private fun reCalculateWithVoucher(){
+        calculateRealTotal()
+
+        if(voucher == null){
+            binding.tvVoucherDiscount.text = "0đ"
+            binding.tvChooseVoucher.text = getString(R.string.label_select_voucher)
+            return
+        }
+
+        if(voucher?.type == TypeVoucher.DISCOUNTPERCENT.name){
+            binding.tvChooseVoucher.text = "Giảm ${voucher!!.discount}%"
+            val discount = totalMoney * voucher!!.discount!! / 100
+            binding.tvVoucherDiscount.text = FormatCurrency.numberFormat.format(discount)
+        }else{
+            binding.tvChooseVoucher.text = "Giảm ${FormatCurrency.numberFormat.format(voucher?.discount)}"
+            binding.tvVoucherDiscount.text = FormatCurrency.numberFormat.format(voucher?.discount)
+        }
+    }
+
+    //Tính tổng tiền thực tế
+    private fun calculateRealTotal():Double{
+
+        val discount: Double = if (voucher?.type == TypeVoucher.DISCOUNTPERCENT.name) {
+            totalMoney * (voucher?.discount?.toDouble() ?: 0.0) / 100
+        } else {
+            voucher?.discount?.toDouble() ?: 0.0
+        }
+
+        val realTotal = (totalMoney + FEESHIP - discount) ?: 0.0
+        binding.tvRealTotal.text = FormatCurrency.numberFormat.format(realTotal)
+        return realTotal
     }
 
     override fun onNewIntent(intent: Intent) {

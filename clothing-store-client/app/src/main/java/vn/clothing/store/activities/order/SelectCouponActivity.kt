@@ -32,7 +32,8 @@ class SelectCouponActivity : BaseActivity() {
             insets
         }
 
-        val voucher = intent.getStringExtra(IntentData.KEY_VOUCHER) as VoucherModel?
+        val voucher = intent.getSerializableExtra(IntentData.KEY_VOUCHER) as VoucherModel?
+
         adapter = RvSelectedVoucherAdapter(voucher?.id) {
             val intent = Intent()
             intent.putExtra(IntentData.KEY_VOUCHER, it)

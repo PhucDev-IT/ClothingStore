@@ -10,9 +10,13 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
+import com.google.gson.JsonObject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.json.JSONObject
 import vn.clothing.store.R
 import vn.clothing.store.activities.common.BaseActivity
 import vn.clothing.store.adapter.RvNotificationAdapter
@@ -30,6 +34,9 @@ class NotificationActivity : BaseActivity() {
     private var handler = Handler(Looper.getMainLooper())
     private lateinit var binding: ActivityNotificationBinding
     private lateinit var adapter: RvNotificationAdapter
+    private val GSON: Gson =
+        GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").setLenient().create()
+
     override fun initView() {
         enableEdgeToEdge()
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
@@ -52,11 +59,19 @@ class NotificationActivity : BaseActivity() {
     }
 
     override fun populateData() {
-        getDataFromLocal()
+        getAllNotification()
     }
 
     override fun setListener() {
         binding.header.toolbar.setNavigationOnClickListener { finish() }
+
+        binding.tvReadAll.setOnClickListener{
+            val list = adapter.getUnReads()
+            if(list.isNotEmpty()){
+                adapter.markAll()
+                updateNotification(ArrayList(list))
+            }
+        }
     }
 
     override val layoutView: View
@@ -100,38 +115,23 @@ class NotificationActivity : BaseActivity() {
             })
     }
 
-    private fun getDataFromLocal() {
-        CoroutineScope(Dispatchers.IO).launch {
-            val list = APPDATABASE.notificationDao().getAll()
-            if (list.isNotEmpty()) {
-                handler.post {
-                    adapter.setData(list)
-                    onHideLoading()
-                }
-            } else {
-                handler.post {
-                    getAllNotification()
-                }
-            }
-        }
-    }
 
 
     private fun markAsRead(notificationModel: NotificationModel) {
         CoroutineScope(Dispatchers.IO).launch {
-            notificationModel.isRead = true
-            APPDATABASE.notificationDao().delete(notificationModel)
             handler.post {
-                adapter.removeItem(notificationModel)
-                updateNotification(notificationModel)
+                updateNotification(arrayListOf(notificationModel.id))
             }
         }
     }
 
-    private fun updateNotification(notificationModel: NotificationModel) {
-        APISERVICE.getService(AppManager.token).updateNotification(notificationModel)
-            .enqueue(object : BaseCallback<ResponseModel<NotificationModel>>() {
-                override fun onSuccess(model: ResponseModel<NotificationModel>) {
+    private fun updateNotification(ids:ArrayList<String>) {
+        val jsonObject = JsonObject().apply {
+            add("ids", GSON.toJsonTree(ids))
+        }
+        APISERVICE.getService(AppManager.token).markReadNotification(jsonObject)
+            .enqueue(object : BaseCallback<ResponseModel<Boolean>>() {
+                override fun onSuccess(model: ResponseModel<Boolean>) {
 
                 }
 

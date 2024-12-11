@@ -47,17 +47,21 @@
                 android:text="Get 50%  OFF"/>
         </LinearLayout>
     </LinearLayout>
-    <androidx.appcompat.widget.AppCompatButton
+    <LinearLayout
         android:id="@+id/btn_select"
-        android:layout_marginHorizontal="1dp"
-        android:layout_marginBottom="1dp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textColor="@color/colorPrimary"
-        android:fontFamily="@font/inter_bold"
-        android:textSize="18sp"
-        android:textAllCaps="false"
-        android:backgroundTint="@color/gray_light"
-        android:background="@drawable/bg_radius_bottom"
-        android:text="COPY CODE"/>
+        android:layout_height="@dimen/_35sdp"
+        android:layout_margin="@dimen/_1sdp"
+        android:gravity="center"
+        android:background="@drawable/btn_copy_voucher">
+        <TextView
+            android:id="@+id/tv_action"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/inter_bold"
+            android:textSize="@dimen/_13sdp"
+            android:textColor="@color/colorPrimary"
+            android:textAllCaps="false"
+            android:text="COPY CODE"/>
+    </LinearLayout>
 </LinearLayout>

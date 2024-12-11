@@ -17,3 +17,4 @@ class VoucherModel : Serializable{
     @SerializedName("is_public")
     var isPublic:String?=null
 }
+

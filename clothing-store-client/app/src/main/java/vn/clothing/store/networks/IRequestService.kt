@@ -1,5 +1,7 @@
 package vn.clothing.store.networks
 
+import com.google.gson.JsonObject
+import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -140,12 +142,15 @@ interface IRequestService {
     //=================================================
 
 
-    @GET("/api/vouchers/my_voucher")
+    @GET("/api/vouchers")
     fun getAllVoucher():Call<ResponseModel<List<VoucherModel>>>
 
     @GET("/api/notifications")
     fun getNotification():Call<ResponseModel<List<NotificationModel>>>
 
-    @PUT("/api/notification")
-    fun updateNotification(@Body model:NotificationModel):Call<ResponseModel<NotificationModel>>
+    @GET("/api/notifications/count/{id}")
+    fun countNotifications(@Path("id") id:String):Call<ResponseModel<Int>>
+
+    @POST("/api/notifications/mark")
+    fun markReadNotification(@Body  body: JsonObject):Call<ResponseModel<Boolean>>
 }

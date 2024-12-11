@@ -2,6 +2,8 @@ package vn.clothing.store.common
 
 import android.app.Dialog
 import android.content.Context
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.Window
@@ -33,6 +35,7 @@ object PopupDialog {
     fun showDialog(context: Context,type:PopupType?,title:String?,body:String,callback:Consumer<Boolean>){
         if(dialog?.isShowing == true) closeDialog()
         dialog = Dialog(context, R.style.Theme_Dialog)
+        dialog?.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         dialog!!.requestWindowFeature(Window.FEATURE_NO_TITLE)
         dialog!!.window!!.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
         dialog!!.window!!.setBackgroundDrawableResource(R.color.transparent)

@@ -7,6 +7,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import vn.clothing.store.common.AppManager
 import vn.clothing.store.common.CoreConstant
 import vn.clothing.store.database.AppDatabase.Companion.APPDATABASE
 import vn.clothing.store.interfaces.HomeContract
@@ -92,6 +93,18 @@ class HomePresenter(private var view: HomeContract.View?) : HomeContract.Present
 
 
     override fun countNotification() {
-        view?.onCountNotification(1)
+        APISERVICE.getService(AppManager.token).countNotifications(AppManager.user?.id?:"").enqueue(object : BaseCallback<ResponseModel<Int>>(){
+            override fun onSuccess(model: ResponseModel<Int>) {
+                if(model.success && model.data!=null){
+                    view?.onCountNotification(model.data!!)
+                }else{
+                    view?.onCountNotification(0)
+                }
+            }
+
+            override fun onError(message: String) {
+                view?.onCountNotification(0)
+            }
+        })
     }
 }

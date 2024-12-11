@@ -16,13 +16,21 @@ class RvNotificationAdapter( private val onClick:Consumer<NotificationModel>): R
     class ItemViewHolder(itemView:View):RecyclerView.ViewHolder(itemView){
          val binding = ViewhoderNotificationBinding.bind(itemView)
     }
-
+    private var unReads = mutableListOf<String>()
     private var list:MutableList<NotificationModel> = mutableListOf()
 
     @SuppressLint("NotifyDataSetChanged")
     fun setData(list:List<NotificationModel>){
         this.list.clear()
         this.list.addAll(list)
+        notifyDataSetChanged()
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    fun markAll(){
+        this.list.forEach {
+            it.isRead = true
+        }
         notifyDataSetChanged()
     }
 
@@ -45,12 +53,21 @@ class RvNotificationAdapter( private val onClick:Consumer<NotificationModel>): R
         if(list[position].isRead == true){
             holder.binding.viewRead.visibility = View.GONE
         }else{
+            unReads.add(list[position].id)
             holder.binding.viewRead.visibility = View.VISIBLE
         }
 
         holder.itemView.setOnClickListener {
-            onClick.accept(list[position])
+            if(list[position].isRead == false){
+                holder.binding.viewRead.visibility = View.GONE
+                unReads.remove(list[position].id)
+                onClick.accept(list[position])
+            }
         }
+    }
+
+    fun getUnReads():List<String>{
+        return unReads
     }
 
     override fun getItemCount(): Int {

@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 
 import android.util.Log
 import android.content.ContentValues.TAG
+import android.widget.LinearLayout
 import androidx.appcompat.widget.AppCompatButton
 import androidx.core.content.ContextCompat
 import androidx.core.util.Consumer
@@ -32,7 +33,7 @@ class RvMyVoucherAdapter(private val onClick:Consumer<String>):RecyclerView.Adap
         var tvTitle:TextView
         var tvContent:TextView
         var tvDiscount:TextView
-        var btnSelect:AppCompatButton
+        var btnSelect:LinearLayout
 
         init {
             tvTitle = itemView.findViewById(R.id.tv_title)
