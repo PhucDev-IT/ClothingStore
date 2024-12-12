@@ -342,24 +342,33 @@ router.get('/orders/:id', authenticateToken, authorizeRole(["user"]), async (req
 //  Thống kê số lượng đơn hàng: Pending, Packing, Delivered trong 1 kết quả trả về 
 router.get("/admin/orders/statistical", authenticateToken, authorizeRole(["admin"]) ,async(req, res, next) =>{
     try {
-        // Thống kê số lượng đơn hàng theo trạng thái
-        const countSta = await order_model.OrderStatus.findAll({
-            attributes: [
-                'status',
-                [Sequelize.fn('COUNT', Sequelize.col('id')), 'order_count']
-            ],
-            group: ['status'],
-        });
-
+        const [results] = await sequelize.query(`
+            SELECT 
+                os.status, 
+                COUNT(*) AS order_count
+            FROM order_statuses os
+            INNER JOIN (
+                SELECT order_id, MAX(createdAt) AS latest_status_time
+                FROM order_statuses
+                GROUP BY order_id
+            ) latest_status 
+            ON os.order_id = latest_status.order_id 
+               AND os.createdAt = latest_status.latest_status_time
+            GROUP BY os.status
+            ORDER BY MAX(latest_status_time) DESC;
+        `);
+        
         // Định dạng kết quả trả về
-        const result = countSta.map(item => ({
-            status: item.get('status'),
-            order_count: parseInt(item.get('order_count'), 10), 
+        const formattedResult = results.map(row => ({
+            status: row.status,
+            order_count: parseInt(row.order_count, 10),
         }));
-
+        
         // Trả về kết quả
-        return res.status(200).json(new response_model.ResponseModel(true, null,result));
-    } catch (error) {
+        return res.status(200).json(new response_model.ResponseModel(true, null, formattedResult));
+        
+        
+    } catch (err) {
         return res.status(500).json(new response_model.ResponseModel(false, new response_model.ErrorResponseModel(1, "Lỗi hệ thống", err.message), null));
     }
 });
