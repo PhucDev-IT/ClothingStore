@@ -10,6 +10,8 @@ import retrofit2.http.PUT
 import retrofit2.http.Path
 import retrofit2.http.Query
 import vn.mobile.clothing.models.User
+import vn.mobile.clothing.models.VoucherModel
+import vn.mobile.clothing.network.request.AddVoucherRequestModel
 import vn.mobile.clothing.network.request.LoginRequest
 import vn.mobile.clothing.network.request.RegisterRequestModel
 import vn.mobile.clothing.network.response.LoginResponseModel
@@ -28,6 +30,8 @@ interface IRequestService {
     @POST("api/auth/admin/login")
     fun login(@Body login: LoginRequest):Call<ResponseModel<LoginResponseModel>>
 
+    @GET("api/auth/find_user")
+    fun findUser(@Query("email") email:String):Call<ResponseModel<User>>
 
     @POST("api/auth/register")
     fun signUp(@Body request: RegisterRequestModel):Call<ResponseModel<User>>
@@ -46,6 +50,9 @@ interface IRequestService {
     @GET("/api/admin/orders/statistical")
     fun getStatistical():Call<ResponseModel<List<StatisticalStatusOrderResModel>>>
 
-
+    
+    //============================ VOUCHER -=============================================
+    @POST("api/vouchers")
+    fun addVoucher(@Body voucher: AddVoucherRequestModel): Call<ResponseModel<VoucherModel>>
 
 }

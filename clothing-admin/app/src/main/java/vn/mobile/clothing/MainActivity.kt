@@ -1,10 +1,14 @@
 package vn.mobile.clothing
 
 import android.annotation.SuppressLint
+import android.app.Dialog
 import android.content.Intent
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
+import android.view.Window
+import android.view.WindowManager
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
@@ -16,7 +20,10 @@ import vn.mobile.clothing.activities.AddVoucherActivity
 import vn.mobile.clothing.activities.OrderActivity
 import vn.mobile.clothing.activities.base.BaseActivity
 import vn.mobile.clothing.databinding.ActivityMainBinding
+import vn.mobile.clothing.databinding.PopupDebugBinding
 import vn.mobile.clothing.fragments.DashboardFragment
+import vn.mobile.clothing.network.ApiService.Companion.APISERVICE
+import vn.mobile.clothing.utils.MySharedPreferences
 
 class MainActivity : BaseActivity() , NavigationView.OnNavigationItemSelectedListener{
 
@@ -42,7 +49,9 @@ class MainActivity : BaseActivity() , NavigationView.OnNavigationItemSelectedLis
     }
 
     override fun populateData() {
-
+        if(BuildConfig.DEBUG){
+            checkData()
+        }
     }
 
     override fun setListener() {
@@ -100,4 +109,40 @@ class MainActivity : BaseActivity() , NavigationView.OnNavigationItemSelectedLis
             super.onBackPressed()
         }
     }
+
+    private fun checkData(){
+        val url = MySharedPreferences.getStringValues(this, MySharedPreferences.PREF_KEY_URL)
+        if(url==null){
+            showDialogDebug()
+        }
+        APISERVICE.setBaseUrl(url!!)
+    }
+
+    private fun showDialogDebug() {
+        val url = MySharedPreferences.getStringValues(this, MySharedPreferences.PREF_KEY_URL)
+        if(url!=null) return
+        val dialog = Dialog(this, R.style.Theme_Dialog)
+        dialog!!.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        dialog!!.window!!.setFlags(
+            WindowManager.LayoutParams.FLAG_FULLSCREEN,
+            WindowManager.LayoutParams.FLAG_FULLSCREEN
+        )
+        dialog!!.window!!.setBackgroundDrawableResource(R.color.transparent)
+        val bindingDialog = PopupDebugBinding.inflate(LayoutInflater.from(this))
+        dialog!!.setContentView(bindingDialog.root)
+
+        bindingDialog.btnConfirm.setOnClickListener {
+            if(bindingDialog.edtUrl.text.toString().isEmpty()){
+                bindingDialog.edtUrl.error = "Vui lòng nhập URL"
+                return@setOnClickListener
+            }
+            APISERVICE.setBaseUrl(bindingDialog.edtUrl.text.toString())
+            MySharedPreferences.setStringValue(this, MySharedPreferences.PREF_KEY_URL,bindingDialog.edtUrl.text.toString())
+            dialog.dismiss()
+        }
+
+        dialog.setCancelable(false)
+        dialog.show()
+    }
+
 }

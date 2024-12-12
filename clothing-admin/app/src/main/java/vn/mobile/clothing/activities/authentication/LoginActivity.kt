@@ -56,7 +56,7 @@ class LoginActivity : AppCompatActivity(){
         setListener()
 
         if(BuildConfig.DEBUG){
-           // showDialogDebug()
+           showDialogDebug()
         }
 
     }

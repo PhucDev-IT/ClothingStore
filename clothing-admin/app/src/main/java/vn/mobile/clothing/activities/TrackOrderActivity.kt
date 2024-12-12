@@ -195,20 +195,21 @@ class TrackOrderActivity : BaseActivity() {
 
 
     private fun confirmOrder(){
-        var note = "Đơn hàng đã được xác nhận"
+        var note = "Đơn hàng ${order.orderId} đã được xác nhận"
         var status :String = if(binding.btnConfirm.text.toString() == "Xác nhận"){
             EOrderStatus.PACKING.name
         }else if(binding.btnConfirm.text.toString() == "Giao hàng"){
-            note = "Đơn hàng của bạn đang được vận chuyển"
+            note = "Đơn hàng ${order.orderId} của bạn đang được vận chuyển"
             EOrderStatus.SHIPPING.name
         }else if(binding.btnConfirm.text.toString() == "Thành công"){
-            note = "Giao hàng thành công, trải nghiệm chất lượng sản phẩm"
+            note = "Giao hàng thành công đơn hàng ${order.orderId}, trải nghiệm chất lượng sản phẩm"
             EOrderStatus.DELIVERED.name
         }else{
             "Unknown error"
         }
         val orderStatus = OrderStatus().apply {
             orderId = order.orderId
+            userId = order.userId
             this.status = status
             this.note = note
         }

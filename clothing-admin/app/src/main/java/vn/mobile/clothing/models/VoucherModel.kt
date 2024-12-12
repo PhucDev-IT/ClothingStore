@@ -4,7 +4,7 @@ import com.google.gson.annotations.SerializedName
 import java.io.Serializable
 import java.util.Date
 
-class VoucherModel : Serializable{
+open class VoucherModel : Serializable{
     var id:String?=null
     var title:String?=null
     var description:String?=null

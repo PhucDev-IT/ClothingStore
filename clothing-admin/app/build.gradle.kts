@@ -46,7 +46,7 @@ android {
     flavorDimensions.add("dev")
     productFlavors{
         create("dev"){
-            buildConfigField("String","API_BASE_URL","\"http://192.168.201.5:3000/\"")
+            buildConfigField("String","API_BASE_URL","\"http://192.168.81.41:3000/\"")
         }
     }
 }

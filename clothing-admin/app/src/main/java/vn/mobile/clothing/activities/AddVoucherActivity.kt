@@ -3,6 +3,9 @@ package vn.mobile.clothing.activities
 import android.annotation.SuppressLint
 import android.app.DatePickerDialog
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
+import android.util.Log
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
@@ -13,9 +16,17 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import vn.mobile.clothing.R
 import vn.mobile.clothing.activities.base.BaseActivity
+import vn.mobile.clothing.common.AppManager
+import vn.mobile.clothing.common.CoreConstant
+import vn.mobile.clothing.common.PopupDialog
 import vn.mobile.clothing.databinding.ActivityAddVoucherBinding
 import vn.mobile.clothing.models.TypeVoucher
+import vn.mobile.clothing.models.User
 import vn.mobile.clothing.models.VoucherModel
+import vn.mobile.clothing.network.ApiService
+import vn.mobile.clothing.network.request.AddVoucherRequestModel
+import vn.mobile.clothing.network.response.ResponseModel
+import vn.mobile.clothing.network.rest.BaseCallback
 import vn.mobile.clothing.utils.FormatCurrency
 import java.util.Calendar
 import java.util.Date
@@ -23,6 +34,7 @@ import java.util.Date
 class AddVoucherActivity : BaseActivity(), View.OnClickListener {
     private lateinit var binding:ActivityAddVoucherBinding
     private val today: Calendar = Calendar.getInstance()
+    private var giveUserId:String?=null
     private val typeVoucher =
         hashMapOf(
             TypeVoucher.FREESHIP.name to "Miễn phí vận chuyển",
@@ -56,6 +68,19 @@ class AddVoucherActivity : BaseActivity(), View.OnClickListener {
         binding.header.toolbar.setNavigationOnClickListener { finish() }
         binding.btnAdd.setOnClickListener(this)
         binding.btnClear.setOnClickListener(this)
+
+        binding.edtGiveUser.setOnFocusChangeListener { v, hasFocus ->
+            if(!hasFocus){
+                val email = binding.edtGiveUser.text.toString().trim()
+                if(email.isNotEmpty()){
+                    if(android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()){
+                        findUser(email)
+                    }else{
+                        PopupDialog.showDialog(this@AddVoucherActivity,PopupDialog.PopupType.NOTIFICATION,getString(R.string.can_not_success),"Người dùng không tồn tại"){}
+                    }
+                }
+            }
+        }
     }
 
     override val layoutView: View
@@ -131,7 +156,7 @@ class AddVoucherActivity : BaseActivity(), View.OnClickListener {
         if(!checkData()) return
         val start = convertViewToDate(binding.tvStartAt.text.toString())
         val end = convertViewToDate(binding.tvEndAt.text.toString())
-        val voucher = VoucherModel().apply {
+        val voucher = AddVoucherRequestModel().apply {
             title = binding.edtTitle.text.toString()
             description = binding.edtDescription.text.toString()
             discount = binding.edtDiscount.text.toString().trim().toDouble()
@@ -139,8 +164,49 @@ class AddVoucherActivity : BaseActivity(), View.OnClickListener {
             this.startAt = start
             this.endAt = end
             isPublic = binding.rdoOpen.isChecked
+            quantity = binding.edtQuantity.text.toString().trim().toInt()
+            condition = binding.spinnerCondition.selectedItem.toString()
+            userId = giveUserId
         }
 
+        PopupDialog.showDialogLoading(this)
+        ApiService.APISERVICE.getService(AppManager.token).addVoucher(voucher).enqueue(object: BaseCallback<ResponseModel<VoucherModel>>(){
+            override fun onSuccess(model: ResponseModel<VoucherModel>) {
+                PopupDialog.closeDialog()
+                if(model.success && model.data!=null){
+                    CoreConstant.showToast(this@AddVoucherActivity,"Thêm thành công",CoreConstant.ToastType.SUCCESS)
+                    resetData()
+                }else{
+                    PopupDialog.showDialog(this@AddVoucherActivity,PopupDialog.PopupType.NOTIFICATION,getString(R.string.can_not_success),model.error?.message?:"Thêm thất bại"){}
+                }
+            }
+
+            override fun onError(message: String) {
+                PopupDialog.closeDialog()
+                PopupDialog.showDialog(this@AddVoucherActivity,PopupDialog.PopupType.NOTIFICATION,getString(R.string.can_not_success),message){}
+            }
+        })
+
+    }
+
+
+    private fun findUser(email:String){
+        PopupDialog.showDialogLoading(this)
+        ApiService.APISERVICE.getService(AppManager.token).findUser(email).enqueue(object: BaseCallback<ResponseModel<User>>(){
+            override fun onSuccess(model: ResponseModel<User>) {
+           PopupDialog.closeDialog()
+                if(model.success && model.data!=null){
+                    giveUserId = model.data!!.id
+                }else{
+                    PopupDialog.showDialog(this@AddVoucherActivity,PopupDialog.PopupType.NOTIFICATION,getString(R.string.can_not_success),"Người dùng không tồn tại"){}
+                }
+            }
+
+            override fun onError(message: String) {
+                PopupDialog.closeDialog()
+                PopupDialog.showDialog(this@AddVoucherActivity,PopupDialog.PopupType.NOTIFICATION,getString(R.string.can_not_success),"Người dùng không tồn tại"){}
+            }
+        })
     }
 
     private fun checkData():Boolean{
