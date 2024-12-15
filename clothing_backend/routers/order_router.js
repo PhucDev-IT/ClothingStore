@@ -6,8 +6,7 @@ import order_model from '../models/order_model.js';
 import upload from "../config/upload.js";
 import response_model from '../models/response/ResponseModel.js'
 import logger from "../utils/logger.js";
-import voucher_model from "../models/voucher_model.js";
-import address_model from "../models/address_model.js";
+import moment from 'moment'
 import User from "../models/user_model.js";
 import sequelize from '../connection/mysql.js';
 import { authenticateToken, authorizeRole } from "../config/jwt_filter.js";
@@ -16,6 +15,8 @@ import { or, QueryTypes, Sequelize } from "sequelize";
 import Notification from "../models/notification_model.js";
 
 import { sendNotification } from '../services/notification.js';
+import Voucher from "../models/voucher_model.js";
+import { log } from "console";
 // ----------Order-----------
 
 
@@ -80,14 +81,14 @@ const order_request = Joi.object({
         "string.base": "fee_ship : Phí vận chuyển"
     }),
     discount: Joi.number().allow(null).default(0.0).optional(),
-
+    payment_method: Joi.string().allow(null, '').default("HOME").optional(),
     voucher_id: Joi.string().allow(null, '').empty(true).optional(),
     list_item: Joi.array().items(order_item_request).required()
 });
 
 
 //Update status order
-router.post('/orders/order_status',authenticateToken, authorizeRole(["user","admin"]), async (req, res, next) => {
+router.post('/orders/order_status', authenticateToken, authorizeRole(["user", "admin"]), async (req, res, next) => {
     const { error, value } = order_status.validate(req.body, { abortEarly: false });
     if (error) {
         const formattedErrors = error ? formatValidationError(error.details) : formatValidationError(error.details);
@@ -96,26 +97,26 @@ router.post('/orders/order_status',authenticateToken, authorizeRole(["user","adm
     const user_id = req.user.id;
     logger.info(`User: ${user_id} is update order id: ${value.order_id}`)
     try {
-       const order = await order_model.OrderStatus.create({
-        order_id: value.order_id,
-        note:value.note,
-        status: value.status
-       })
+        const order = await order_model.OrderStatus.create({
+            order_id: value.order_id,
+            note: value.note,
+            status: value.status
+        })
 
-       await Notification.create({
-        title:"Cập nhật đơn hàng",
-        content: value.note,
-        type: "PAYMENT",
-        is_action: false,
-        is_read:false,
-        user_id: value.user_id
-     });
+        await Notification.create({
+            title: "Cập nhật đơn hàng",
+            content: value.note,
+            type: "PAYMENT",
+            is_action: false,
+            is_read: false,
+            user_id: value.user_id
+        });
 
-     const notification = {
-        title: 'Cập nhật đơn hàng',
-        body: value.note,
-      };
-      await sendNotification(value.user_id, notification);
+        const notification = {
+            title: 'Cập nhật đơn hàng',
+            body: value.note,
+        };
+        await sendNotification(value.user_id, notification);
 
         return res.status(200).json(new response_model.ResponseModel(true, null, order));
     } catch (error) {
@@ -129,69 +130,81 @@ router.post('/orders/order_status',authenticateToken, authorizeRole(["user","adm
 router.post('/orders', authenticateToken, authorizeRole(["user"]), async (req, res, next) => {
     const { error, value } = order_request.validate(req.body, { abortEarly: false });
     if (error) {
-        const formattedErrors = error ? formatValidationError(error.details) : formatValidationError(error.details);
+        const formattedErrors = formatValidationError(error.details);
         return res.status(400).json(new response_model.ResponseModel(false, new response_model.ErrorResponseModel(1, "Validation Error", formattedErrors), null));
     }
     const transaction = await sequelize.transaction(); // Tạo transaction để đảm bảo dữ liệu nhất quán
 
     try {
         const user_id = req.user.id;
-        logger.info(`User: ${user_id} is requesting payment order`)
-        // Tạo đơn hàng (order)
+        const date = moment(new Date()).format('YYYY-MM-DDTHH:mm:ssZ');
+
+        // Tạo đơn hàng
         const order = await order_model.Order.create({
             total: value.total,
             real_total: value.real_total,
             discount: value.discount,
+            payment_method: value.payment_method,
             delivery_information: value.delivery_information,
             voucher_id: value.voucher_id,
             user_id: user_id,
             fee_ship: value.fee_ship,
-            order_date: new Date()
+            order_date: date
         }, { transaction });
 
-        // Tạo danh sách OrderItem từ list_item
+        // Tạo OrderItems
         const orderItems = value.list_item.map((item) => ({
-            order_id: order.id,    // Sử dụng id của đơn hàng vừa tạo
+            order_id: order.id,
             color: item.color,
             size: item.size,
             product_id: item.product_id,
             quantity: item.quantity,
             price: item.price
         }));
+        await order_model.OrderItem.bulkCreate(orderItems, { transaction });
 
-        const orderStatus = await order_model.OrderStatus.create({
+        // Tạo trạng thái đơn hàng
+        await order_model.OrderStatus.create({
             order_id: order.id,
             status: "PENDING",
         }, { transaction });
 
-        // Lưu các OrderItems vào cơ sở dữ liệu
-        await order_model.OrderItem.bulkCreate(orderItems, { transaction });
+        // Tăng số lượng đã dùng của voucher
+        if (value.voucher_id) {
+            await Voucher.increment('used', {
+                by: 1,
+                where: { id: value.voucher_id },
+                transaction
+            });
+        }
 
-    
-        await Notification.create({
-            title:"Đặt hàng thành công!",
-            content: `Bạn đã đặt hàng thành công. Mã đơn hàng ${order.id} đang được người bán chuẩn bị`,
-            type: "PAYMENT",
-            is_action: false,
-            is_read:false,
-            user_id: user_id
-         });
-         const notification = {
-            title: 'Đặt hàng thành công',
-            body: `Đơn hàng của bạn với ID ${order.id} đã được xử lý thành công!`,
-          };
-          await sendNotification(user_id, notification);
-        // Commit transaction nếu tất cả thành công
         await transaction.commit();
 
+        // Gửi thông báo không chặn luồng chính
+        (async () => {
+            try {
+                await Notification.create({
+                    title: "Đặt hàng thành công!",
+                    content: `Bạn đã đặt hàng thành công. Mã đơn hàng ${order.id} đang được người bán chuẩn bị`,
+                    type: "PAYMENT",
+                    is_action: false,
+                    is_read: false,
+                    user_id: user_id
+                });
+                await sendNotification(user_id, {
+                    title: 'Đặt hàng thành công',
+                    body: `Đơn hàng của bạn với ID ${order.id} đã được xử lý thành công!`,
+                });
+            } catch (notifyError) {
+                logger.error(`Notification failed for order ID ${order.id}: ${notifyError.message}`);
+            }
+        })();
 
         return res.status(200).json(new response_model.ResponseModel(true, null, order));
     } catch (error) {
-        // Rollback nếu có lỗi
         await transaction.rollback();
-        logger.error("Lỗi: "+ error);
-        const errorResponse = new response_model.ErrorResponseModel('INTERNAL_SERVER_ERROR', 'Error creating order', [error.message]);
-        return res.status(500).json(new response_model.ResponseModel(false, errorResponse));
+        logger.error("Error creating order: " + error.message);
+        return res.status(500).json(new response_model.ResponseModel(false, new response_model.ErrorResponseModel('INTERNAL_SERVER_ERROR', 'Error creating order', [error.message]), null));
     }
 });
 
@@ -216,6 +229,8 @@ router.get('/orders/my_orders/:status', authenticateToken, authorizeRole(["user"
     o.id AS order_id,
     o.total,
     o.real_total,
+    o.payment_method,
+    o.discount,
     o.fee_ship,
     os.status,
     o.order_date,
@@ -284,10 +299,11 @@ LIMIT :limit OFFSET :offset;
 });
 
 //get order by id - user
-router.get('/orders/:id', authenticateToken, authorizeRole(["user"]), async (req, res, next) => {
+router.get('/orders/:id', authenticateToken, authorizeRole(["user","admin"]), async (req, res, next) => {
     try {
         const user_id = req.user.id;
         const orderId = req.params.id;
+        logger.info(`user ${user_id} requesting find order detatils`)
         const order = await order_model.Order.findOne({
             where: {
                 id: orderId,
@@ -299,12 +315,12 @@ router.get('/orders/:id', authenticateToken, authorizeRole(["user"]), async (req
                     attributes: ['id', 'img_preview', 'name']
                 },
                 {
-                    model: voucher_model.Voucher, // Bao gồm cả Voucher nếu cần
+                    model: Voucher, // Bao gồm cả Voucher nếu cần
                     attributes: ['id', 'discount', "type"]
                 },
                 {
                     model: order_model.OrderStatus, // Bao gồm OrderStatus
-                    attributes: ['id', 'status', 'updatedAt']
+                    attributes: ['id', 'status','note', 'updatedAt']
                 }
             ]
         });
@@ -325,14 +341,15 @@ router.get('/orders/:id', authenticateToken, authorizeRole(["user"]), async (req
         }));
 
         const order_response = {
+            order:order,
             voucher: order.voucher,
-            order_items:order_items,
-            order_status:order.order_statuses
+            order_items: order_items,
+            order_status: order.order_statuses
 
         }
 
-      
-        return res.status(200).json(new response_model.ResponseModel(true, null,order_response));
+        logger.info(order_response);
+        return res.status(200).json(new response_model.ResponseModel(true, null, order_response));
     } catch (err) {
         logger.error("Error fetching order:", err);
         return res.status(500).json(new response_model.ResponseModel(false, new response_model.ErrorResponseModel(1, "Lỗi hệ thống", err.message), null));
@@ -340,7 +357,7 @@ router.get('/orders/:id', authenticateToken, authorizeRole(["user"]), async (req
 });
 
 //  Thống kê số lượng đơn hàng: Pending, Packing, Delivered trong 1 kết quả trả về 
-router.get("/admin/orders/statistical", authenticateToken, authorizeRole(["admin"]) ,async(req, res, next) =>{
+router.get("/admin/orders/statistical", authenticateToken, authorizeRole(["admin"]), async (req, res, next) => {
     try {
         const [results] = await sequelize.query(`
             SELECT 
@@ -357,17 +374,17 @@ router.get("/admin/orders/statistical", authenticateToken, authorizeRole(["admin
             GROUP BY os.status
             ORDER BY MAX(latest_status_time) DESC;
         `);
-        
+
         // Định dạng kết quả trả về
         const formattedResult = results.map(row => ({
             status: row.status,
             order_count: parseInt(row.order_count, 10),
         }));
-        
+
         // Trả về kết quả
         return res.status(200).json(new response_model.ResponseModel(true, null, formattedResult));
-        
-        
+
+
     } catch (err) {
         return res.status(500).json(new response_model.ResponseModel(false, new response_model.ErrorResponseModel(1, "Lỗi hệ thống", err.message), null));
     }
@@ -377,11 +394,11 @@ router.get("/admin/orders/statistical", authenticateToken, authorizeRole(["admin
 // 1. Get order by status
 //========================
 //Lấy tất cả order với trạng thái đơn hàng(order_statuses(status)) và phân trang(lấy thêm thông tin user[id, name] ứng với order đó) - role:admin
-router.get("/admin/orders/:status", authenticateToken, authorizeRole(["admin"]), async (req, res, next) =>{
-    const page = parseInt(req.query.page) || 1;  
-    const limit = parseInt(req.query.limit) || 10;  
+router.get("/admin/orders/:status", authenticateToken, authorizeRole(["admin"]), async (req, res, next) => {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
     const offset = (page - 1) * limit;
-    const status = req.params.status||null;
+    const status = req.params.status || null;
     logger.info(`=====> ADMIN GET ALL ORDERS BY STATUS <============`);
     try {
         // Đếm tổng số đơn hàng theo trạng thái
@@ -412,14 +429,10 @@ router.get("/admin/orders/:status", authenticateToken, authorizeRole(["admin"]),
         const ordersQuery = `
             SELECT 
                 o.id AS order_id,
-                o.total,
                 o.real_total,
-                o.fee_ship,
                 os.status,
                 o.order_date,
-                o.delivery_information,
                 u.id AS user_id,
-                u.full_name AS user_name,
                 COUNT(oi.id) AS item_count,
                 (SELECT p.img_preview 
                  FROM products p 
@@ -479,8 +492,8 @@ router.get("/admin/orders/:status", authenticateToken, authorizeRole(["admin"]),
     }
 });
 
-router.get('/orders/statistical/:id', async(req,res,next)=>{
-    try{
+router.get('/orders/statistical/:id', async (req, res, next) => {
+    try {
         const userId = req.params.id;
         // Tính tổng tiền của các đơn hàng có trạng thái "delivered" cho user cụ thể
         const deliveredOrders = await order_model.Order.findAll({
@@ -501,12 +514,12 @@ router.get('/orders/statistical/:id', async(req,res,next)=>{
             raw: true
         });
 
-    
+
 
         const total = deliveredOrders[0]?.realTotalAmount || 0;
         const discount = deliveredOrders[0]?.totalVoucherUsed || 0;
-        return res.status(200).json(new response_model.ResponseModel(true, null,{total,discount}));
-    }catch (err) {
+        return res.status(200).json(new response_model.ResponseModel(true, null, { total, discount }));
+    } catch (err) {
         logger.error("Error fetching order:", err);
         return res.status(500).json(new response_model.ResponseModel(false, new response_model.ErrorResponseModel(1, "Lỗi hệ thống", err.message), null));
     }

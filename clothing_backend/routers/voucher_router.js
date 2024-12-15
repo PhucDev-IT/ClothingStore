@@ -7,66 +7,47 @@ import logger from "../utils/logger.js";
 import voucher_model from "../models/voucher_model.js";
 import Models from "../models/response/ResponseModel.js";
 import User from "../models/user_model.js";
-import { Op } from 'sequelize';
+
 import sequelize from '../connection/mysql.js';
-
-//get all voucher (phân trang - admin) 
-router.get('/admin/vouchers',authenticateToken, authorizeRole(["admin"]), async (req, res, next) =>{
-    try{
-        const page = parseInt(req.query.page) || 1; 
-        const limit = parseInt(req.query.limit) || 20; 
-        const offset = (page - 1) * limit;
-    
-        // Lấy tất cả vouchers với thông tin từ bảng VoucherUser
-        const { count, rows } = await voucher_model.Voucher.findAndCountAll({
-            offset: offset,
-            limit: limit,
-            order: [['createdAt', 'DESC']], // Sắp xếp theo ngày tạo mới nhất
-            attributes: ['id', 'title', 'description', 'discount', 'type', 'start_at', 'end_at', 'is_public', 'createdAt'],
-        });
-        const totalPages = Math.ceil(count / limit);
-        return res.status(200).json(new Models.ResponseModel(true, null, {
-            vouchers: rows,
-            pagination: {
-                totalItems: count,
-                totalPages: totalPages,
-                currentPage: page,
-                itemsPerPage: limit
-            }
-        }));
-    } catch (error) {
-    logger.error('Error fetching vouchers:', error);
-    return res.status(500).json(new Models.ResponseModel(false, new Models.ErrorResponseModel(1, "Lỗi hệ thống", error.message), null));
-    }
-});
-
-
+import Voucher from "../models/voucher_model.js";
+import { or, QueryTypes,Op, Sequelize } from "sequelize";
 // get all voucher by user_id (phân trang - user) - lấy các voucher có thời hạn(start_at <= current_date <= end_at), is_public = true
 
 /*
-1. Select with condition: [ is_public = true ,(start_at <= current_date <= end_at), quantity > 0 , condition = all or user_id = seft ]
+1. Select with condition: [ is_public = true ,(start_at <= current_date <= end_at), quantity > 0 , user_id = seft or null ]
+2. Cần kiểm tra order nào đã sử dụng voucher chưa, hoặc nếu sử dụng rồi nhưng đã hủy hàng vẫn lấy ra
+3. Đảm bảo quá trình truy vấn không tốn tài nguyên với hệ thống lớn, nghĩ sẽ cần truy vấn với điều kiện order nằm trong phạm vi của voucher
 */
-router.get('/vouchers',authenticateToken, authorizeRole(["user"]), async (req, res, next)=>{
-    try{
-        const user_id = req.user.id;  
-        const currentDate = new Date(); 
-        const vouchers = await sequelize.query(
-            `SELECT v.*, vu.quantity 
-             FROM vouchers v
-             JOIN user_has_vouchers vu ON v.id = vu.voucher_id
-             WHERE vu.user_id = :user_id
-             AND vu.quantity > 0
-             AND v.is_public = true
-             AND v.start_at <= :currentDate
-             AND v.end_at >= :currentDate
-             ORDER BY v.createdAt DESC`, 
-            {
-                replacements: { user_id: user_id, currentDate: currentDate },
-                type: sequelize.QueryTypes.SELECT
-            }
-        );
-       
+router.get('/vouchers', authenticateToken, authorizeRole(["user"]), async (req, res, next) => {
+    try {
+        const user_id = req.user.id;
+       logger.info(`user ${user_id} request get vouchers`)
+
+
+        const vouchers = await sequelize.query(`
+    SELECT v.* 
+    FROM vouchers v
+    LEFT JOIN orders o ON v.id = o.voucher_id
+    LEFT JOIN order_statuses os ON o.id = os.order_id AND os.status = 'CANCELED'
+    WHERE v.is_public = true
+      AND v.start_at <= NOW()
+      AND v.end_at >= NOW()
+      AND (v.quantity - v.used) > 0
+      AND (
+          v.user_id IS NULL OR v.user_id = :user_id
+      )
+      AND (
+          o.id IS NULL OR (o.order_date BETWEEN v.start_at AND v.end_at AND os.status = 'CANCELED')
+      );
+`, {
+            replacements: {
+                user_id: user_id,
+            },
+            type: QueryTypes.SELECT,
+        });
+
         return res.status(200).json(new Models.ResponseModel(true, null, vouchers));
+
     } catch (error) {
         logger.error('Error fetching user vouchers:', error);
         return res.status(500).json(new Models.ResponseModel(false, new Models.ErrorResponseModel(1, "Lỗi hệ thống", error.message), null));
@@ -74,13 +55,14 @@ router.get('/vouchers',authenticateToken, authorizeRole(["user"]), async (req, r
 });
 
 
+
 // find voucher by id (user - admin) lấy is_public = true 
-router.get('/voucher/:id', authenticateToken, authorizeRole(["user", "admin"]), async (req, res, next) => {
+router.get('/vouchers/:id', authenticateToken, authorizeRole(["user", "admin"]), async (req, res, next) => {
     try {
         const voucher_id = req.params.id;
 
-        const voucher = await voucher_model.Voucher.findOne({
-            where: {id: voucher_id, is_public: true},
+        const voucher = await Voucher.findOne({
+            where: { id: voucher_id, is_public: true },
 
         });
 
@@ -115,17 +97,19 @@ router.post('/vouchers', authenticateToken, authorizeRole(["admin"]), async (req
             is_public,
             user_id = null, // Mặc định là null nếu không được truyền
             quantity = 1,
-            condition = "all"
         } = req.body;
 
-        // Xác định condition và kiểm tra user_id
-        let finalCondition = condition;
+
+        // Kiểm tra nếu có user_id được chỉ định
         if (user_id) {
-            finalCondition = "only"; // Nếu có user_id, condition được đặt là 'only'
+            const user = await User.findByPk(user_id);
+            if (!user) {
+                return res.status(404).json(new Models.ResponseModel(false, new Models.ErrorResponseModel(1, "Người dùng không tồn tại", null), null));
+            }
         }
 
         // Tạo voucher mới
-        const voucher = await voucher_model.Voucher.create({
+        const voucher = await Voucher.create({
             title,
             description,
             discount,
@@ -133,36 +117,10 @@ router.post('/vouchers', authenticateToken, authorizeRole(["admin"]), async (req
             start_at,
             end_at,
             is_public,
+            quantity: user_id ? 1 : quantity,
+            user_id: user_id,
+            used: 0
         });
-
-        if (!voucher) {
-            return res.status(500).json(new Models.ResponseModel(false, new Models.ErrorResponseModel(1, "Không thể tạo voucher", null), null));
-        }
-
-        // Kiểm tra nếu có user_id được chỉ định
-        if (user_id) {
-            // Lấy thông tin user từ cơ sở dữ liệu
-            const user = await User.findByPk(user_id);
-            if (!user) {
-                return res.status(404).json(new Models.ResponseModel(false, new Models.ErrorResponseModel(1, "Người dùng không tồn tại", null), null));
-            }
-
-            // Gán voucher cho user chỉ định
-            await voucher_model.VoucherUser.create({
-                user_id: user.id,
-                voucher_id: voucher.id,
-                quantity,
-                condition: finalCondition
-            });
-        } else {
-        
-           await voucher_model.VoucherUser.create({
-                user_id: null,
-                voucher_id: voucher.id,
-                quantity,
-                condition: finalCondition
-            });
-        }
 
         return res.status(200).json(new Models.ResponseModel(true, null, voucher));
     } catch (error) {
@@ -171,10 +129,10 @@ router.post('/vouchers', authenticateToken, authorizeRole(["admin"]), async (req
     }
 });
 
-router.put('/voucher/:id',authenticateToken, authorizeRole(["admin"]),  async (req, res, next) => {
+router.put('/voucher/:id', authenticateToken, authorizeRole(["admin"]), async (req, res, next) => {
     try {
-        const { id } = req.params;  
-        const { title, description, discount, type, start_at, end_at, is_public ,user_id} = req.body;
+        const { id } = req.params;
+        const { title, description, discount, type, start_at, end_at, is_public, user_id } = req.body;
 
         // Tìm voucher theo id
         let voucher = await voucher_model.Voucher.findByPk(id);
@@ -190,7 +148,7 @@ router.put('/voucher/:id',authenticateToken, authorizeRole(["admin"]),  async (r
         voucher.start_at = start_at || voucher.start_at;
         voucher.end_at = end_at || voucher.end_at;
         voucher.is_public = is_public !== undefined ? is_public : voucher.is_public;
-        voucher.user_id = user_id;  
+        voucher.user_id = user_id;
 
         // Lưu thay đổi
         await voucher.save();
@@ -202,7 +160,7 @@ router.put('/voucher/:id',authenticateToken, authorizeRole(["admin"]),  async (r
             }
 
             // Xóa liên kết hiện tại và thêm liên kết với user mới
-            await voucher.setUsers([user]);  
+            await voucher.setUsers([user]);
         }
 
         return res.status(200).json(new Models.ResponseModel(true, null, voucher));

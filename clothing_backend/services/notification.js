@@ -7,7 +7,10 @@ import LogLogin from '../models/log_login.js';
 export const sendNotification = async (userId, notification) => {
   try {
     // Tìm người dùng trong cơ sở dữ liệu
-    const logLogin = await LogLogin.findOne({ where: { user_id: userId } });
+    const logLogin = await LogLogin.findOne({
+      where: { user_id: userId },
+      order: [['time_login', 'DESC']], // Sắp xếp theo time_login giảm dần
+  });
 
     if (!logLogin) {
       throw new Error(`Người dùng với ID ${userId} không tồn tại.`);

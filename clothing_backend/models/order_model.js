@@ -4,11 +4,21 @@ import { v4 as uuidv4 } from 'uuid';
 import ProductDetails from './product_model.js';
 import Voucher from './voucher_model.js'
 
+function generateRandomString() {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'; // Danh sách ký tự in hoa và số
+    let result = '';
+    for (let i = 0; i < 10; i++) {
+        const randomIndex = Math.floor(Math.random() * chars.length); // Chọn một chỉ số ngẫu nhiên
+        result += chars[randomIndex]; // Thêm ký tự tương ứng vào chuỗi kết quả
+    }
+    return result;
+}
+
 const Order = sequelize.define('order', {
     id: {
         type: DataTypes.STRING,
         primaryKey: true,       //Khóa chính
-        defaultValue: () => uuidv4(),   //Random
+        defaultValue: generateRandomString,   //Random
     },
     order_date :{
         type: DataTypes.DATE,
@@ -26,6 +36,10 @@ const Order = sequelize.define('order', {
     discount:{
         type: DataTypes.FLOAT,
         allowNull: false,
+    },
+    payment_method:{
+        type: DataTypes.STRING,
+        allowNull: true,
     },
     voucher_id:{
         type: DataTypes.STRING,

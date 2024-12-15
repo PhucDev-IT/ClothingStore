@@ -6,14 +6,11 @@ import { dirname } from 'path';
 import fs from 'fs';
 import path from 'path';
 import sequelize from './connection/mysql.js';
-import user from './models/user_model.js';
-import permission from './models/permission_model.js';
 import Category from './models/category_model.js';
 import address_model from './models/address_model.js';
 import User from './models/user_model.js';
 import cart_model from './models/cart_model.js';
 import order_model from './models/order_model.js';
-import voucher_model from './models/voucher_model.js';
 import product_model from './models/product_model.js';
 import Notification from './models/notification_model.js';
 import Image from './models/image_model.js';
@@ -31,6 +28,8 @@ import cart_router from './routers/cart_route.js'
 import address_route from './routers/address_route.js'
 import voucher_router from './routers/voucher_router.js'
 import notification_route from "./routers/notification_router.js"
+import Voucher from './models/voucher_model.js';
+
 
 //Application config
 dotenv.config();
@@ -123,18 +122,15 @@ async function syncDatabase() {
         order_model.Order.hasMany(order_model.OrderStatus,{foreignKey:"order_id"});
         order_model.OrderStatus.belongsTo(order_model.Order,{foreignKey:"order_id"});
 
-        voucher_model.Voucher.hasMany(order_model.Order, { foreignKey: 'voucher_id' });
-        order_model.Order.belongsTo(voucher_model.Voucher, { foreignKey: 'voucher_id' });
+        Voucher.hasMany(order_model.Order, { foreignKey: 'voucher_id' });
+        order_model.Order.belongsTo(Voucher, { foreignKey: 'voucher_id' });
         //Product - ProductDetail
         product_model.Product.hasMany(product_model.ProductDetails, { foreignKey: 'product_id' });
 
 
         //Voucher
-        User.hasMany(voucher_model.VoucherUser, {foreignKey: 'user_id'} );
-        voucher_model.Voucher.hasMany(voucher_model.Voucher,{foreignKey: "voucher_id"});
-
-        voucher_model.Voucher.belongsTo(User, {  foreignKey: 'user_id' });
-        voucher_model.Voucher.belongsTo(voucher_model.Voucher, {  foreignKey: 'voucher_id' });
+        User.hasMany(Voucher, { foreignKey: 'user_id' });   // Một User có thể có nhiều Order
+        Voucher.belongsTo(User, { foreignKey: 'user_id' }); // Một Order chỉ thuộc về một User
 
 
         await sequelize.sync({ force: is_reset_database }); // Sử dụng { force: true } để xóa và tạo lại bảng
