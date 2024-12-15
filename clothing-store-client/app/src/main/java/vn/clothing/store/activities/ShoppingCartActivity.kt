@@ -1,5 +1,6 @@
 package vn.clothing.store.activities
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
@@ -42,22 +43,8 @@ class ShoppingCartActivity : BaseActivity(),ShoppingCartContract.View {
 
         binding.header.tvName.text = getString(R.string.title_header_cart)
         presenter = ShoppingCartPresenter(this)
-        adapter = RvItemCartAdapter(emptyList(),{ checked->
-            if(checked.first){
-                selectedCart.add(checked.second)
-            }else{
-                selectedCart.remove(checked.second)
-            }
-            displayPrice()
-        },{ item ->
-            val index = selectedCart.indexOf(item)
-            if (index != -1) {
-                selectedCart[index].quantity  = item.quantity
-            }
-            displayPrice()
-        })
+        setUp()
         val dividerItemDecoration = DividerItemDecoration(binding.rvCart.context, DividerItemDecoration.VERTICAL)
-        binding.rvCart.adapter = adapter
         binding.rvCart.addItemDecoration(dividerItemDecoration)
         binding.rvCart.layoutManager = LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false)
     }
@@ -86,6 +73,24 @@ class ShoppingCartActivity : BaseActivity(),ShoppingCartContract.View {
             binding = ActivityShoppingCartBinding.inflate(layoutInflater)
             return binding.root
         }
+
+    private fun setUp(){
+        adapter = RvItemCartAdapter(emptyList(),{ checked->
+            if(checked.first){
+                selectedCart.add(checked.second)
+            }else{
+                selectedCart.remove(checked.second)
+            }
+            displayPrice()
+        },{ item ->
+            val index = selectedCart.indexOf(item)
+            if (index != -1) {
+                selectedCart[index].quantity  = item.quantity
+            }
+            displayPrice()
+        })
+        binding.rvCart.adapter = adapter
+    }
 
     /**
      * Whenever change item, we will calculate price
@@ -137,8 +142,12 @@ class ShoppingCartActivity : BaseActivity(),ShoppingCartContract.View {
         super.onDestroy()
     }
 
+    @SuppressLint("SetTextI18n")
     override fun onResume() {
         super.onResume()
+        setUp()
         presenter?.getAllCarts()
+        selectedCart = arrayListOf<CartResponseModel.CartItemResponseModel>()
+        binding.tvSumMoney.text = "0đ"
     }
 }

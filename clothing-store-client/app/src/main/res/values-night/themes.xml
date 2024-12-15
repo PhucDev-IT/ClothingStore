@@ -7,10 +7,20 @@
         <item name="android:textColorPrimary">@color/text_primary</item>
         <item name="android:textColor">@color/text_primary</item>
 
-
+        <item name="floatingActionButtonStyle">@style/FloatingActionButtonStyle</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="bottomNavigationStyle">@style/Theme.Bottom.Navigation</item>
     </style>
 
     <style name="Theme.Bottom.Navigation" parent="Theme.MaterialComponents.DayNight.NoActionBar"/>
+
+    <style name="FloatingActionButtonStyle" parent="Widget.Design.FloatingActionButton">
+        <item name="shapeAppearanceOverlay">@style/FabShapeStyle</item>
+    </style>
+    <style name="FabShapeStyle" parent="ShapeAppearance.Material3.SmallComponent">
+        <item name="cornerSize">50%</item>
+        <item name="cornerFamily">rounded</item>
+    </style>
+
+
 </resources>

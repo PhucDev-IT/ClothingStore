@@ -166,17 +166,21 @@ class PayOrderActivity : BaseActivity(), PayOrderContract.View {
 
         val discount: Double = if (voucher?.type == TypeVoucher.DISCOUNTPERCENT.name) {
             totalMoney * (voucher?.discount?.toDouble() ?: 0.0) / 100
-        } else {
+        }else if(voucher?.type == TypeVoucher.FREESHIP.name){
+            FEESHIP.toDouble()
+        }
+        else {
             voucher?.discount?.toDouble() ?: 0.0
         }
 
         val deliveryDetails = "${address!!.fullName}|${address!!.numberPhone}|${address!!.details}"
         val orderRequestModel = OrderRequestModel(
             totalMoney,
-            totalMoney + FEESHIP,
+            calculateRealTotal(),
             discount,
+            paymentMethod.name,
             deliveryDetails,
-            null,
+            voucher?.id,
             feeShip = FEESHIP,
             orderItems
         )
@@ -184,9 +188,10 @@ class PayOrderActivity : BaseActivity(), PayOrderContract.View {
 
         if (paymentMethod == PaymentMethod.HOME) {
             presenter.payment(orderRequestModel, cartIds)
-        }else
-        if (paymentMethod == PaymentMethod.ZALOPAY) {
+        }else if (paymentMethod == PaymentMethod.ZALOPAY) {
             payWithZaloPay(orderRequestModel, cartIds)
+        }else{
+            Toast.makeText(this, "Đang bảo trì", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -274,6 +279,15 @@ class PayOrderActivity : BaseActivity(), PayOrderContract.View {
         finish()
     }
 
+    override fun onResultFindVoucher(voucher: VoucherModel) {
+        if((voucher.quantity - voucher.used) > 0){
+            this.voucher = voucher
+            reCalculateWithVoucher()
+        }else{
+            CoreConstant.showToast(this,"Mã giảm giá đã đạt đủ số lượng sử dụng",CoreConstant.ToastType.INFO)
+        }
+    }
+
     override fun onResultAddress(addresses: List<DeliveryInformation>?) {
         if (!addresses.isNullOrEmpty()) {
             binding.btnBuyProduct.isEnabled = true
@@ -319,8 +333,7 @@ class PayOrderActivity : BaseActivity(), PayOrderContract.View {
                 REQUEST_SELECT_VOUCHER -> {
                     val voucher =
                         data?.getSerializableExtra(IntentData.KEY_VOUCHER) as VoucherModel?
-                    this.voucher = voucher
-                    reCalculateWithVoucher()
+                    presenter.findVoucher(voucher?.id!!)
                 }
             }
         }
@@ -341,7 +354,12 @@ class PayOrderActivity : BaseActivity(), PayOrderContract.View {
             binding.tvChooseVoucher.text = "Giảm ${voucher!!.discount}%"
             val discount = totalMoney * voucher!!.discount!! / 100
             binding.tvVoucherDiscount.text = FormatCurrency.numberFormat.format(discount)
-        }else{
+        }else if(voucher?.type == TypeVoucher.FREESHIP.name){
+            binding.tvChooseVoucher.text = "Miễn phí vận chuyển"
+            binding.tvVoucherDiscount.text = FormatCurrency.numberFormat.format(FEESHIP)
+        }
+        else
+        {
             binding.tvChooseVoucher.text = "Giảm ${FormatCurrency.numberFormat.format(voucher?.discount)}"
             binding.tvVoucherDiscount.text = FormatCurrency.numberFormat.format(voucher?.discount)
         }
@@ -352,7 +370,9 @@ class PayOrderActivity : BaseActivity(), PayOrderContract.View {
 
         val discount: Double = if (voucher?.type == TypeVoucher.DISCOUNTPERCENT.name) {
             totalMoney * (voucher?.discount?.toDouble() ?: 0.0) / 100
-        } else {
+        } else if(voucher?.type == TypeVoucher.FREESHIP.name){
+            FEESHIP.toDouble()
+        }else{
             voucher?.discount?.toDouble() ?: 0.0
         }
 

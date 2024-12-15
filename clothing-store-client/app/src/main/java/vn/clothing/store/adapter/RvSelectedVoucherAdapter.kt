@@ -30,6 +30,7 @@ class RvSelectedVoucherAdapter(  private var idVoucherOld: String?,private val o
         var tvContent:TextView
         var tvDiscount:TextView
         var tvActions:TextView
+        var tvQuantity:TextView
         var btnSelect:LinearLayout
 
         init {
@@ -38,6 +39,7 @@ class RvSelectedVoucherAdapter(  private var idVoucherOld: String?,private val o
             tvDiscount = itemView.findViewById(R.id.tv_discount)
             btnSelect = itemView.findViewById(R.id.btn_select)
             tvActions = itemView.findViewById(R.id.tv_action)
+            tvQuantity = itemView.findViewById(R.id.tvQuantity)
         }
     }
 
@@ -53,7 +55,7 @@ class RvSelectedVoucherAdapter(  private var idVoucherOld: String?,private val o
     override fun onBindViewHolder(holder: viewHolder, position: Int) {
         holder.itemView.apply {
             holder.tvTitle.text = list[position].title
-
+            holder.tvQuantity.text = (list[position].quantity - list[position].used).toString()
             holder.tvDiscount.text =  if(list[position].type == TypeVoucher.FREESHIP.name){
                 "Miễn phí vận chuyển"
             }else if(list[position].type == TypeVoucher.DISCOUNTMONEY.name){

@@ -120,6 +120,11 @@
     <string name="tab_item_canceled">Đã hủy</string>
     <string name="str_quantity">x%s sản phẩm</string>
 
+
+    <string name="label_home_payment">Thanh toán tại nhà</string>
+    <string name="label_zalo_pay_payment">Thanh toán bằng ví điện tử ZaloPay</string>
+    <string name="label_momo_payment">Thanh toán bằng ví điện tử Momo</string>
+
     <string name="title_header_voucher">Mã giảm giá của tôi</string>
     <string name="label_info_detail">Thông tin chi tiết</string>
 

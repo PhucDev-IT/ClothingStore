@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.tabs.TabLayout
 import vn.clothing.store.R
 import vn.clothing.store.activities.common.BaseActivity
+import vn.clothing.store.common.AppManager
 import vn.clothing.store.common.IntentData
 import vn.clothing.store.common.PopupDialog
 import vn.clothing.store.databinding.ActivityPurchaseHistoryBinding
@@ -119,13 +120,14 @@ class PurchaseHistoryActivity : BaseActivity(), PurchasedHistoryContract.View {
         binding.llNotFound.visibility = View.VISIBLE
     }
 
-    override fun onRequestSeenDetail(order: OrderResponseModel) {
+    override fun onRequestSeenDetail(orderId:String) {
         val intent = Intent(this,TrackOrderActivity::class.java)
-        intent.putExtra(IntentData.KEY_ORDER,order)
+        intent.putExtra(IntentData.KEY_ORDER,orderId)
+        intent.putExtra(IntentData.KEY_USER_ID,AppManager.user?.id)
         startActivity(intent)
     }
 
-    override fun onLoadedData(data: List<OrderResponseModel>) {
+    override fun onLoadedData() {
         binding.llNotFound.visibility = View.GONE
     }
 }

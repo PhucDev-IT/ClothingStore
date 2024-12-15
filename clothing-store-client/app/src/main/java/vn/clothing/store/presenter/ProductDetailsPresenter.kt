@@ -10,6 +10,7 @@ import vn.clothing.store.database.AppDatabase.Companion.APPDATABASE
 import vn.clothing.store.interfaces.ProductDetailsContract
 import vn.clothing.store.models.CartModel
 import vn.clothing.store.models.Image
+import vn.clothing.store.models.Product
 import vn.clothing.store.models.ProductDetails
 import vn.clothing.store.models.ProductFavorite
 import vn.clothing.store.networks.ApiService.Companion.APISERVICE
@@ -19,14 +20,15 @@ import vn.mobile.banking.network.response.ResponseModel
 import vn.mobile.banking.network.rest.BaseCallback
 
 class ProductDetailsPresenter(private var view: ProductDetailsContract.View?):ProductDetailsContract.Presenter {
+
     override fun loadInformationProduct(productId:String) {
         view?.onShowLoading()
-        APISERVICE.getService().getProductDetails(productId).enqueue(object : BaseCallback<ResponseModel<List<ProductDetails>>>(){
-            override fun onSuccess(model: ResponseModel<List<ProductDetails>>) {
+        APISERVICE.getService().getProductDetails(productId).enqueue(object : BaseCallback<ResponseModel<Product>>(){
+            override fun onSuccess(model: ResponseModel<Product>) {
                 if(!model.success || model.data == null){
                     view?.onShowError(model.error?.message)
                 }else{
-                    view?.onResultProductDetails(model.data!!)
+                    view?.onResultProduct(model.data!!)
                 }
                 view?.onHiddenLoading()
             }

@@ -15,7 +15,7 @@ class PurchaseHistoryPresenter(private var view: PurchasedHistoryContract.View?)
 
     init {
         adapter = RvPurchasedHistoryAdapter {
-            view?.onRequestSeenDetail(it)
+            view?.onRequestSeenDetail(it.orderId!!)
         }
     }
 
@@ -40,7 +40,7 @@ class PurchaseHistoryPresenter(private var view: PurchasedHistoryContract.View?)
                         totalPage = model.data!!.pagination!!.totalPages!!
                         if(!model.data?.orders.isNullOrEmpty()) {
                             adapter.setData(model.data!!.orders!!)
-                            view?.onLoadedData(model.data!!.orders!!)
+                            view?.onLoadedData()
                         }else{
                             view?.onNotFoundItem()
                         }

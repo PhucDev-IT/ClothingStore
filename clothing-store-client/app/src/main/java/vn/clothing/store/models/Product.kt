@@ -13,6 +13,7 @@ class Product : Serializable{
     var rate: Float? = null
     @SerializedName("is_public")
     var isPublic: Boolean? = null
-
     var images:ArrayList<Image>?=null
+    @SerializedName("product_details")
+    var productDetails:List<ProductDetails>?=null
 }

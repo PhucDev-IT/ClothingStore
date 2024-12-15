@@ -1,6 +1,8 @@
 package vn.clothing.store.activities
 
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.os.Message
 import android.util.Log
 import android.view.View
@@ -39,8 +41,6 @@ class MyVoucherActivity : BaseActivity() {
 
         binding.rvCoupons.adapter = adapter
         binding.rvCoupons.layoutManager = LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false)
-        val dividerItemDecoration = DividerItemDecoration(binding.rvCoupons.context, DividerItemDecoration.VERTICAL)
-        binding.rvCoupons.addItemDecoration(dividerItemDecoration)
     }
 
     override fun populateData() {
@@ -50,7 +50,12 @@ class MyVoucherActivity : BaseActivity() {
     }
 
     override fun setListener() {
-
+        binding.swipeRefresh.setOnRefreshListener {
+            Handler(Looper.getMainLooper()).postDelayed({
+                loadVoucher()
+                binding.swipeRefresh.isRefreshing = false
+            },2000)
+        }
     }
 
     override val layoutView: View

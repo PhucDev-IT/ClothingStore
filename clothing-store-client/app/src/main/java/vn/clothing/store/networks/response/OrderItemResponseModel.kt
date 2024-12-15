@@ -5,6 +5,7 @@ import vn.clothing.store.models.VoucherModel
 import java.util.Date
 
 class OrderDetailsResponseModel {
+    var order: OrderResponseModel? = null
     @SerializedName("order_items")
     var orderItems: List<OrderItemResponseModel>? = null
     var voucher: VoucherModel? = null

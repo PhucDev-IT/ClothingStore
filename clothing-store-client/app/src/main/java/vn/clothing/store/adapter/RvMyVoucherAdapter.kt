@@ -33,12 +33,14 @@ class RvMyVoucherAdapter(private val onClick:Consumer<String>):RecyclerView.Adap
         var tvTitle:TextView
         var tvContent:TextView
         var tvDiscount:TextView
+        var tvQuantity:TextView
         var btnSelect:LinearLayout
 
         init {
             tvTitle = itemView.findViewById(R.id.tv_title)
             tvContent = itemView.findViewById(R.id.tvContent)
             tvDiscount = itemView.findViewById(R.id.tv_discount)
+            tvQuantity = itemView.findViewById(R.id.tvQuantity)
             btnSelect = itemView.findViewById(R.id.btn_select)
         }
     }
@@ -55,6 +57,7 @@ class RvMyVoucherAdapter(private val onClick:Consumer<String>):RecyclerView.Adap
         holder.itemView.apply {
             holder.tvContent.text = list[position].description
             holder.tvTitle.text = list[position].title
+            holder.tvQuantity.text = (list[position].quantity - list[position].used).toString()
 
             holder.tvDiscount.text =  if(list[position].type == TypeVoucher.FREESHIP.name){
                 "Miễn phí vận chuyển"

@@ -69,8 +69,8 @@ interface IRequestService {
     @GET("/api/categories/{id}/products")
     fun getProductsByCategory(@Path("id") id:Int, @Query("limit") limit:Int, @Query("offset") offset:Int):Call<ResponseModel<List<Product>>>
 
-    @GET("/api/products/{id}/details")
-    fun getProductDetails(@Path("id") id:String):Call<ResponseModel<List<ProductDetails>>>
+    @GET("/api/products/{id}")
+    fun getProductDetails(@Path("id") id:String):Call<ResponseModel<Product>>
 
     @GET("/api/images")
     fun getImagesByModel(@Query("model_name") name:String, @Query("model_id") id:String):Call<ResponseModel<List<Image>>>
@@ -147,6 +147,9 @@ interface IRequestService {
 
     @GET("/api/vouchers")
     fun getAllVoucher():Call<ResponseModel<List<VoucherModel>>>
+
+    @GET("/api/vouchers/{id}")
+    fun findVoucher(@Path("id") id:String):Call<ResponseModel<VoucherModel>>
 
     @GET("/api/notifications")
     fun getNotification():Call<ResponseModel<List<NotificationModel>>>

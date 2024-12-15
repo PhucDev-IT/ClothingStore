@@ -11,6 +11,10 @@
         android:title="@string/nav_shopping_cart"
         android:icon="@drawable/shopping_bag"/>
 
+    <item android:id="@+id/QR_menu"
+        android:enabled="false"
+        android:title=""
+        />
 
     <item
         android:id="@+id/notification"

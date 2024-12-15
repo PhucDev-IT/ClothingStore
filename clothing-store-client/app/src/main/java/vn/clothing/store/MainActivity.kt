@@ -5,6 +5,7 @@ import android.app.Dialog
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.Window
@@ -16,6 +17,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.bumptech.glide.Glide
+import vn.clothing.store.activities.NotificationActivity
+import vn.clothing.store.activities.ScanQrCodeActivity
 import vn.clothing.store.activities.ShoppingCartActivity
 import vn.clothing.store.activities.common.BaseActivity
 import vn.clothing.store.common.CoreConstant
@@ -25,6 +29,7 @@ import vn.clothing.store.fragments.HomeFragment
 import vn.clothing.store.fragments.UserFragment
 import vn.clothing.store.networks.ApiService.Companion.APISERVICE
 import vn.clothing.store.utils.MySharedPreferences
+import vn.clothing.store.utils.Utils
 
 class MainActivity : BaseActivity() {
 
@@ -50,8 +55,10 @@ class MainActivity : BaseActivity() {
         }
 
         if(BuildConfig.DEBUG){
-           checkData()
+           //checkData()
         }
+
+        Glide.with(this).load(R.drawable.scan_qr).into(binding.btnScanQr)
 
         binding.bottomNavigation.setOnNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
@@ -70,8 +77,8 @@ class MainActivity : BaseActivity() {
                 }
 
                 R.id.notification -> {
-
-                    return@setOnNavigationItemSelectedListener true
+                    startActivity(Intent(this, NotificationActivity::class.java))
+                    return@setOnNavigationItemSelectedListener false
                 }
 
                 R.id.user -> {
@@ -92,7 +99,10 @@ class MainActivity : BaseActivity() {
     }
 
     override fun setListener() {
-
+        binding.btnScanQr.setOnClickListener {
+            val intent = Intent(this@MainActivity, ScanQrCodeActivity::class.java)
+            startActivity(intent)
+        }
     }
 
     override val layoutView: View

@@ -12,10 +12,22 @@
         <item name="android:statusBarColor">@color/background</item>
         <item name="android:windowLightStatusBar">true</item>
         <item name="bottomNavigationStyle">@style/Theme.Bottom.Navigation</item>
+        <item name="floatingActionButtonStyle">@style/FloatingActionButtonStyle</item>
+
+        <!--  Màu chính đậm, thường sử dụng cho status bar..-->
+        <item name="android:windowBackground">@color/background</item>
     </style>
 
     <style name="Theme.Clothing" parent="Base.Theme.Clothing" />
-    
     <style name="Theme.Bottom.Navigation" parent="Theme.MaterialComponents.Light.NoActionBar"/>
 
+
+
+    <style name="FloatingActionButtonStyle" parent="Widget.Design.FloatingActionButton">
+        <item name="shapeAppearanceOverlay">@style/FabShapeStyle</item>
+    </style>
+    <style name="FabShapeStyle" parent="ShapeAppearance.Material3.SmallComponent">
+        <item name="cornerSize">50%</item>
+        <item name="cornerFamily">rounded</item>
+    </style>
 </resources>

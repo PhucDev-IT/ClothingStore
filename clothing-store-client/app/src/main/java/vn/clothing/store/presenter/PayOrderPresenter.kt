@@ -16,6 +16,7 @@ import vn.clothing.store.database.AppDatabase.Companion.APPDATABASE
 import vn.clothing.store.interfaces.PayOrderContract
 import vn.clothing.store.models.DeliveryInformation
 import vn.clothing.store.models.Order
+import vn.clothing.store.models.VoucherModel
 import vn.clothing.store.networks.ApiService.Companion.APISERVICE
 import vn.clothing.store.networks.request.DeleteCartRequest
 import vn.clothing.store.networks.request.OrderRequestModel
@@ -106,6 +107,24 @@ class PayOrderPresenter(private var view: PayOrderContract.View?) : PayOrderCont
         return APISERVICE.getService(AppManager.token).deleteCart(request).await()
     }
 
+    override fun findVoucher(id: String) {
+        view?.onShowLoading()
+        APISERVICE.getService(AppManager.token).findVoucher(id).enqueue(object :BaseCallback<ResponseModel<VoucherModel>>(){
+            override fun onSuccess(model: ResponseModel<VoucherModel>) {
+                view?.onHideLoading()
+               if(model.success && model.data!=null){
+                   view?.onResultFindVoucher(model.data!!)
+               }else{
+                   view?.onShowPopup("Có lỗi xảy ra", PopupDialog.PopupType.NOTIFICATION)
+               }
+            }
+
+            override fun onError(message: String) {
+                view?.onHideLoading()
+                view?.onShowPopup(message, PopupDialog.PopupType.NOTIFICATION)
+            }
+        })
+    }
 
     override fun onDestroy() {
         view = null

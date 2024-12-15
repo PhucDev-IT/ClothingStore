@@ -13,8 +13,8 @@ android {
         applicationId = "vn.clothing.store"
         minSdk = 24
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.0.2"
+        versionCode = 2
+        versionName = "1.0.5"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -50,7 +50,7 @@ android {
     flavorDimensions.add("dev")
     productFlavors{
         create("dev"){
-            buildConfigField("String","API_BASE_URL","\"http://192.168.81.41:3000/\"")
+            buildConfigField("String","API_BASE_URL","\"http://192.168.201.6:3000/\"")
         }
     }
 }
@@ -75,6 +75,8 @@ dependencies {
     implementation ("com.karumi:dexter:6.2.3")
     implementation("com.facebook.shimmer:shimmer:0.5.0")
     implementation("com.github.bumptech.glide:glide:4.16.0")
+    implementation("com.google.zxing:core:3.5.0")
+    implementation("me.dm7.barcodescanner:zxing:1.9.8")
     //Slider
     implementation("com.github.denzcoskun:ImageSlideshow:0.1.2")
 

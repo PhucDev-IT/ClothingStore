@@ -47,7 +47,7 @@ class HomeFragment : Fragment(), HomeContract.View {
         presenter?.getCategories()
         adapterProduct = RvProductHomeAdapter(emptyList()) { prod ->
             val intent = Intent(requireActivity(), ProductDetailsActivity::class.java)
-            intent.putExtra(IntentData.KEY_PRODUCT,prod)
+            intent.putExtra(IntentData.KEY_PRODUCT,prod.id)
             startActivity(intent)
         }
         setListener()
