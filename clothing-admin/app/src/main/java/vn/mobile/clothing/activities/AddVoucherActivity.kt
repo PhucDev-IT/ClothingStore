@@ -30,6 +30,7 @@ import vn.mobile.clothing.network.rest.BaseCallback
 import vn.mobile.clothing.utils.FormatCurrency
 import java.util.Calendar
 import java.util.Date
+import java.util.TimeZone
 
 class AddVoucherActivity : BaseActivity(), View.OnClickListener {
     private lateinit var binding:ActivityAddVoucherBinding
@@ -102,7 +103,7 @@ class AddVoucherActivity : BaseActivity(), View.OnClickListener {
         binding.edtQuantity.text = null
         binding.edtDescription.text = null
         binding.edtGiveUser.text = null
-
+        giveUserId = null
         val adapter =
             ArrayAdapter(
                 this,
@@ -145,6 +146,7 @@ class AddVoucherActivity : BaseActivity(), View.OnClickListener {
     }
 
     private fun convertViewToDate(str: String): Date? {
+        FormatCurrency.dateFormat.timeZone = TimeZone.getTimeZone("UTC")
         val time = FormatCurrency.dateFormat.parse(str)
         if (time != null) {
             return time
@@ -156,6 +158,8 @@ class AddVoucherActivity : BaseActivity(), View.OnClickListener {
         if(!checkData()) return
         val start = convertViewToDate(binding.tvStartAt.text.toString())
         val end = convertViewToDate(binding.tvEndAt.text.toString())
+
+
         val voucher = AddVoucherRequestModel().apply {
             title = binding.edtTitle.text.toString()
             description = binding.edtDescription.text.toString()
@@ -165,7 +169,7 @@ class AddVoucherActivity : BaseActivity(), View.OnClickListener {
             this.endAt = end
             isPublic = binding.rdoOpen.isChecked
             quantity = binding.edtQuantity.text.toString().trim().toInt()
-            condition = binding.spinnerCondition.selectedItem.toString()
+            used = 0
             userId = giveUserId
         }
 
@@ -238,7 +242,7 @@ class AddVoucherActivity : BaseActivity(), View.OnClickListener {
             return false
         }
 
-        if(end!! > start!!){
+        if(end!! < start!!){
             binding.tvEndAt.error = "Thời gian kết thúc phải lớn hoơn thời gian bắt đầu"
             return false
         }

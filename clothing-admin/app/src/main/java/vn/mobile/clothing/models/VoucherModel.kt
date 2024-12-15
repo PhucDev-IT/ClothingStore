@@ -16,6 +16,10 @@ open class VoucherModel : Serializable{
     var endAt:Date?=null
     @SerializedName("is_public")
     var isPublic:Boolean?=null
+    var quantity:Int = 0
+    var used:Int = 0
+    @SerializedName("user_id")
+    var userId:String?=null
 
     constructor()
     constructor(

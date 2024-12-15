@@ -18,7 +18,10 @@ import androidx.fragment.app.Fragment
 import com.google.android.material.navigation.NavigationView
 import vn.mobile.clothing.activities.AddVoucherActivity
 import vn.mobile.clothing.activities.OrderActivity
+import vn.mobile.clothing.activities.authentication.LoginActivity
 import vn.mobile.clothing.activities.base.BaseActivity
+import vn.mobile.clothing.common.PopupDialog
+import vn.mobile.clothing.database.AppDatabase.Companion.APPDATABASE
 import vn.mobile.clothing.databinding.ActivityMainBinding
 import vn.mobile.clothing.databinding.PopupDebugBinding
 import vn.mobile.clothing.fragments.DashboardFragment
@@ -50,7 +53,7 @@ class MainActivity : BaseActivity() , NavigationView.OnNavigationItemSelectedLis
 
     override fun populateData() {
         if(BuildConfig.DEBUG){
-            checkData()
+        //    checkData()
         }
     }
 
@@ -88,7 +91,14 @@ class MainActivity : BaseActivity() , NavigationView.OnNavigationItemSelectedLis
 //                startActivity(intent)
             }
 
-            R.id.nav_logout -> {}
+            R.id.nav_logout -> {
+                PopupDialog.showDialog(this,
+                    PopupDialog.PopupType.CONFIRM,getString(R.string.app_name),getString(R.string.content_logout)){
+                    APPDATABASE.userDao().deleteAllUsers()
+                    startActivity(Intent(this, LoginActivity::class.java))
+                    finishAffinity()
+                }
+            }
         }
 
         binding.drawerLayout.closeDrawer(GravityCompat.START)

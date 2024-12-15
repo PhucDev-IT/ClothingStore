@@ -1,4 +1,4 @@
-package vn.clothing.store.common
+package vn.mobile.clothing.models
 
 enum class PaymentMethod {
     HOME,ZALOPAY,MOMO

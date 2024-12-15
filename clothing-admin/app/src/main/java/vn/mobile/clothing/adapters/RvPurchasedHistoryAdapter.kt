@@ -10,15 +10,16 @@ import com.bumptech.glide.Glide
 import vn.mobile.clothing.R
 import vn.mobile.clothing.databinding.ViewholderPurchasedHistoryBinding
 import vn.mobile.clothing.network.response.OrderResponseModel
+import vn.mobile.clothing.network.response.PreviewOrderResponseModel
 import vn.mobile.clothing.utils.FormatCurrency
 
 
-class RvPurchasedHistoryAdapter(private val onClick:Consumer<OrderResponseModel>) : RecyclerView.Adapter<RvPurchasedHistoryAdapter.ItemViewHolder>(){
+class RvPurchasedHistoryAdapter(private val onClick:Consumer<PreviewOrderResponseModel>) : RecyclerView.Adapter<RvPurchasedHistoryAdapter.ItemViewHolder>(){
 
-    private var list = mutableListOf<OrderResponseModel>()
+    private var list = mutableListOf<PreviewOrderResponseModel>()
 
     @SuppressLint("NotifyDataSetChanged")
-    fun setData(list:List<OrderResponseModel>){
+    fun setData(list:List<PreviewOrderResponseModel>){
         this.list.addAll(list)
         notifyDataSetChanged()
     }
@@ -40,7 +41,7 @@ class RvPurchasedHistoryAdapter(private val onClick:Consumer<OrderResponseModel>
 
     @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
-        Glide.with(holder.itemView.context).load(list[position].iamge).into(holder.binding.imgProduct)
+        Glide.with(holder.itemView.context).load(list[position].image).into(holder.binding.imgProduct)
         holder.binding.nameProduct.text = list[position].productName
         holder.binding.tvTotalProduct.text = list[position].itemCount.toString() + " mặt hàng"
         holder.binding.tvDateOrder.text =  FormatCurrency.dateFormat.format(list[position].orderDate)

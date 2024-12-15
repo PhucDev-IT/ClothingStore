@@ -41,7 +41,7 @@ class OrderActivity : BaseActivity() {
         binding.lifecycleOwner = this
         adapter = RvPurchasedHistoryAdapter{order->
             val intent = Intent(this,TrackOrderActivity::class.java)
-            intent.putExtra(IntentData.KEY_ORDER,order)
+            intent.putExtra(IntentData.KEY_ORDER,order.orderId)
             startActivity(intent)
         }
 
@@ -53,7 +53,7 @@ class OrderActivity : BaseActivity() {
     }
 
     override fun populateData() {
-
+        viewModel.getFirstOrder(currentTab)
     }
 
     override fun setListener() {

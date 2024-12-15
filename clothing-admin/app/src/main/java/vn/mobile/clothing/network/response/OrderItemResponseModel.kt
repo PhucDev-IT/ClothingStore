@@ -6,6 +6,8 @@ import vn.mobile.clothing.models.VoucherModel
 import java.util.Date
 
 class OrderDetailsResponseModel {
+    @SerializedName("order")
+    var order: OrderResponseModel? = null
     @SerializedName("order_items")
     var orderItems: List<OrderItemResponseModel>? = null
     var voucher: VoucherModel? = null
@@ -16,14 +18,11 @@ class OrderDetailsResponseModel {
 class OrderItemResponseModel {
     @SerializedName("product_id")
     var productId: String? = null
-
     @SerializedName("img_preview")
     var image: String? = null
-
     @SerializedName("name")
     var productName: String? = null
     var id: String? = null
-
     @SerializedName("order_id")
     var orderId: String? = null
     var color: String? = null

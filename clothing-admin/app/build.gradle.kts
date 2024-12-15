@@ -13,8 +13,8 @@ android {
         applicationId = "vn.mobile.clothing"
         minSdk = 24
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.0.1"
+        versionCode = 2
+        versionName = "1.0.5"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -46,7 +46,7 @@ android {
     flavorDimensions.add("dev")
     productFlavors{
         create("dev"){
-            buildConfigField("String","API_BASE_URL","\"http://192.168.81.41:3000/\"")
+            buildConfigField("String","API_BASE_URL","\"http://192.168.201.6:3000/\"")
         }
     }
 }
@@ -63,7 +63,7 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
 
     //Demoapp
-
+    implementation("com.google.zxing:core:3.5.0")
     //ViewModel
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7")
 

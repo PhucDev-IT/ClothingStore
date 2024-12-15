@@ -7,6 +7,8 @@
     <string name="nav_notification">Thông báo</string>
     <string name="nav_log_out">Đăng xuất</string>
     <string name="nav_order">Đơn hàng</string>
+
+    <string name="content_logout">Bạn chắc chắn muốn đăng xuất?</string>
     <!--    COMMON-->
     <string name="cancel">Hủy</string>
     <string name="label_ok">Xác nhận</string>
@@ -47,6 +49,9 @@
     <string name="label_info_detail">Thông tin chi tiết</string>
     <string name="label_color">Màu sắc: %s</string>
     <string name="label_size">Size: %s</string>
+    <string name="label_home_payment">Thanh toán tại nhà</string>
+    <string name="label_zalo_pay_payment">Thanh toán bằng ví điện tử ZaloPay</string>
+    <string name="label_momo_payment">Thanh toán bằng ví điện tử Momo</string>
     <!--   LOGIN -->
     <string name="hi_welcome_back">Xin chào! Chào mừng bạn trở lại, chúng tôi đã nhớ bạn</string>
     <string name="label_password">Mật khẩu</string>

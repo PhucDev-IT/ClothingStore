@@ -20,6 +20,8 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.gson.Gson
+import vn.mobile.clothing.BuildConfig
 import vn.mobile.clothing.R
 import vn.mobile.clothing.activities.base.BaseActivity
 import vn.mobile.clothing.adapters.RvCheckoutAdapter
@@ -29,6 +31,8 @@ import vn.mobile.clothing.common.IntentData
 import vn.mobile.clothing.common.PopupDialog
 import vn.mobile.clothing.databinding.ActivityTrackOrderBinding
 import vn.mobile.clothing.models.EOrderStatus
+import vn.mobile.clothing.models.ItemQrCodeEmbed
+import vn.mobile.clothing.models.PaymentMethod
 import vn.mobile.clothing.models.TypeVoucher
 import vn.mobile.clothing.network.ApiService.Companion.APISERVICE
 import vn.mobile.clothing.network.response.OrderDetailsResponseModel
@@ -37,6 +41,7 @@ import vn.mobile.clothing.network.response.OrderStatus
 import vn.mobile.clothing.network.response.ResponseModel
 import vn.mobile.clothing.network.rest.BaseCallback
 import vn.mobile.clothing.utils.FormatCurrency
+import vn.mobile.clothing.utils.Utils
 
 import java.util.Date
 
@@ -45,7 +50,8 @@ class TrackOrderActivity : BaseActivity() {
         private val TAG = TrackOrderActivity::class.java.name
     }
     private lateinit var binding: ActivityTrackOrderBinding
-    private lateinit var order: OrderResponseModel
+    private var order: OrderResponseModel?=null
+    private var orderId:String?=null
     private var isShowControlButton = true
 
     override fun initView() {
@@ -57,28 +63,16 @@ class TrackOrderActivity : BaseActivity() {
         }
         binding.header.tvName.text = getString(R.string.label_info_detail)
 
-        if(intent.hasExtra(IntentData.KEY_ORDER)){
-            order = intent.getSerializableExtra(IntentData.KEY_ORDER) as OrderResponseModel
-        }else{
+        orderId = intent.getSerializableExtra(IntentData.KEY_ORDER) as String
+        if(orderId == null || orderId.isNullOrEmpty()){
             finish()
         }
+
     }
 
     @SuppressLint("SetTextI18n")
     override fun populateData() {
-        loadData()
-        binding.tvIdOrder.text = order.orderId
-        binding.tvFeeShip.text = FormatCurrency.numberFormat.format(order.feeShip)
-        binding.tvOrderDate.text = FormatCurrency.dateTimeFormat.format(order.orderDate)
-        binding.tvTotalMoney.text = FormatCurrency.numberFormat.format(order.realTotal)
-
-        try{
-            val delivery = order.shippingAddress!!.split('|')
-            binding.tvContact.text = "${delivery[0]} - ${delivery[1]}"
-            binding.tvAddress.text = delivery[2]
-        }catch (e:Exception){
-            Log.e(TAG,"Fail: ${e.message}")
-        }
+        loadData(orderId!!)
     }
 
     override fun setListener() {
@@ -98,8 +92,46 @@ class TrackOrderActivity : BaseActivity() {
             return binding.root
         }
 
+    private fun displayInfo(order: OrderResponseModel){
+        binding.tvIdOrder.text = order.orderId
+        binding.tvNameCustomer.text = order.userId
+        binding.tvFeeShip.text = FormatCurrency.numberFormat.format(order.feeShip)
+        binding.tvOrderDate.text = FormatCurrency.dateTimeFormat.format(order.orderDate)
+        binding.tvTotalMoney.text = FormatCurrency.numberFormat.format(order.realTotal)
+        binding.tvTotal.text = FormatCurrency.numberFormat.format(order.total)
+        binding.tvUserVoucher.text = FormatCurrency.numberFormat.format(order.discount)
+
+        binding.tvMethodPayment.text = if(order.paymentMethod == PaymentMethod.HOME.name){
+            getString(R.string.label_home_payment)
+        }else if(order.paymentMethod == PaymentMethod.ZALOPAY.name){
+            getString(R.string.label_zalo_pay_payment)
+        }else{
+            getString(R.string.label_momo_payment)
+        }
+
+        try{
+            val delivery = order.shippingAddress!!.split('|')
+            binding.tvContact.text = "${delivery[0]} - ${delivery[1]}"
+            binding.tvAddress.text = delivery[2]
+        }catch (e:Exception){
+            Log.e(TAG,"Fail: ${e.message}")
+        }
+
+
+        val itemQr = ItemQrCodeEmbed(orderId!!,BuildConfig.APPLICATION_ID,"Order",null,order.userId)
+        val itemString = Gson().toJson(itemQr)
+        val encrypt = Utils.encodeToBase64(itemString)
+
+        val image = Utils.generateQRCode(encrypt,300,300)
+        binding.imgQrcode.setImageBitmap(image)
+        Log.w("Phuc","encrypt = $encrypt")
+    }
+
     @SuppressLint("SetTextI18n")
     private fun onResultData(orderDetails: OrderDetailsResponseModel){
+
+        orderDetails.order?.let { displayInfo(it)
+            this.order = it}
 
         orderDetails.orderItems?.let {
             val adapter = RvCheckoutAdapter(it)
@@ -108,18 +140,6 @@ class TrackOrderActivity : BaseActivity() {
             binding.rvOrders.layoutManager = linearLayoutManager
             val dividerItemDecoration = DividerItemDecoration(binding.rvOrders.context, DividerItemDecoration.VERTICAL)
             binding.rvOrders.addItemDecoration(dividerItemDecoration)
-        }
-        if(orderDetails.voucher!=null )
-        {
-            if(orderDetails.voucher!!.type == TypeVoucher.FREESHIP.name){
-                binding.tvUserVoucher.text = FormatCurrency.numberFormat.format(order.feeShip)
-            }else if(orderDetails.voucher!!.type == TypeVoucher.DISCOUNTMONEY.name){
-                binding.tvUserVoucher.text = FormatCurrency.numberFormat.format(orderDetails.voucher!!.discount)
-            }else if(orderDetails.voucher!!.type == TypeVoucher.DISCOUNTPERCENT.name){
-                binding.tvUserVoucher.text = "${orderDetails.voucher!!.discount}%"
-            }
-        }else{
-            binding.tvUserVoucher.text = "0đ"
         }
 
         if(!orderDetails.orderStatus.isNullOrEmpty()){
@@ -174,9 +194,9 @@ class TrackOrderActivity : BaseActivity() {
     }
 
 
-    private fun loadData(){
+    private fun loadData(id:String){
         PopupDialog.showDialogLoading(this)
-        APISERVICE.getService(AppManager.token).findOrder(order.orderId!!).enqueue(object : BaseCallback<ResponseModel<OrderDetailsResponseModel>>(){
+        APISERVICE.getService(AppManager.token).findOrder(id).enqueue(object : BaseCallback<ResponseModel<OrderDetailsResponseModel>>(){
             override fun onSuccess(model: ResponseModel<OrderDetailsResponseModel>) {
                 PopupDialog.closeDialog()
                 if(model.success && model.data!=null){
@@ -195,21 +215,22 @@ class TrackOrderActivity : BaseActivity() {
 
 
     private fun confirmOrder(){
-        var note = "Đơn hàng ${order.orderId} đã được xác nhận"
+        if(order == null) return
+        var note = "Đơn hàng ${order?.orderId} đã được xác nhận"
         var status :String = if(binding.btnConfirm.text.toString() == "Xác nhận"){
             EOrderStatus.PACKING.name
         }else if(binding.btnConfirm.text.toString() == "Giao hàng"){
-            note = "Đơn hàng ${order.orderId} của bạn đang được vận chuyển"
+            note = "Đơn hàng ${order?.orderId} của bạn đang được vận chuyển"
             EOrderStatus.SHIPPING.name
         }else if(binding.btnConfirm.text.toString() == "Thành công"){
-            note = "Giao hàng thành công đơn hàng ${order.orderId}, trải nghiệm chất lượng sản phẩm"
+            note = "Giao hàng thành công đơn hàng ${order?.orderId}, trải nghiệm chất lượng sản phẩm"
             EOrderStatus.DELIVERED.name
         }else{
             "Unknown error"
         }
         val orderStatus = OrderStatus().apply {
-            orderId = order.orderId
-            userId = order.userId
+            orderId = order!!.orderId
+            userId = order!!.userId
             this.status = status
             this.note = note
         }
@@ -221,7 +242,7 @@ class TrackOrderActivity : BaseActivity() {
                     isShowControlButton = false
                     CoreConstant.showToast(this@TrackOrderActivity,"Xác nhận thành công",CoreConstant.ToastType.SUCCESS)
                     binding.llControl.visibility = View.GONE
-                    loadData()
+                    loadData(orderId!!)
                 }else{
                     CoreConstant.showToast(this@TrackOrderActivity,"Có lỗi xảy ra: ${model.error?.message}",CoreConstant.ToastType.ERROR)
                 }
@@ -257,9 +278,9 @@ class TrackOrderActivity : BaseActivity() {
         btnConfirm?.setOnClickListener {
             val checkedRadioButtonId = radioGroup?.checkedRadioButtonId
 
-            if (checkedRadioButtonId != -1 && checkedRadioButtonId!=null && order.orderId != null) {
+            if (checkedRadioButtonId != -1 && checkedRadioButtonId!=null && order?.orderId != null) {
                 val orderStatus = OrderStatus().apply {
-                    orderId = order.orderId
+                    orderId = order?.orderId
                     status = EOrderStatus.CANCELLED.name
                     note = radioGroup.findViewById<RadioButton>(checkedRadioButtonId).text.toString()
                 }

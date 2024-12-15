@@ -10,14 +10,15 @@ import com.facebook.shimmer.ShimmerFrameLayout
 import vn.mobile.clothing.common.AppManager
 import vn.mobile.clothing.network.ApiService
 import vn.mobile.clothing.network.response.OrderResponseModel
+import vn.mobile.clothing.network.response.PreviewOrderResponseModel
 import vn.mobile.clothing.network.response.PurchaseHistoryResponseModel
 import vn.mobile.clothing.network.response.ResponseModel
 import vn.mobile.clothing.network.rest.BaseCallback
 
 class OrderViewModel : ViewModel() {
 
-    private val _orders = MutableLiveData<List<OrderResponseModel>>()
-    val orders:LiveData<List<OrderResponseModel>> = _orders
+    private val _orders = MutableLiveData<List<PreviewOrderResponseModel>>()
+    val orders:LiveData<List<PreviewOrderResponseModel>> = _orders
 
     private val _isLoading = MutableLiveData<Boolean>(false)
     val isLoading:LiveData<Boolean> = _isLoading
