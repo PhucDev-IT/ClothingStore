@@ -21,17 +21,26 @@ import vn.clothing.store.utils.FormatCurrency
 
 
 class RvItemCartAdapter(
-    private var list: List<CartItemResponseModel>,
+    private var list: ArrayList<CartItemResponseModel>,
     private val onChecked: Consumer<Pair<Boolean, CartItemResponseModel>>,
     private val onItemClick: Consumer<CartItemResponseModel>
 ) : RecyclerView.Adapter<RvItemCartAdapter.viewHolder>() {
 
     @SuppressLint("NotifyDataSetChanged")
-    fun setData(list: List<CartItemResponseModel>?) {
+    fun setData(list: ArrayList<CartItemResponseModel>?) {
         if (!list.isNullOrEmpty()) {
             this.list = list
             notifyDataSetChanged()
         }
+    }
+
+    fun removeItem(position: Int){
+        list.removeAt(position)
+        notifyItemRemoved(position)
+    }
+
+    fun getId(position: Int):Int{
+        return list[position].id!!
     }
 
     class viewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {

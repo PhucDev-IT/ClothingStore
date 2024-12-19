@@ -45,6 +45,10 @@
         <activity
             android:name=".activities.settings.AddressActivity"
             android:exported="false" />
+
+        <activity android:name=".activities.settings.UpdateAddressActivity"
+            android:exported="false"/>
+
         <activity
             android:name=".activities.settings.SettingsMainActivity"
             android:exported="false" />

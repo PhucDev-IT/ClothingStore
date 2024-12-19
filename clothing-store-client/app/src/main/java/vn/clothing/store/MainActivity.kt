@@ -55,7 +55,7 @@ class MainActivity : BaseActivity() {
         }
 
         if(BuildConfig.DEBUG){
-           checkData()
+        //   checkData()
         }
 
         Glide.with(this).load(R.drawable.scan_qr).into(binding.btnScanQr)

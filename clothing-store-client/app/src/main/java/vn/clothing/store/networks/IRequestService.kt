@@ -115,6 +115,11 @@ interface IRequestService {
     @POST("/api/address/delivery")
     fun addDeliveryAddress(@Body model:DeliveryInformation):Call<ResponseModel<DeliveryInformation>>
 
+    @PUT("/api/address/delivery")
+    fun updateDeliveryAddress(@Query("id") id:String,@Body model:DeliveryInformation):Call<ResponseModel<DeliveryInformation>>
+
+    @DELETE("/api/address/delivery")
+    fun deleteDeliveryAddress(@Query("id") id:String):Call<ResponseModel<Boolean>>
 
     //=================================================
     //  endregion

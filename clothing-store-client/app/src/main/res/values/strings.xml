@@ -107,6 +107,7 @@
     <string name="title_header_settings">Cài đặt</string>
     <string name="title_info_contact">Thông tin liên hệ</string>
     <string name="header_address_delivery">Thông tin nhận hàng</string>
+    <string name="header_update_address">Cập nhật thông tin nhận hàng</string>
     <string name="header_add_new_address">Thêm thông tin nhận hàng</string>
     <string name="full_name">Họ và tên</string>
     <string name="number_phone">Số điện thoại</string>

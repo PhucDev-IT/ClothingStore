@@ -11,7 +11,7 @@ class CartResponseModel {
     var userId:String?=null
 
     @SerializedName("list_item")
-    var listItem:List<CartItemResponseModel>?=null
+    var listItem:ArrayList<CartItemResponseModel>?=null
 
 
      class CartItemResponseModel : Serializable{

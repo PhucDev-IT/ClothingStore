@@ -53,7 +53,7 @@ class MainActivity : BaseActivity() , NavigationView.OnNavigationItemSelectedLis
 
     override fun populateData() {
         if(BuildConfig.DEBUG){
-        //    checkData()
+          checkData()
         }
     }
 

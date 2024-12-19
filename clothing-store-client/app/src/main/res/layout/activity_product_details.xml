@@ -20,6 +20,10 @@
                    android:id="@+id/container_header"
                    android:layout_width="match_parent"
                    android:layout_height="wrap_content">
+                   <ImageView
+                       android:layout_width="match_parent"
+                       android:layout_height="@dimen/_250sdp"
+                       android:id="@+id/img_preview"/>
                    <com.denzcoskun.imageslider.ImageSlider
                        android:id="@+id/imgProduct"
                        android:layout_width="match_parent"

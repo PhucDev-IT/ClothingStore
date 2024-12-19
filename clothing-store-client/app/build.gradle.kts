@@ -50,7 +50,7 @@ android {
     flavorDimensions.add("dev")
     productFlavors{
         create("dev"){
-            buildConfigField("String","API_BASE_URL","\"http://192.168.201.6:3000/\"")
+            buildConfigField("String","API_BASE_URL","\"http://192.168.201.8:3000/\"")
         }
     }
 }
@@ -102,6 +102,7 @@ dependencies {
     ksp("androidx.room:room-compiler:$room_version")
 
     implementation("commons-codec:commons-codec:1.14")
+
 
     // SDK LIBRARY
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.aar", "*.jar"))))

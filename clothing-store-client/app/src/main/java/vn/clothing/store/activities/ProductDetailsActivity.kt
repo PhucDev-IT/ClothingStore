@@ -1,12 +1,15 @@
 package vn.clothing.store.activities
 
+import android.animation.Animator
 import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
+import android.view.animation.Animation
 import android.widget.ImageView
 import android.widget.RadioButton
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.FloatRange
 import androidx.appcompat.app.AppCompatActivity
@@ -28,6 +31,7 @@ import vn.clothing.store.common.AppManager
 import vn.clothing.store.common.CoreConstant
 import vn.clothing.store.common.IntentData
 import vn.clothing.store.common.PopupDialog
+import vn.clothing.store.customview.CircleAnimationUtil
 import vn.clothing.store.databinding.ActivityProductDetailsBinding
 import vn.clothing.store.interfaces.ProductDetailsContract
 import vn.clothing.store.models.Image
@@ -102,7 +106,10 @@ class ProductDetailsActivity : BaseActivity(), ProductDetailsContract.View {
             onBackPressed()
         }
 
-        binding.btnAddToCart.setOnClickListener { addToCart() }
+        binding.btnAddToCart.setOnClickListener {
+            animationAddCart(binding.imgPreview)
+            addToCart()
+        }
 
         binding.btnIsLike.setOnClickListener {
             presenter?.upsertProductFavorite(
@@ -143,6 +150,27 @@ class ProductDetailsActivity : BaseActivity(), ProductDetailsContract.View {
         binding.tvRateEvaluate.text = product?.rate.toString()
 
 
+    }
+
+    private fun animationAddCart(targetView:ImageView){
+
+        val anim = CircleAnimationUtil().attachActivity(this).setTargetView(targetView).setMoveDuration(1000).setDestView(binding.btnAddToCart).setAnimationListener(object : Animator.AnimatorListener{
+            override fun onAnimationStart(animation: Animator) {
+
+            }
+
+            override fun onAnimationEnd(animation: Animator) {
+                Toast.makeText(this@ProductDetailsActivity, "Continue Shopping...", Toast.LENGTH_SHORT).show();
+            }
+
+            override fun onAnimationCancel(animation: Animator) {
+
+            }
+
+            override fun onAnimationRepeat(animation: Animator) {
+
+            }
+        }).startAnimation()
     }
 
     private fun showImages() {
@@ -286,6 +314,7 @@ class ProductDetailsActivity : BaseActivity(), ProductDetailsContract.View {
     override fun onResultProduct(product: Product) {
         this.mProduct = product
         images.add(product.imgPreview)
+        Glide.with(this).load(product.imgPreview).into(binding.imgPreview)
         showData(product)
         product.productDetails?.let { initClassify(it) }
     }

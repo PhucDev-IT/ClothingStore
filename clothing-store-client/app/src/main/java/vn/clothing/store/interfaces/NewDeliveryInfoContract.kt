@@ -1,5 +1,7 @@
 package vn.clothing.store.interfaces
 
+import vn.clothing.store.models.DeliveryInformation
+
 interface NewDeliveryInfoContract {
     interface View{
         fun showError(error:String)
@@ -10,6 +12,7 @@ interface NewDeliveryInfoContract {
         fun onSelectedWard(name:String)
         fun onShowDialogLoading()
         fun onAddSuccess()
+        fun onUpdateSuccess(address:DeliveryInformation){}
     }
 
     interface Presenter{

@@ -92,7 +92,7 @@ class UserFragment : Fragment() {
         binding.btnLogout.setOnClickListener {
             PopupDialog.showDialog(requireContext(),
                 PopupDialog.PopupType.CONFIRM,getString(R.string.app_name),getString(R.string.content_logout)){
-                APPDATABASE.userDao().deleteAllUsers()
+                APPDATABASE.clearAllTables()
                 startActivity(Intent(requireContext(), LoginActivity::class.java))
                 requireActivity().finishAffinity()
             }

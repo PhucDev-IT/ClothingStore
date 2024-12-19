@@ -76,7 +76,6 @@ class NewDeliveryInfoPresenter(private var view: NewDeliveryInfoContract.View?) 
             return
         }
         view?.onShowLoading()
-
         APISERVICE.getService().getAllProvince()
             .enqueue(object : BaseCallback<ResponseModel<List<ProvinceModel>>>() {
                 override fun onSuccess(model: ResponseModel<List<ProvinceModel>>) {
@@ -158,5 +157,32 @@ class NewDeliveryInfoPresenter(private var view: NewDeliveryInfoContract.View?) 
                     view?.showError(message)
                 }
             })
+    }
+
+    fun updateAddress(id:String,name: String, phone: String){
+        delivery.fullName = name
+        delivery.numberPhone = phone
+        delivery.id = id
+        view?.onShowDialogLoading()
+        APISERVICE.getService(AppManager.token).updateDeliveryAddress(id,delivery).enqueue(object: BaseCallback<ResponseModel<DeliveryInformation>>(){
+            override fun onSuccess(model: ResponseModel<DeliveryInformation>) {
+                CoroutineScope(Dispatchers.IO).launch {
+                    APPDATABASE.addressDao().update(model.data!!)
+                    withContext(Dispatchers.Main){
+                        view?.onHideLoading()
+                        view?.onUpdateSuccess(model.data!!)
+                    }
+                }
+            }
+
+            override fun onError(message: String) {
+                view?.showError(message)
+            }
+        })
+
+    }
+
+    fun checkData():Boolean{
+        return mapFinish["provinces"] == true && mapFinish["districts"] == true && mapFinish["wards"] == true
     }
 }

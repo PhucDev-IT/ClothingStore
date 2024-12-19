@@ -18,6 +18,15 @@ class RvMyAddressAdapter(private var list:List<DeliveryInformation>, private val
         notifyDataSetChanged()
     }
 
+    fun getAddress(position: Int):DeliveryInformation{
+        return list[position]
+    }
+
+    fun removeItem(position: Int){
+        list = list.filterIndexed { index, _ -> index != position }
+        notifyItemRemoved(position)
+    }
+
     class viewHolder(itemView: View): RecyclerView.ViewHolder(itemView){
         var tvContact: TextView
         var tvAddress: TextView
@@ -50,7 +59,7 @@ class RvMyAddressAdapter(private var list:List<DeliveryInformation>, private val
                 holder.tvIsDefault.visibility = View.GONE
             }
             holder.itemView.setOnClickListener {
-
+                onClick.accept(list[position])
             }
         }
     }

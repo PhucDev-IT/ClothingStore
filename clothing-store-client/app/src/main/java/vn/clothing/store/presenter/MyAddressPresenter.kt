@@ -20,13 +20,16 @@ class MyAddressPresenter(private var view: MyAddressContract.View?) : MyAddressC
     var adapter: RvMyAddressAdapter?=null
     private var handler = Handler(Looper.getMainLooper())
     private val callback = Consumer<DeliveryInformation> {
-
+        view?.onSelectedAddress(it)
     }
 
     init {
         adapter = RvMyAddressAdapter(emptyList(),callback)
     }
 
+    fun removeItem(position:Int){
+        adapter?.removeItem(position)
+    }
 
     override fun getAllAddress() {
         view?.onShowLoading()
@@ -60,5 +63,22 @@ class MyAddressPresenter(private var view: MyAddressContract.View?) : MyAddressC
                 }
             }
         }
+    }
+
+    fun removeAddressToDatabase(position:Int){
+        val address = adapter!!.getAddress(position)
+        CoroutineScope(Dispatchers.IO).launch {
+            APPDATABASE.addressDao().delete(address)
+            APISERVICE.getService(AppManager.token).deleteDeliveryAddress(address.id).enqueue(object : BaseCallback<ResponseModel<Boolean>>(){
+                override fun onSuccess(model: ResponseModel<Boolean>) {
+
+                }
+
+                override fun onError(message: String) {
+
+                }
+            })
+        }
+
     }
 }

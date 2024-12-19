@@ -6,4 +6,5 @@ object IntentData {
     const val KEY_ORDER = "KEY_ORDER"
     const val KEY_USER_ID = "KEY_USER_ID"
     const val KEY_VOUCHER = "KEY_VOUCHER"
+    const val KEY_ADDRESS = "KEY_ADDRESS"
 }

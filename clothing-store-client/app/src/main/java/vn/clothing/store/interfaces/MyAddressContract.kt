@@ -6,6 +6,7 @@ interface MyAddressContract {
     interface View{
         fun onShowLoading()
         fun onHiddenLoading()
+        fun onSelectedAddress(delivery: DeliveryInformation)
     }
 
     interface Presenter{
