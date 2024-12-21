@@ -18,7 +18,7 @@ import { or, QueryTypes,Op, Sequelize } from "sequelize";
 2. Cần kiểm tra order nào đã sử dụng voucher chưa, hoặc nếu sử dụng rồi nhưng đã hủy hàng vẫn lấy ra
 3. Đảm bảo quá trình truy vấn không tốn tài nguyên với hệ thống lớn, nghĩ sẽ cần truy vấn với điều kiện order nằm trong phạm vi của voucher
 */
-router.get('/vouchers', authenticateToken, authorizeRole(["user"]), async (req, res, next) => {
+router.get('/vouchers', authenticateToken, authorizeRole(["user","admin"]), async (req, res, next) => {
     try {
         const user_id = req.user.id;
        logger.info(`user ${user_id} request get vouchers`)

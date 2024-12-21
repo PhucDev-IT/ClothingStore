@@ -58,18 +58,10 @@ router.get("/products", async (req, res, next) => {
         },
         order: [["rate", "DESC"]],
     });
+    return res.status(200).json(new Models.ResponseModel(true, null, products));
 });
 
-//find product by id - return additional details
-router.put("/products/:id", async (req, res, next) => {
-    try {
-        const id = req.params.id;
-        logger.info("id = "+id);
-        const product = await product_model.Product.findByPk(req.params.id);
-    } catch (error) {
-        // handle exception
-    }
-});
+
 
 //Find product details
 router.get('/products/:id', async (req,res,next)=>{
@@ -124,9 +116,29 @@ router.post("/", authenticateToken,authorizeRole(["admin"]),upload.array("images
 
 //------------------------ CATEGORY -----------------------------------------------------------------
 
+router.delete("/categories/:id",authenticateToken,authorizeRole(["admin"]), async (req, res) => {
+    try {
+        const categoryId = req.params.id;
+
+        // Kiểm tra danh mục có tồn tại hay không
+        const existingCategory = await Category.findByPk(categoryId);
+        if (!existingCategory) {
+            return res.status(404).json(new Models.ResponseModel( false,new Models.ErrorResponseModel(1, "Danh mục không tồn tại", null),null));
+        }
+
+        // Xóa danh mục
+        await Category.destroy({ where: { id: categoryId } });
+
+        return res.status(200).json(new Models.ResponseModel(true, null,"Danh mục đã được xóa thành công"));
+    } catch (err) {
+        return res.status(500).json(new Models.ResponseModel(false,new Models.ErrorResponseModel(1, "Lỗi hệ thống", err.message),null));
+    }
+}
+);
+
 //get all category
 router.get("/categories/", async (req,res,next)=>{
-    const data = req.body.data;
+
     try{
         const categories = await Category.findAll();
         return res.status(200).json(new Models.ResponseModel(true, null, categories));
@@ -174,7 +186,7 @@ router.post("/category",authenticateToken, authorizeRole(["admin"]), async (req,
         try {
             const existingCategory = await Category.findOne({
                 where: {
-                    category_name: req.body.category_name,
+                    name: req.body.category_name,
                 },
             });
             if (existingCategory) {
@@ -184,12 +196,12 @@ router.post("/category",authenticateToken, authorizeRole(["admin"]), async (req,
                     return res.status(400).json(new Models.ResponseModel(false,new Models.ErrorResponseModel(1,"Tên danh mục không hợp lệ",null),null));
                 } else {
                     const newCategory = new Category({
-                        category_name: req.body.category_name,
+                        name: req.body.category_name,
                         is_public:
                             req.body.is_public === "true" || req.body.is_public === true,
                     });
                     const savedCategory = await newCategory.save();
-                    return res.status(201).json(new Models.ResponseModel( true, { message: "Thêm danh mục thành công" },savedCategory));
+                    return res.status(201).json(new Models.ResponseModel( true, null,savedCategory));
                 }
             }
         } catch (err) {
@@ -222,7 +234,7 @@ router.put("/category/:id", authenticateToken, authorizeRole(["admin"]),async (r
             const categories = await Category.findAll();
             const isDuplicate = categories.some(
                 (category) =>
-                    category.category_name === category_name && category.id !== categoryId
+                    category.name === category_name && category.id !== categoryId
             );
 
             if (isDuplicate) {
@@ -244,24 +256,5 @@ router.put("/category/:id", authenticateToken, authorizeRole(["admin"]),async (r
     }
 );
 
-router.delete("/category/:id",authenticateToken,authorizeRole(["admin"]), async (req, res) => {
-        try {
-            const categoryId = req.params.id;
-
-            // Kiểm tra danh mục có tồn tại hay không
-            const existingCategory = await Category.findByPk(categoryId);
-            if (!existingCategory) {
-                return res.status(404).json(new Models.ResponseModel( false,new Models.ErrorResponseModel(1, "Danh mục không tồn tại", null),null));
-            }
-
-            // Xóa danh mục
-            await Category.destroy({ where: { id: categoryId } });
-
-            return res.status(200).json(new Models.ResponseModel(true, null,"Danh mục đã được xóa thành công"));
-        } catch (err) {
-            return res.status(500).json(new Models.ResponseModel(false,new Models.ErrorResponseModel(1, "Lỗi hệ thống", err.message),null));
-        }
-    }
-);
 
 export default router;
