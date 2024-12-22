@@ -623,7 +623,7 @@ const StatisticalRevenueYear =  async (req, res, next) => {
 };
 
 const TopProduct = async (req, res, next) => {
-    return res.status(200).json(new response_model.ResponseModel(true,null,SaleData));  
+    return res.status(200).json(new response_model.ResponseModel(true,null,null));  
 };
 
 export default {updateStatusOrder,addOrder,getMyOrdersByStatus,findOrder,adminStatisticalOrder,adminGetOrdersByStatus,statisticalPayment, StatisticalRevenueYear, TopProduct,adminTrackOrder}
