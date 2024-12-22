@@ -296,12 +296,67 @@ LIMIT :limit OFFSET :offset;
     }
 };
 
+const adminTrackOrder = async (req,res) =>{
+    try {
+        const orderId = req.params.id;
+        const order = await order_model.Order.findOne({
+            where: {
+                id: orderId,
+            },
+            include: [
+                {
+                    model: product_model.Product,
+                    attributes: ['id', 'img_preview', 'name']
+                },
+                {
+                    model: Voucher, // Bao gồm cả Voucher nếu cần
+                    attributes: ['id', 'discount', "type"]
+                },
+                {
+                    model: order_model.OrderStatus, // Bao gồm OrderStatus
+                    attributes: ['id', 'status','note', 'updatedAt']
+                }
+            ]
+        });
+        if (!order) {
+            return res.json(new response_model.ResponseModel(false, new response_model.ErrorResponseModel(2, "Đơn hàng không tìm thấy", null), null));
+        }
+
+        const order_items = order.products.map((item) => ({
+            product_id: item.id,
+            img_preview: item.img_preview,
+            name: item.name,
+            id: item.order_item.id,
+            order_id: item.order_item.order_id,
+            color: item.order_item.color,
+            size: item.order_item.size,
+            quantity: item.order_item.quantity,
+            price: item.order_item.price
+        }));
+
+        const order_response = {
+            order:order,
+            voucher: order.voucher,
+            order_items: order_items,
+            order_status: order.order_statuses
+
+        }
+
+        logger.info(order_response);
+        return res.status(200).json(new response_model.ResponseModel(true, null, order_response));
+    } catch (err) {
+        logger.error("Error fetching order:", err);
+        return res.status(500).json(new response_model.ResponseModel(false, new response_model.ErrorResponseModel(1, "Lỗi hệ thống", err.message), null));
+    }
+};
+
 //get order by id - user
 const findOrder =  async (req, res, next) => {
     try {
         const user_id = req.user.id;
         const orderId = req.params.id;
-        logger.info(`user ${user_id} requesting find order detatils`)
+    
+        logger.info(`user ${user_id} requesting find order detatils - orderId = ${orderId}`)
         const order = await order_model.Order.findOne({
             where: {
                 id: orderId,
@@ -524,4 +579,4 @@ const statisticalPayment =  async (req, res, next) => {
     }
 };
 
-export default {updateStatusOrder,addOrder,getMyOrdersByStatus,findOrder,adminStatisticalOrder,adminGetOrdersByStatus,statisticalPayment}
+export default {updateStatusOrder,addOrder,getMyOrdersByStatus,findOrder,adminStatisticalOrder,adminGetOrdersByStatus,statisticalPayment,adminTrackOrder}
