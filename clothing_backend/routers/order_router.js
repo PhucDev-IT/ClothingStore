@@ -18,6 +18,12 @@ router.get('/orders/:id', authenticateToken, authorizeRole(["user","admin"]), or
 //  Thống kê số lượng đơn hàng: Pending, Packing, Delivered trong 1 kết quả trả về 
 router.get("/admin/orders/statistical", authenticateToken, authorizeRole(["admin"]), order_controller.adminStatisticalOrder);
 
+//thống kê doanh thu từng tháng trong năm hiện tại ( với đơn đã thành công) -> làm biểu đồ tăng trưởng 
+router.get('/admin/statistical/sale', authenticateToken, authorizeRole(["admin"]), order_controller.StatisticalRevenueYear);
+
+//Thống kê top 3 sản phẩm bán chạy
+router.get('/admin/statistical/top_products', authenticateToken, authorizeRole(["admin"]), order_controller.TopProduct);
+
 //===========================
 // 1. Get order by status
 //========================
@@ -25,5 +31,7 @@ router.get("/admin/orders/statistical", authenticateToken, authorizeRole(["admin
 router.get("/admin/orders/:status", authenticateToken, authorizeRole(["admin"]), order_controller.adminGetOrdersByStatus);
 
 router.get('/orders/statistical/:id',order_controller.statisticalPayment)
+
+
 
 export default router;

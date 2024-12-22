@@ -524,4 +524,51 @@ const statisticalPayment =  async (req, res, next) => {
     }
 };
 
-export default {updateStatusOrder,addOrder,getMyOrdersByStatus,findOrder,adminStatisticalOrder,adminGetOrdersByStatus,statisticalPayment}
+//thống kê doanh thu từng tháng trong năm hiện tại ( với đơn đã thành công) -> làm biểu đồ tăng trưởng 
+const StatisticalRevenueYear =  async (req, res, next) => {
+    try {
+        const currentYear = new Date().getFullYear();
+
+        // Truy vấn doanh thu từng tháng
+        const query = `
+            SELECT 
+                MONTH(o.order_date) AS month,
+                SUM(o.total) AS total_sales,
+                SUM(o.discount) AS total_discount,
+                SUM(o.total) - SUM(o.discount) AS sale
+            FROM 
+                orders o
+            INNER JOIN 
+                order_statuses os ON o.id = os.order_id
+            WHERE 
+                os.status = 'delivered' 
+                AND YEAR(o.order_date) = ${currentYear}
+            GROUP BY 
+                MONTH(o.order_date)
+            ORDER BY 
+                MONTH(o.order_date);
+
+        `;
+
+        // Thực thi truy vấn và nhận kết quả
+        const [rows] = await sequelize.query(query);
+
+        // Tạo dữ liệu đầy đủ cho 12 tháng (nếu không có dữ liệu tháng nào thì set sale = 0)
+        const SaleData = Array.from({ length: 12 }, (_, index) => {
+            const month = index + 1;
+            const sale = rows.find(item => item.month === month)?.sale || 0;
+            return { month, sale };
+        });
+
+        return res.status(200).json(new response_model.ResponseModel(true,null,SaleData));
+    } catch (error) {
+        console.error('Error in adminStatisticalRevenue:', error);
+        return res.status(500).json(new response_model.ResponseModel(false, new response_model.ErrorResponseModel(1, "Lỗi hệ thống", error.message), null));
+    }
+};
+
+const TopProduct = async (req, res, next) => {
+    
+};
+
+export default {updateStatusOrder,addOrder,getMyOrdersByStatus,findOrder,adminStatisticalOrder,adminGetOrdersByStatus,statisticalPayment, StatisticalRevenueYear, TopProduct}
