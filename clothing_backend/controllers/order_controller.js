@@ -622,8 +622,48 @@ const StatisticalRevenueYear =  async (req, res, next) => {
     }
 };
 
+//Thống kê top 3 sản phẩm bán chạy
 const TopProduct = async (req, res, next) => {
-    return res.status(200).json(new response_model.ResponseModel(true,null,null));  
+    try {
+        const query = `
+            SELECT 
+                p.id,
+                p.img_preview AS imgPreview,
+                p.name,
+                p.price,
+                p.rate,
+                p.description,
+                SUM(oi.quantity) AS sold
+            FROM 
+                order_items oi
+            INNER JOIN 
+                products p ON oi.product_id = p.id
+            INNER JOIN 
+                orders o ON oi.order_id = o.id
+            INNER JOIN 
+                order_statuses os ON o.id = os.order_id
+            WHERE 
+                os.status = 'delivered'
+            GROUP BY 
+                p.id
+            ORDER BY 
+                sold DESC
+            LIMIT 3;
+        `;
+
+        // Thực thi truy vấn và nhận kết quả
+        const topProducts = await sequelize.query(query, { type: sequelize.QueryTypes.SELECT });
+        console.log(topProducts.length);
+        // Kiểm tra nếu không có kết quả
+        if (topProducts.length === 0) {
+            return res.status(200).json(new response_model.ResponseModel(true, null, []));
+        }
+
+        return res.status(200).json(new response_model.ResponseModel(true, null, topProducts));
+    } catch (error) {
+        console.error('Error in TopProduct:', error);
+        return res.status(500).json(new response_model.ResponseModel(false, new response_model.ErrorResponseModel(1, "Lỗi hệ thống", error.message), null));
+    }
 };
 
 export default {updateStatusOrder,addOrder,getMyOrdersByStatus,findOrder,adminStatisticalOrder,adminGetOrdersByStatus,statisticalPayment, StatisticalRevenueYear, TopProduct,adminTrackOrder}
