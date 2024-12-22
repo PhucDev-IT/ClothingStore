@@ -579,9 +579,6 @@ const statisticalPayment =  async (req, res, next) => {
     }
 };
 
-<<<<<<< HEAD
-export default {updateStatusOrder,addOrder,getMyOrdersByStatus,findOrder,adminStatisticalOrder,adminGetOrdersByStatus,statisticalPayment,adminTrackOrder}
-=======
 //thống kê doanh thu từng tháng trong năm hiện tại ( với đơn đã thành công) -> làm biểu đồ tăng trưởng 
 const StatisticalRevenueYear =  async (req, res, next) => {
     try {
@@ -626,8 +623,7 @@ const StatisticalRevenueYear =  async (req, res, next) => {
 };
 
 const TopProduct = async (req, res, next) => {
-    
+    return res.status(200).json(new response_model.ResponseModel(true,null,SaleData));  
 };
 
-export default {updateStatusOrder,addOrder,getMyOrdersByStatus,findOrder,adminStatisticalOrder,adminGetOrdersByStatus,statisticalPayment, StatisticalRevenueYear, TopProduct}
->>>>>>> 8bb562e613e2ab1f1dce95a97500699b4502fd13
+export default {updateStatusOrder,addOrder,getMyOrdersByStatus,findOrder,adminStatisticalOrder,adminGetOrdersByStatus,statisticalPayment, StatisticalRevenueYear, TopProduct,adminTrackOrder}
