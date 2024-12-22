@@ -22,7 +22,7 @@ const addCategory = Joi.object({
 });
 
 const updateCategory = Joi.object({
-    category_name: Joi.string().optional().messages({
+    name: Joi.string().optional().messages({
         "string.base": "Tên danh mục phải là chuỗi ký tự",
     }),
     is_public: Joi.boolean().optional().messages({
@@ -220,7 +220,7 @@ router.put("/category/:id", authenticateToken, authorizeRole(["admin"]),async (r
 
         try {
             const categoryId = req.params.id;
-            const category_name = req.body.category_name;
+            const category_name = req.body.name;
 
             // Kiểm tra danh mục có tồn tại hay không
             const existingCategory = await Category.findOne({
@@ -238,8 +238,7 @@ router.put("/category/:id", authenticateToken, authorizeRole(["admin"]),async (r
             );
 
             if (isDuplicate) {
-                return res
-                    .status(409).json(new Models.ResponseModel( false,new Models.ErrorResponseModel(1, "Danh mục đã tồn tại", null),null));
+                return res.status(409).json(new Models.ResponseModel( false,new Models.ErrorResponseModel(1, "Danh mục đã tồn tại", null),null));
             }
 
             // Cập nhật danh mục
