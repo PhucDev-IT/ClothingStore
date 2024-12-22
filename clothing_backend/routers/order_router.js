@@ -13,7 +13,9 @@ router.post('/orders', authenticateToken, authorizeRole(["user"]), order_control
 router.get('/orders/my_orders/:status', authenticateToken, authorizeRole(["user"]),order_controller.getMyOrdersByStatus);
 
 //get order by id - user
-router.get('/orders/:id', authenticateToken, authorizeRole(["user","admin"]), order_controller.findOrder);
+router.get('/orders/:id', authenticateToken, authorizeRole(["user"]), order_controller.findOrder);
+
+router.get('/admin/trackOrder/:id', authenticateToken, authorizeRole(["admin"]), order_controller.adminTrackOrder);
 
 //  Thống kê số lượng đơn hàng: Pending, Packing, Delivered trong 1 kết quả trả về 
 router.get("/admin/orders/statistical", authenticateToken, authorizeRole(["admin"]), order_controller.adminStatisticalOrder);
