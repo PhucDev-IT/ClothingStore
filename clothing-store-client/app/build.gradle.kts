@@ -13,8 +13,8 @@ android {
         applicationId = "vn.clothing.store"
         minSdk = 24
         targetSdk = 35
-        versionCode = 2
-        versionName = "1.0.5"
+        versionCode = 3
+        versionName = "1.1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -50,7 +50,7 @@ android {
     flavorDimensions.add("dev")
     productFlavors{
         create("dev"){
-            buildConfigField("String","API_BASE_URL","\"http://192.168.201.8:3000/\"")
+            buildConfigField("String","API_BASE_URL","\"http://localhost:3000/\"")
         }
     }
 }

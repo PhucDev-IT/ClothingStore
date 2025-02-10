@@ -1,30 +1,44 @@
 package vn.mobile.clothing.fragments
 
+import android.graphics.Color
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.github.mikephil.charting.components.Legend
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
+import com.github.mikephil.charting.data.Entry
+import com.github.mikephil.charting.data.LineData
+import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.github.mikephil.charting.formatter.ValueFormatter
 import vn.mobile.clothing.R
+import vn.mobile.clothing.adapters.RvTopProductAdapter
 import vn.mobile.clothing.common.AppManager
 import vn.mobile.clothing.databinding.FragmentDashboardBinding
 import vn.mobile.clothing.models.EOrderStatus
 import vn.mobile.clothing.network.ApiService
 import vn.mobile.clothing.network.response.ResponseModel
+import vn.mobile.clothing.network.response.StatisticalRevenueYear
 import vn.mobile.clothing.network.response.StatisticalStatusOrderResModel
+import vn.mobile.clothing.network.response.TopProductResponseModel
 import vn.mobile.clothing.network.rest.BaseCallback
+import vn.mobile.clothing.viewmodel.DashboardViewModel
+import java.util.Calendar
 
 
 class DashboardFragment : Fragment() {
     private lateinit var _binding:FragmentDashboardBinding
     private val binding get() = _binding
+    private lateinit var adapterTopProduct : RvTopProductAdapter
+    private lateinit var viewModel: DashboardViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -32,24 +46,33 @@ class DashboardFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         _binding = FragmentDashboardBinding.inflate(inflater,container,false)
-        loadData()
+
+        viewModel = ViewModelProvider(requireActivity())[DashboardViewModel::class.java]
+
+
+        adapterTopProduct = RvTopProductAdapter(emptyList())
+        binding.rvTopproduct.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
+        binding.rvTopproduct.adapter = adapterTopProduct
+        val dividerItemDecoration = DividerItemDecoration(binding.rvTopproduct.context, DividerItemDecoration.VERTICAL)
+        binding.rvTopproduct.addItemDecoration(dividerItemDecoration)
+        observe()
         return binding.root
     }
 
 
-    private fun loadData(){
-        ApiService.APISERVICE.getService(AppManager.token).getStatistical().enqueue(object : BaseCallback<ResponseModel<List<StatisticalStatusOrderResModel>>>(){
-            override fun onSuccess(model: ResponseModel<List<StatisticalStatusOrderResModel>>) {
-                if(model.success && model.data!=null){
-                    setUp(model.data!!)
-                }
-            }
+    private fun observe(){
+        viewModel.topProducts.observe(viewLifecycleOwner){
+            adapterTopProduct.setData(it)
+        }
+        viewModel.statisticalOrders.observe(viewLifecycleOwner){
+            setUp(it)
+        }
 
-            override fun onError(message: String) {
-
-            }
-        })
+        viewModel.statisticalRevenue.observe(viewLifecycleOwner){
+            statisticalRevenueOfYear(it)
+        }
     }
+
 
     private fun setUp(list: List<StatisticalStatusOrderResModel>) {
         val barEntries = mutableListOf<BarEntry>()
@@ -122,5 +145,47 @@ class DashboardFragment : Fragment() {
 
         binding.barChart.axisRight.isEnabled = false
     }
+
+
+    //Biểu đồ tăng trưởng
+    private fun statisticalRevenueOfYear(list:List<StatisticalRevenueYear>) {
+        val calendar = Calendar.getInstance()
+        val currentMonth = calendar.get(Calendar.MONTH) + 1 // Tháng hiện tại (0-11 nên cần +1)
+        val currentYear = calendar.get(Calendar.YEAR)
+
+        // Dữ liệu mẫu
+        val entries = ArrayList<Entry>()
+        for(i in 1..currentMonth){
+            val revenue = list.find { it.month == i }?.sale ?: 0.0f
+            entries.add(Entry(i.toFloat(), revenue))
+        }
+
+        val lineDataSet = LineDataSet(entries, "Doanh số bán hàng năm $currentYear")
+        lineDataSet.fillAlpha = 110
+        lineDataSet.color = resources.getColor(R.color.colorPrimary)
+        lineDataSet.valueTextColor = Color.BLACK
+        lineDataSet.setCircleColor(Color.RED)
+        val lineData = LineData(lineDataSet)
+        binding.lineChart.data = lineData
+
+        // Tùy chỉnh trục X để chỉ hiển thị giá trị nguyên
+        val xAxis = binding.lineChart.xAxis
+        xAxis.valueFormatter = object : ValueFormatter() {
+            override fun getFormattedValue(value: Float): String {
+                return value.toInt().toString()
+            }
+        }
+
+       xAxis.granularity = 1f // Đảm bảo mỗi bước là 1
+        xAxis.position = XAxis.XAxisPosition.BOTTOM // Đặt trục X ở dưới
+
+        binding.lineChart.invalidate() // Refresh biểu đồ
+    }
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.loadData()
+    }
+
 
 }

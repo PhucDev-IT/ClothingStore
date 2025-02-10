@@ -19,7 +19,9 @@ import vn.mobile.clothing.network.response.OrderDetailsResponseModel
 import vn.mobile.clothing.network.response.OrderStatus
 import vn.mobile.clothing.network.response.PurchaseHistoryResponseModel
 import vn.mobile.clothing.network.response.ResponseModel
+import vn.mobile.clothing.network.response.StatisticalRevenueYear
 import vn.mobile.clothing.network.response.StatisticalStatusOrderResModel
+import vn.mobile.clothing.network.response.TopProductResponseModel
 
 
 interface IRequestService {
@@ -42,7 +44,7 @@ interface IRequestService {
     //==================== ORDER ======================================//
     @GET("/api/admin/orders/{status}")
     fun getOrders(@Path("status") status:String, @Query("limit") limit:Int, @Query("page") page:Int):Call<ResponseModel<PurchaseHistoryResponseModel>>
-    @GET("/api/orders/{id}")
+    @GET("/api/admin/trackOrder/{id}")
     fun findOrder(@Path("id") id:String):Call<ResponseModel<OrderDetailsResponseModel>>
     @POST("/api/orders/order_status")
     fun updateOrderStatus(@Body model: OrderStatus):Call<ResponseModel<OrderStatus>>
@@ -50,7 +52,12 @@ interface IRequestService {
     @GET("/api/admin/orders/statistical")
     fun getStatistical():Call<ResponseModel<List<StatisticalStatusOrderResModel>>>
 
-    
+    @GET("/api/admin/statistical/sale")
+    fun getStatisticalRevenue():Call<ResponseModel<List<StatisticalRevenueYear>>>
+
+    @GET("/api/admin/statistical/top_products")
+    fun getTopProducts():Call<ResponseModel<List<TopProductResponseModel>>>
+
     //============================ VOUCHER -=============================================
     @POST("api/vouchers")
     fun addVoucher(@Body voucher: AddVoucherRequestModel): Call<ResponseModel<VoucherModel>>

@@ -5,7 +5,9 @@
 ---
 
 ## Mô tả chung:
-- Phần mềm sử dụng Firebase của google và các thư viện khác bên ngoài
+- Backend: NodeJs, Express, MySQL
+- Mobile: Android Kotlin
+- Sử dụng các dịch vụ thứ 3 như Firebase, Zalopay SDK
 - Các chức năng được xây dựng tương tự với các nền tảng thương mại điện tử khác
 - Xem sản phẩm, Thêm giỏ hàng, Mua hàng (Sử dụng voucher),Chat, Quản lý mua hàng, Quản lý thông tin cá nhân...
 
@@ -19,21 +21,7 @@ Demo: [video demo cơ bản app clothing store](https://drive.google.com/drive/u
 
 #### 1.Splash Screen
 
-![example](ImageDemo/Splash1.jpg)
-
----
-
-![example](ImageDemo/Splash2.jpg)
-
-***
-
-![example](ImageDemo/Splash3.jpg)
-
-***
-
-![example](ImageDemo/Splash4.jpg)
-
-***
+<img src="arts/splash.png" alt="example" width="200">
 
 #### 2.Authentication
 
@@ -42,7 +30,7 @@ Demo: [video demo cơ bản app clothing store](https://drive.google.com/drive/u
 >- Tên đăng nhập phải đúng định dạng là email
 >- Mật khẩu [6,20] kí tự
 
-![example](ImageDemo/login.jpg)
+<img src="arts/login.png" alt="example" width="200">
 
 ***
 
@@ -50,28 +38,18 @@ Demo: [video demo cơ bản app clothing store](https://drive.google.com/drive/u
 >Thông tin sẽ được lưu vào authentication - google của Firebase và lấy ra uid để làm ID duy nhất của khách hàng trong Firestore.
 >Trước khi đăng ký(đăng nhập) nhanh bằng tài khoản google cần phải kiểm tra liệu email này đã tồn tại trong Firestore hay chưa. Tránh tình trạng mất mát dữ liệu cũ
 
-![example](ImageDemo/register.jpg)
+<img src="arts/sign_up.png" alt="example" width="200">
 
 ***
 #### 3.Home , Cart, Payment, Coupon, Method Payment
 
-![example](ImageDemo/home1.jpg)
-
-***
-
-![example](ImageDemo/home2.jpg)
-
-***
-
-![example](ImageDemo/request_allow_notification.jpg)
-
-***
+<img src="arts/home.png" alt="example" width="200">
 
 >Người dùng có thể xem chi tiết sản phẩm, size, màu sắc, hoặc thêm sản phẩm vào danh sách yêu thích
 >Có thể xem thêm 1 số ảnh demo về sản phẩm nếu có
 >Chọn số lượng và thêm vào giỏ hàng
 
-![example](ImageDemo/product_details.jpg)
+<img src="arts/product_detail.png" alt="example" width="200">
 
 ***
 >Trang giỏ hàng sẽ hiển thị tất cả sản phẩm đã được người dùng thêm vào giỏ hàng. Nếu không có sẽ hiển thị "chưa có sản phẩm nào trong giỏ hàng"
@@ -79,7 +57,7 @@ Demo: [video demo cơ bản app clothing store](https://drive.google.com/drive/u
 >- Người dùng đã chọn sản phẩm bất kì sau đó sẽ tính và hiển thị tổng tiền
 >- Sau khi chọn sản phẩm, người dùng thay đổi số lượng hay xóa sản phẩm đều được đảm bảo cập nhật lại danh sách sản phẩm đã chọn và số tiền tránh xảy ra sai sót  
 
-![example](ImageDemo/cart.jpg)
+<img src="arts/cart.png" alt="example" width="200">
 
 ***
 >Khi mua hàng cần đảm bảo có thầy đủ thông tin nhận hàng
@@ -87,7 +65,7 @@ Demo: [video demo cơ bản app clothing store](https://drive.google.com/drive/u
 >Chọn phương thức thanh toán và xác nhận mua hàng
 
 
-![example](ImageDemo/payment.jpg)
+<img src="arts/payment.png" alt="example" width="200">
 
 ***
 >View này sẽ hiển thị tất cả các mã giảm giá mà người dùng chưa sử dụng để áp dụng vào hóa đơn của mình
@@ -112,38 +90,25 @@ Demo: [video demo cơ bản app clothing store](https://drive.google.com/drive/u
 
 >Phân trang lấy các hóa đơn tương ứng với từng trạng thái
 
-![example](ImageDemo/waiting_confirm.jpg)
+<img src="arts/purchase.png" alt="example" width="200">
 
 ***
 >Track order sẽ sử dụng thời gian thực để đảm bảo dữ liệu được cập nhật chính xác nhất
 >Ví dụ: khi người dùng vào track order cùng lúc đó admin cũng đang chuẩn bị xác nhận đơn hàng, sau khi xác nhận thì bên client sẽ được cập nhật luôn và nút hủy đơn hàng sẽ không còn hiển thị nữa.
 
-![example](ImageDemo/order_detail1.jpg)
-
-***
-
-![example](ImageDemo/order_details2.jpg)
-
-***
-
->Khi người dùng muốn hủy đơn hàng (trước khi admin xác nhận) thì cần phải xác nhận và chọn lý do hủy
-
-![example](ImageDemo/confirm_cancelOrder.jpg)
+<img src="arts/order_details.png" alt="example" width="200">
 
 ***
 
 5. Notification
 >Thông báo các khuyến mãi, thông báo tình trạng hóa đơn cho người dùng
-
-![example](ImageDemo/notification.jpg)
-
+<img src="arts/notification.png" alt="example" width="200">
 ***
 
-6. Chat
->Sử dụng realtime firestore để lắng nghe các thay đổi và cập nhật lên recyclerview
+6. Address
+>Chọn địa chỉ chính xác
 
-![example](ImageDemo/form_chat.jpg)
-
+<img src="arts/address.png" alt="example" width="200">
 ***
 
 # Xây dựng app:

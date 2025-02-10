@@ -15,6 +15,7 @@ import androidx.core.view.GravityCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.navigation.NavigationView
 import vn.mobile.clothing.activities.AddVoucherActivity
 import vn.mobile.clothing.activities.OrderActivity
@@ -27,13 +28,16 @@ import vn.mobile.clothing.databinding.PopupDebugBinding
 import vn.mobile.clothing.fragments.DashboardFragment
 import vn.mobile.clothing.network.ApiService.Companion.APISERVICE
 import vn.mobile.clothing.utils.MySharedPreferences
+import vn.mobile.clothing.viewmodel.DashboardViewModel
+import vn.mobile.clothing.viewmodel.OrderViewModel
 
-class MainActivity : BaseActivity() , NavigationView.OnNavigationItemSelectedListener{
+class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedListener {
 
     private lateinit var binding: ActivityMainBinding
-
+    private lateinit var viewModel: DashboardViewModel
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        viewModel = ViewModelProvider(this)[DashboardViewModel::class.java]
         if (savedInstanceState == null) {
             replaceFragment(DashboardFragment())
             binding.navView.setCheckedItem(R.id.nav_home)
@@ -52,8 +56,8 @@ class MainActivity : BaseActivity() , NavigationView.OnNavigationItemSelectedLis
     }
 
     override fun populateData() {
-        if(BuildConfig.DEBUG){
-          checkData()
+        if (BuildConfig.DEBUG) {
+            checkData()
         }
     }
 
@@ -73,16 +77,17 @@ class MainActivity : BaseActivity() , NavigationView.OnNavigationItemSelectedLis
         when (item.itemId) {
             R.id.nav_home -> replaceFragment(DashboardFragment())
             R.id.nav_order -> {
-                startActivity(Intent(this@MainActivity,OrderActivity::class.java))
+                startActivity(Intent(this@MainActivity, OrderActivity::class.java))
                 return false
             }
+
             R.id.nav_settings -> {
-              //  val intent = Intent(this,SettingsActivity::class.java)
-              //  startActivity(intent)
+                //  val intent = Intent(this,SettingsActivity::class.java)
+                //  startActivity(intent)
             }
 
-            R.id.nav_voucher->{
-                startActivity(Intent(this@MainActivity,AddVoucherActivity::class.java))
+            R.id.nav_voucher -> {
+                startActivity(Intent(this@MainActivity, AddVoucherActivity::class.java))
                 return false
             }
 
@@ -92,8 +97,12 @@ class MainActivity : BaseActivity() , NavigationView.OnNavigationItemSelectedLis
             }
 
             R.id.nav_logout -> {
-                PopupDialog.showDialog(this,
-                    PopupDialog.PopupType.CONFIRM,getString(R.string.app_name),getString(R.string.content_logout)){
+                PopupDialog.showDialog(
+                    this,
+                    PopupDialog.PopupType.CONFIRM,
+                    getString(R.string.app_name),
+                    getString(R.string.content_logout)
+                ) {
                     APPDATABASE.userDao().deleteAllUsers()
                     startActivity(Intent(this, LoginActivity::class.java))
                     finishAffinity()
@@ -107,7 +116,8 @@ class MainActivity : BaseActivity() , NavigationView.OnNavigationItemSelectedLis
 
     @SuppressLint("CommitTransaction")
     private fun replaceFragment(fragment: Fragment) {
-        supportFragmentManager.beginTransaction().replace(R.id.fragment_container, fragment).addToBackStack(null)
+        supportFragmentManager.beginTransaction().replace(R.id.fragment_container, fragment)
+            .addToBackStack(null)
             .commit()
     }
 
@@ -120,9 +130,9 @@ class MainActivity : BaseActivity() , NavigationView.OnNavigationItemSelectedLis
         }
     }
 
-    private fun checkData(){
+    private fun checkData() {
         val url = MySharedPreferences.getStringValues(this, MySharedPreferences.PREF_KEY_URL)
-        if(url==null){
+        if (url == null) {
             showDialogDebug()
         }
         APISERVICE.setBaseUrl(url!!)
@@ -130,7 +140,7 @@ class MainActivity : BaseActivity() , NavigationView.OnNavigationItemSelectedLis
 
     private fun showDialogDebug() {
         val url = MySharedPreferences.getStringValues(this, MySharedPreferences.PREF_KEY_URL)
-        if(url!=null) return
+        if (url != null) return
         val dialog = Dialog(this, R.style.Theme_Dialog)
         dialog!!.requestWindowFeature(Window.FEATURE_NO_TITLE)
         dialog!!.window!!.setFlags(
@@ -142,12 +152,16 @@ class MainActivity : BaseActivity() , NavigationView.OnNavigationItemSelectedLis
         dialog!!.setContentView(bindingDialog.root)
 
         bindingDialog.btnConfirm.setOnClickListener {
-            if(bindingDialog.edtUrl.text.toString().isEmpty()){
+            if (bindingDialog.edtUrl.text.toString().isEmpty()) {
                 bindingDialog.edtUrl.error = "Vui lòng nhập URL"
                 return@setOnClickListener
             }
             APISERVICE.setBaseUrl(bindingDialog.edtUrl.text.toString())
-            MySharedPreferences.setStringValue(this, MySharedPreferences.PREF_KEY_URL,bindingDialog.edtUrl.text.toString())
+            MySharedPreferences.setStringValue(
+                this,
+                MySharedPreferences.PREF_KEY_URL,
+                bindingDialog.edtUrl.text.toString()
+            )
             dialog.dismiss()
         }
 
