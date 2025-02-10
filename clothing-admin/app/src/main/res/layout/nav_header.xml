@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="@dimen/_10sdp"
+    android:background="@color/background"
+    xmlns:tools="http://schemas.android.com/tools">
+
+        <RadioGroup
+            android:layout_alignParentEnd="true"
+            android:checkedButton="@+id/btn_bright"
+            android:id="@+id/toggle"
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:background="@drawable/toggle_out_line"
+            android:orientation="horizontal"
+            tools:ignore="UselessParent">
+
+            <RadioButton
+                android:layout_marginTop="1dp"
+                android:layout_marginBottom="1dp"
+                android:layout_marginStart="1dp"
+                android:id="@+id/btn_bright"
+                android:background="@drawable/toggle_widget_background"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:button="@null"
+                android:gravity="center"
+                android:text="Sáng"
+                android:textColor="@color/white" />
+
+            <RadioButton
+                android:layout_marginEnd="1dp"
+                android:layout_marginTop="1dp"
+                android:layout_marginBottom="1dp"
+                android:id="@+id/btn_dark"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/toggle_widget_background"
+                android:button="@null"
+                android:gravity="center"
+                android:text="Tối"
+                android:textColor="@color/white" />
+
+        </RadioGroup>
+
+    <LinearLayout
+        android:layout_below="@id/toggle"
+        android:padding="@dimen/_2sdp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:id="@+id/container_avt"
+        android:orientation="horizontal"
+        android:background="@drawable/circle_outline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/avatar"
+            android:layout_width="@dimen/_70sdp"
+            android:layout_height="@dimen/_70sdp"
+            app:shapeAppearanceOverlay="@style/one_rounded" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_alignBottom="@id/container_avt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/toggle"
+        android:gravity="center_vertical"
+        android:layout_alignParentEnd="true"
+        android:layout_margin="@dimen/_10sdp"
+        android:layout_marginStart="113dp"
+        android:layout_toEndOf="@+id/container_avt"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/inter_bold"
+            android:text="NGUYEN VAN PHUC"
+            android:textSize="@dimen/_13sdp" />
+
+        <TextView
+            android:id="@+id/tv_quota"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/inter_regular"
+            android:text="ADMIN"
+            android:textColor="@color/success"
+            android:textSize="@dimen/_12sdp" />
+    </LinearLayout>
+
+
+</RelativeLayout>

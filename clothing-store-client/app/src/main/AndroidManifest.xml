@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-feature
+        android:name="android.hardware.camera.flash"
+        android:required="false" />
+    <uses-feature android:name="android.hardware.camera" />
+
+    <uses-permission android:name="android.permission.CAMERA"/>
+
+    <application
+        android:name=".MyApplication"
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Clothing"
+        android:usesCleartextTraffic="true"
+        tools:targetApi="31">
+        <activity
+            android:name=".activities.ScanQrCodeActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.order.SelectCouponActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.SearchProductActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.order.TrackOrderActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.MyVoucherActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.order.PurchaseHistoryActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.settings.AddressActivity"
+            android:exported="false" />
+
+        <activity android:name=".activities.settings.UpdateAddressActivity"
+            android:exported="false"/>
+
+        <activity
+            android:name=".activities.settings.SettingsMainActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.ProductDetailsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.order.PayOrderActivity"
+            android:exported="true"
+            android:launchMode="singleTask">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="app"
+                    android:scheme="demozpdk" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".activities.NotificationActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.authentication.SignUpActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.authentication.LoginActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.ShoppingCartActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.onboarding.WelcomeScreenActivity"
+            android:exported="false" />
+        <activity
+            android:name=".MainActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.onboarding.OnboardingActivity"
+            android:exported="false" />
+        <activity
+            android:name=".activities.onboarding.SplashScreenActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <service
+            android:name=".service.MyFirebaseMessagingService"
+            android:directBootAware="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
+
+
+    </application>
+
+</manifest>

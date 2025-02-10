@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/main"
+    tools:context=".MainActivity">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/body_container"/>
+
+    <com.google.android.material.bottomappbar.BottomAppBar
+        android:layout_width="match_parent"
+        android:layout_height="55dp"
+        android:id="@+id/bottomAppBar"
+        android:layout_gravity="bottom"
+        app:addElevationShadow="true"
+        app:elevation="@dimen/_4sdp"
+        android:backgroundTint="@color/black"
+        app:fabCradleMargin="10dp"
+        app:fabAnchorMode="cradle"
+        app:fabAlignmentMode="center"
+        app:fabCradleRoundedCornerRadius="50dp">
+
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/bottomNavigation"
+            app:labelVisibilityMode="labeled"
+            app:itemIconTint="@drawable/item_selector"
+            app:itemRippleColor="@color/transparent"
+            app:itemIconSize="20dp"
+            app:itemTextColor="@drawable/item_selector"
+            style="@style/Widget.MaterialComponents.BottomNavigationView.PrimarySurface"
+            android:background="@color/transparent"
+            app:menu="@menu/bottom_nav_menu"/>
+
+    </com.google.android.material.bottomappbar.BottomAppBar>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/btn_scan_qr"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/white"
+        android:contentDescription="@string/todo"
+        android:src="@drawable/scan_qr"
+        app:layout_anchor="@id/bottomAppBar"
+        app:maxImageSize="40dp"
+        app:tint ="@color/white"/>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background"
+    tools:context=".activities.NotificationActivity">
+
+    <include layout="@layout/layout_header"
+        android:id="@+id/header"/>
+    <!--    Skeleton-->
+    <com.facebook.shimmer.ShimmerFrameLayout
+        android:visibility="gone"
+        android:layout_below="@id/header"
+        android:id="@+id/shimmer_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <include layout="@layout/my_cart_skeleton"/>
+    </com.facebook.shimmer.ShimmerFrameLayout>
+    <LinearLayout
+        android:id="@+id/ll_container_notificaiton"
+        android:layout_below="@id/header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <TextView
+            android:layout_gravity="end"
+            android:id="@+id/tv_read_all"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/read_all"
+            android:fontFamily="@font/inter_regular"
+            android:textColor="@color/text_primary"
+            android:layout_marginHorizontal="@dimen/_10sdp"
+            android:textSize="@dimen/text_size_small"/>
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_notification"
+            android:layout_marginTop="@dimen/_10sdp"
+            android:layout_width="match_parent"
+
+            android:layout_height="match_parent"/>
+    </LinearLayout>
+
+</RelativeLayout>
