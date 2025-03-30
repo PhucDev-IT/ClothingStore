@@ -7,7 +7,11 @@
     android:layout_height="match_parent"
     android:background="@color/background"
     tools:context=".activities.order.PayOrderActivity">
-
+    <androidx.fragment.app.FragmentContainerView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentBottom="true"
+        android:id="@+id/payment_fragment"/>
     <include
         android:id="@+id/header"
         layout="@layout/layout_header" />

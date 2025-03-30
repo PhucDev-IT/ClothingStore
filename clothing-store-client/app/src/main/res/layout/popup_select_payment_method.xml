@@ -30,21 +30,21 @@
                 android:fontFamily="@font/inter_regular"
                 android:padding="@dimen/_10sdp"/>
             <RadioButton
-                android:id="@+id/rdo_momo"
+                android:id="@+id/rdo_home"
+                android:checked="true"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/rdo_pay_momo"
+                android:text="@string/rdo_pay_home"
                 android:textDirection="ltr"
                 android:layoutDirection="rtl"
                 android:textSize="@dimen/text_size_default"
                 android:fontFamily="@font/inter_regular"
                 android:padding="@dimen/_10sdp"/>
             <RadioButton
-                android:id="@+id/rdo_home"
-                android:checked="true"
+                android:id="@+id/rdo_other"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/rdo_pay_home"
+                android:text="Khác (Visa, Apple, Google...)"
                 android:textDirection="ltr"
                 android:layoutDirection="rtl"
                 android:textSize="@dimen/text_size_default"

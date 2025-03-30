@@ -7,12 +7,12 @@ plugins {
 
 android {
     namespace = "vn.clothing.store"
-    compileSdk = 35
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "vn.clothing.store"
         minSdk = 24
-        targetSdk = 35
+        targetSdk = 34
         versionCode = 3
         versionName = "1.1.0"
 
@@ -50,7 +50,10 @@ android {
     flavorDimensions.add("dev")
     productFlavors{
         create("dev"){
-            buildConfigField("String","API_BASE_URL","\"http://localhost:3000/\"")
+            buildConfigField("String","API_BASE_URL","\"http://192.168.81.45:3000/\"")
+            buildConfigField("String","STRIPE_BASE_URL","\"https://api.stripe.com/\"")
+            buildConfigField("String","STRIPE_PUBLISHABLE_KEY","\"pk_test_51QxKsv090SdoHe5DFx9PrfKaKUAv7BA0njtKalxiJ71uiW62SAsdqgr3fHBd6BPK8Ou6SRJhmu8UEIVadis0vLDd00LqbDDw0W\"")
+            buildConfigField("String","STRIPE_SECRET_KEY","\"sk_test_51QxKsv090SdoHe5DojaHme2iaD5J8Mwb9fjWgBsIOtX2F6HUI5bFoOcQXm3xyC7pozPpoDPOAX9wh6SpWpvXzma700CTpfveOy\"")
         }
     }
 }
@@ -102,6 +105,10 @@ dependencies {
     ksp("androidx.room:room-compiler:$room_version")
 
     implementation("commons-codec:commons-codec:1.14")
+
+
+    implementation("com.stripe:stripe-android:21.7.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.10.1")
 
 
     // SDK LIBRARY

@@ -1,16 +1,20 @@
 package vn.clothing.store.networks
 
 import com.google.gson.JsonObject
+import com.stripe.android.EphemeralKey
 import org.json.JSONObject
 import retrofit2.Call
+import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.FormUrlEncoded
 import retrofit2.http.GET
+import retrofit2.http.Headers
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
 import retrofit2.http.Query
+import vn.clothing.store.BuildConfig
 import vn.clothing.store.models.CartModel
 import vn.clothing.store.models.Category
 import vn.clothing.store.models.DeliveryInformation
@@ -31,9 +35,11 @@ import vn.clothing.store.networks.request.LoginRequest
 import vn.clothing.store.networks.request.OrderRequestModel
 import vn.clothing.store.networks.request.RegisterRequestModel
 import vn.clothing.store.networks.response.CartResponseModel
+import vn.clothing.store.networks.response.CustomerModel
 import vn.clothing.store.networks.response.LoginResponseModel
 import vn.clothing.store.networks.response.OrderDetailsResponseModel
 import vn.clothing.store.networks.response.OrderStatus
+import vn.clothing.store.networks.response.PaymentIntentResponseModel
 import vn.clothing.store.networks.response.PurchaseHistoryResponseModel
 import vn.clothing.store.networks.response.StatisticalCommonResModel
 import vn.mobile.banking.network.response.ResponseModel
@@ -42,6 +48,28 @@ import vn.mobile.banking.network.rest.BaseCallback
 
 interface IRequestService {
 
+    //=================================================
+    //  region STRIPE
+    //=================================================
+
+    //Create a Customer (use an existing Customer ID if this is a returning customer)
+    @POST("/v1/customers")
+    suspend fun getCustomer(): Response<CustomerModel>
+
+    // Create an Ephemeral Key for the Customer
+    @Headers("Stripe-Version: 2025-02-24.acacia")
+    @POST("/v1/ephemeral_keys")
+    suspend fun getEphemeralKey(@Query("customer") customer:String):Response<vn.clothing.store.networks.response.EphemeralKey>
+
+    @POST("/v1/payment_intents")
+    suspend fun getPaymentIntent(
+        @Query("customer") customer: String,
+        @Query("amount") amount: String,
+        @Query("currency") currency: String,
+        @Query("automatic_payment_methods[enabled]") autoPaymentMethod: Boolean = true,
+
+    ):Response<PaymentIntentResponseModel>
+    //endregion
     //=================================================
     //  region AUTHENTICATION
     //=================================================

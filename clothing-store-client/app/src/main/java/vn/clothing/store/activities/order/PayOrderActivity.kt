@@ -1,27 +1,30 @@
 package vn.clothing.store.activities.order
 
 import android.annotation.SuppressLint
-import android.app.Dialog
 import android.content.Intent
-import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.os.StrictMode
+import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.google.gson.JsonObject
+import com.stripe.android.PaymentConfiguration
+import com.stripe.android.paymentsheet.PaymentSheet
+import com.stripe.android.paymentsheet.PaymentSheet.GooglePayConfiguration.ButtonType
+import com.stripe.android.paymentsheet.PaymentSheetResult
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
+import vn.clothing.store.BuildConfig
 import vn.clothing.store.R
 import vn.clothing.store.activities.common.BaseActivity
 import vn.clothing.store.activities.settings.SettingsMainActivity
@@ -31,7 +34,6 @@ import vn.clothing.store.common.CoreConstant
 import vn.clothing.store.common.IntentData
 import vn.clothing.store.common.PaymentMethod
 import vn.clothing.store.common.PopupDialog
-
 import vn.clothing.store.databinding.ActivityPayOrderBinding
 import vn.clothing.store.databinding.PopupSelectPaymentMethodBinding
 import vn.clothing.store.interfaces.PayOrderContract
@@ -39,6 +41,7 @@ import vn.clothing.store.models.DeliveryInformation
 import vn.clothing.store.models.NotificationModel
 import vn.clothing.store.models.TypeVoucher
 import vn.clothing.store.models.VoucherModel
+import vn.clothing.store.networks.ApiService
 import vn.clothing.store.networks.request.OrderItemRequestModel
 import vn.clothing.store.networks.request.OrderRequestModel
 import vn.clothing.store.networks.response.CartResponseModel
@@ -52,6 +55,7 @@ import vn.zalopay.sdk.ZaloPayError
 import vn.zalopay.sdk.ZaloPaySDK
 import vn.zalopay.sdk.listeners.PayOrderListener
 import java.util.Date
+import kotlin.math.roundToInt
 
 class PayOrderActivity : BaseActivity(), PayOrderContract.View {
     private lateinit var binding: ActivityPayOrderBinding
@@ -64,6 +68,12 @@ class PayOrderActivity : BaseActivity(), PayOrderContract.View {
     private var voucher: VoucherModel? = null
     private var paymentMethod: PaymentMethod = PaymentMethod.HOME
     private var handler = Handler(Looper.getMainLooper())
+    lateinit var paymentSheet: PaymentSheet
+    private var customerId: String? = null
+    private var ephemeralKeySecret: String? = null
+    private var paymentIntentClientSecret: String? = null
+    private var orderRequestModel:OrderRequestModel?=null
+    private var idsCart:List<Int> = listOf()
 
     override fun initView() {
         enableEdgeToEdge()
@@ -95,6 +105,85 @@ class PayOrderActivity : BaseActivity(), PayOrderContract.View {
         val policy: StrictMode.ThreadPolicy = StrictMode.ThreadPolicy.Builder().permitAll().build()
         StrictMode.setThreadPolicy(policy)
         ZaloPaySDK.init(AppInfo.APP_ID, Environment.SANDBOX);
+
+        PaymentConfiguration.init(this, BuildConfig.STRIPE_PUBLISHABLE_KEY)
+        paymentSheet = PaymentSheet(this, this::onPaymentSheetResult)
+    }
+
+
+    private suspend fun getCustomer(): String? {
+        val res = ApiService.APISERVICE.getService(
+            BuildConfig.STRIPE_BASE_URL,
+            BuildConfig.STRIPE_SECRET_KEY
+        ).getCustomer()
+
+        return if (res.isSuccessful && res.body() != null) {
+            res.body()!!.id
+        } else null
+    }
+
+    private suspend fun getEphemeralKey(customerId: String): String? {
+        val res = ApiService.APISERVICE.getService(
+            BuildConfig.STRIPE_BASE_URL,
+            BuildConfig.STRIPE_SECRET_KEY
+        ).getEphemeralKey(customerId)
+
+        return if (res.isSuccessful && res.body() != null) {
+            res.body()!!.secret
+        } else null
+    }
+
+    private suspend fun getPaymentIntent(customerId: String, ephemeralKey: String): String? {
+        val res = ApiService.APISERVICE.getService(
+            BuildConfig.STRIPE_BASE_URL,
+            BuildConfig.STRIPE_SECRET_KEY
+        ).getPaymentIntent(customerId, (calculateRealTotal().roundToInt()).toString(), "vnd", true)
+
+        return if (res.isSuccessful && res.body() != null) {
+            res.body()!!.clientSecret
+        } else null
+    }
+
+
+    private fun paymentFlow() {
+        if (paymentIntentClientSecret == null || customerId == null || ephemeralKeySecret == null) {
+            return
+        }
+        paymentSheet.presentWithPaymentIntent(
+            paymentIntentClientSecret!!,
+            PaymentSheet.Configuration("Clothing Store",PaymentSheet.CustomerConfiguration(
+                id = customerId!!,
+                ephemeralKeySecret =ephemeralKeySecret!!
+            ),
+//                googlePay = PaymentSheet.GooglePayConfiguration(
+//                    environment = PaymentSheet.GooglePayConfiguration.Environment.Production,
+//                    countryCode = "VN",
+//                    currencyCode = "vnd",
+//                    amount = 0,
+//                    label = "",
+//                    buttonType = ButtonType.Pay,
+//                )
+               )
+        )
+    }
+
+    fun onPaymentSheetResult(paymentSheetResult: PaymentSheetResult) {
+        when (paymentSheetResult) {
+            is PaymentSheetResult.Canceled -> {
+                Log.w("Phuc","Stripe payment cancel")
+            }
+
+            is PaymentSheetResult.Failed -> {
+                Log.e("Phuc","Stripe payment error: ${paymentSheetResult.error}")
+                Toast.makeText(this,"Thanh toán không thành công",Toast.LENGTH_SHORT).show()
+            }
+
+            is PaymentSheetResult.Completed -> {
+                // Display for example, an order confirmation screen
+               Log.d("Phuc","Stripe payment success")
+                presenter.payment(this.orderRequestModel!!, idsCart)
+            }
+        }
     }
 
     override fun populateData() {
@@ -166,10 +255,9 @@ class PayOrderActivity : BaseActivity(), PayOrderContract.View {
 
         val discount: Double = if (voucher?.type == TypeVoucher.DISCOUNTPERCENT.name) {
             totalMoney * (voucher?.discount?.toDouble() ?: 0.0) / 100
-        }else if(voucher?.type == TypeVoucher.FREESHIP.name){
+        } else if (voucher?.type == TypeVoucher.FREESHIP.name) {
             FEESHIP.toDouble()
-        }
-        else {
+        } else {
             voucher?.discount?.toDouble() ?: 0.0
         }
 
@@ -184,14 +272,40 @@ class PayOrderActivity : BaseActivity(), PayOrderContract.View {
             feeShip = FEESHIP,
             orderItems
         )
-        val cartIds = cartItems.map { it.id!! }
+        idsCart = cartItems.map { it.id!! }
+        this.orderRequestModel = orderRequestModel
 
         if (paymentMethod == PaymentMethod.HOME) {
-            presenter.payment(orderRequestModel, cartIds)
-        }else if (paymentMethod == PaymentMethod.ZALOPAY) {
-            payWithZaloPay(orderRequestModel, cartIds)
-        }else{
-            Toast.makeText(this, "Đang bảo trì", Toast.LENGTH_SHORT).show()
+            presenter.payment(orderRequestModel, idsCart)
+        } else if (paymentMethod == PaymentMethod.ZALOPAY) {
+            payWithZaloPay(orderRequestModel, idsCart)
+        } else {
+            paymentStripe()
+        }
+    }
+
+    private fun paymentStripe(){
+        lifecycleScope.launch {
+            try{
+                onShowLoading()
+                 customerId = getCustomer()
+                if (customerId != null) {
+                     ephemeralKeySecret = getEphemeralKey(customerId!!)
+                    if (ephemeralKeySecret != null) {
+                        val paymentIntent = getPaymentIntent(customerId!!, ephemeralKeySecret!!)
+                        if (paymentIntent != null) {
+                           withContext(Dispatchers.Main){
+                               paymentIntentClientSecret = paymentIntent
+                               paymentFlow()
+                           }
+                        }
+                    }
+                }
+            }catch (e:Exception){
+
+            }finally {
+                onHideLoading()
+            }
         }
     }
 
@@ -220,7 +334,10 @@ class PayOrderActivity : BaseActivity(), PayOrderContract.View {
                                 }
                             }
 
-                            override fun onPaymentCanceled(zpTransToken: String?, appTransID: String?) {
+                            override fun onPaymentCanceled(
+                                zpTransToken: String?,
+                                appTransID: String?
+                            ) {
                                 handler.post {
                                     onHideLoading()
                                     Toast.makeText(
@@ -247,7 +364,11 @@ class PayOrderActivity : BaseActivity(), PayOrderContract.View {
                             }
                         })
                 } else {
-                    Toast.makeText(this@PayOrderActivity, "Lỗi dịch vụ nhà cung cấp", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        this@PayOrderActivity,
+                        "Lỗi dịch vụ nhà cung cấp",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             } catch (e: Exception) {
                 onHideLoading()
@@ -280,11 +401,15 @@ class PayOrderActivity : BaseActivity(), PayOrderContract.View {
     }
 
     override fun onResultFindVoucher(voucher: VoucherModel) {
-        if((voucher.quantity - voucher.used) > 0){
+        if ((voucher.quantity - voucher.used) > 0) {
             this.voucher = voucher
             reCalculateWithVoucher()
-        }else{
-            CoreConstant.showToast(this,"Mã giảm giá đã đạt đủ số lượng sử dụng",CoreConstant.ToastType.INFO)
+        } else {
+            CoreConstant.showToast(
+                this,
+                "Mã giảm giá đã đạt đủ số lượng sử dụng",
+                CoreConstant.ToastType.INFO
+            )
         }
     }
 
@@ -341,43 +466,44 @@ class PayOrderActivity : BaseActivity(), PayOrderContract.View {
 
 
     @SuppressLint("SetTextI18n")
-    private fun reCalculateWithVoucher(){
+    private fun reCalculateWithVoucher() {
         calculateRealTotal()
 
-        if(voucher == null){
+        if (voucher == null) {
             binding.tvVoucherDiscount.text = "0đ"
             binding.tvChooseVoucher.text = getString(R.string.label_select_voucher)
             return
         }
 
-        if(voucher?.type == TypeVoucher.DISCOUNTPERCENT.name){
+        if (voucher?.type == TypeVoucher.DISCOUNTPERCENT.name) {
             binding.tvChooseVoucher.text = "Giảm ${voucher!!.discount}%"
             val discount = totalMoney * voucher!!.discount!! / 100
             binding.tvVoucherDiscount.text = FormatCurrency.numberFormat.format(discount)
-        }else if(voucher?.type == TypeVoucher.FREESHIP.name){
+        } else if (voucher?.type == TypeVoucher.FREESHIP.name) {
             binding.tvChooseVoucher.text = "Miễn phí vận chuyển"
             binding.tvVoucherDiscount.text = FormatCurrency.numberFormat.format(FEESHIP)
-        }
-        else
-        {
-            binding.tvChooseVoucher.text = "Giảm ${FormatCurrency.numberFormat.format(voucher?.discount)}"
+        } else {
+            binding.tvChooseVoucher.text =
+                "Giảm ${FormatCurrency.numberFormat.format(voucher?.discount)}"
             binding.tvVoucherDiscount.text = FormatCurrency.numberFormat.format(voucher?.discount)
         }
     }
 
     //Tính tổng tiền thực tế
-    private fun calculateRealTotal():Double{
+    private fun calculateRealTotal(): Double {
 
         val discount: Double = if (voucher?.type == TypeVoucher.DISCOUNTPERCENT.name) {
             totalMoney * (voucher?.discount?.toDouble() ?: 0.0) / 100
-        } else if(voucher?.type == TypeVoucher.FREESHIP.name){
+        } else if (voucher?.type == TypeVoucher.FREESHIP.name) {
             FEESHIP.toDouble()
-        }else{
+        } else {
             voucher?.discount?.toDouble() ?: 0.0
         }
 
         val realTotal = (totalMoney + FEESHIP - discount) ?: 0.0
-        binding.tvRealTotal.text = FormatCurrency.numberFormat.format(realTotal)
+        handler.post {
+            binding.tvRealTotal.text = FormatCurrency.numberFormat.format(realTotal)
+        }
         return realTotal
     }
 
@@ -387,9 +513,18 @@ class PayOrderActivity : BaseActivity(), PayOrderContract.View {
     }
 
 
-    private fun showNotification(){
-        val notification = NotificationModel("1","Đặt hàng thành công","Cảm ơn đã tin tưởng và mua hàng của chúng tôi, shop sẽ sớm xác nhận và gửi hàng cho bạn",Date(),null,true,false,AppManager.user?.id)
-        PushNotification.sendNotification(this,notification)
+    private fun showNotification() {
+        val notification = NotificationModel(
+            "1",
+            "Đặt hàng thành công",
+            "Cảm ơn đã tin tưởng và mua hàng của chúng tôi, shop sẽ sớm xác nhận và gửi hàng cho bạn",
+            Date(),
+            null,
+            true,
+            false,
+            AppManager.user?.id
+        )
+        PushNotification.sendNotification(this, notification)
     }
 
     private fun displayPopupPaymentMethod() {
@@ -403,7 +538,7 @@ class PayOrderActivity : BaseActivity(), PayOrderContract.View {
             }
 
             PaymentMethod.HOME -> bindingDialog.rdoHome.isChecked = true
-            PaymentMethod.MOMO -> bindingDialog.rdoMomo.isChecked = true
+            PaymentMethod.OTHER -> bindingDialog.rdoOther.isChecked = true
         }
 
         bindingDialog.rdoZlp.setOnClickListener {
@@ -418,9 +553,9 @@ class PayOrderActivity : BaseActivity(), PayOrderContract.View {
             dialog.dismiss()
         }
 
-        bindingDialog.rdoMomo.setOnClickListener {
-            paymentMethod = PaymentMethod.MOMO
-            binding.tvMethodPayment.text = bindingDialog.rdoMomo.text
+        bindingDialog.rdoOther.setOnClickListener {
+            paymentMethod = PaymentMethod.OTHER
+            binding.tvMethodPayment.text = bindingDialog.rdoOther.text
             dialog.dismiss()
         }
 
@@ -430,10 +565,11 @@ class PayOrderActivity : BaseActivity(), PayOrderContract.View {
 
     override fun onResume() {
         super.onResume()
-        if(address == null){
+        if (address == null) {
             presenter.getDefaultAddress()
         }
     }
+
     companion object {
         private const val REQUEST_SELECT_VOUCHER = 235
     }

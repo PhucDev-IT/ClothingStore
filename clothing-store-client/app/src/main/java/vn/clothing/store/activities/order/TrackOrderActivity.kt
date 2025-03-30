@@ -106,7 +106,7 @@ class TrackOrderActivity : BaseActivity() {
         }else if(order.paymentMethod == PaymentMethod.ZALOPAY.name){
             getString(R.string.label_zalo_pay_payment)
         }else{
-            getString(R.string.label_momo_payment)
+            getString(R.string.label_visa_payment)
         }
 
         try{

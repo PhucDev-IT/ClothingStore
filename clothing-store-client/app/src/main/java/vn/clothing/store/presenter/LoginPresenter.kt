@@ -38,7 +38,7 @@ class LoginPresenter(private var view: LoginContract.View?) : LoginContract.Pres
 
     companion object {
         private val TAG = LoginPresenter::class.java.name
-        private const val WEB_CLIENT_ID = "473358678062-l7ic9nrjhvfh1j6ecmfluaoqkurs4bqe.apps.googleusercontent.com"
+        private const val WEB_CLIENT_ID = "366201637212-vlur3mnu1fl8qjcitvrkgtqec6smrq8k.apps.googleusercontent.com"
     }
 
 

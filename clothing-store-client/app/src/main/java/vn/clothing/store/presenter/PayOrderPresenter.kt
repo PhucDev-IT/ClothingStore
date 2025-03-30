@@ -3,6 +3,8 @@ package vn.clothing.store.presenter
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import com.stripe.android.paymentsheet.PaymentSheet
+import com.stripe.android.paymentsheet.PaymentSheetResult
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -30,6 +32,8 @@ class PayOrderPresenter(private var view: PayOrderContract.View?) : PayOrderCont
     companion object{
         private val TAG = PayOrderPresenter::class.java.name
     }
+
+
 
     override fun getDefaultAddress() {
         view?.onShowLoading()

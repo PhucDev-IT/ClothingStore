@@ -33,6 +33,9 @@ class ApiService private constructor(){
         return RetrofitClient.buildService(GSON, BASE_URL,TOKEN).create(IRequestService::class.java)
     }
 
+    fun getService(baseUrl:String,token:String):IRequestService{
+        return RetrofitClient.buildService(GSON, baseUrl,token).create(IRequestService::class.java)
+    }
 
     fun setToken(token:String){
         this.TOKEN = token
